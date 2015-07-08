@@ -98,7 +98,14 @@ influx_connection <-  function(host=NULL,
 #' @author Dominik Leutnant (\email{leutnant@@fh-muenster.de})
 #' @seealso \code{\link[xts]{xts}}, \code{\link[influxdbr]{influx_connection}}
 #' @references \url{https://influxdb.com/docs/v0.9/guides/writing_data.html}
-influx_write <- function(con, db, xts, measurement=NULL, precision="s", max_points=15000, digits=5, performance=F) {
+influx_write <- function(con,
+                         db,
+                         xts,
+                         measurement=NULL,
+                         precision="s",
+                         max_points=15000,
+                         digits=5,
+                         performance=F) {
 
   #curl -i -XPOST 'http://localhost:8086/write?db=mydb'
   #-d 'cpu_load_short,host=server01,region=us-west value=0.64 cpu_load_short,

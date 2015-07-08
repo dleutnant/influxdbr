@@ -5,7 +5,7 @@
 \title{influx_query}
 \usage{
 influx_query(con, db, query = "SELECT * FROM measurement",
-  timestamp_format = "default", verbose = FALSE, debug = TRUE)
+  timestamp_format = "default", verbose = FALSE, debug = FALSE)
 }
 \arguments{
 \item{con}{An influx_connection object (s. \code{influx_connection}).}
