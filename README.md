@@ -14,12 +14,17 @@ Example use:
 ```
 ### create connection object
 # connection command
-> con <- influxdbr::influx_connection(host = "localhost", port = 8086, user = "root", pass = "root")
+> con <- influxdbr::influx_connection(host = "localhost",
+                                      port = 8086,
+                                      user = "root",
+                                      pass = "root")
 success: (204) No Content
 
 ### querying time series data
 # query command
-> result <- influxdbr::influx_query(con = con, db = "mydb", query = "SELECT * FROM temperature limit 10")
+> result <- influxdbr::influx_query(con = con,
+                                    db = "mydb",
+                                    query = "SELECT * FROM temperature limit 10")
 
 # print output
 > result
@@ -40,10 +45,14 @@ $temperature$values
 
 ### writing time series data
 # rename columns of xts object
-colnames(result$$temperature$values) <- "rawdata"
+colnames(result$temperature$values) <- "rawdata"
 
 # write xts object to influxdb
-influxdbr::influx_write(con = con, db = "mydb", xts = result$$temperature$values, measurement = "temperature_new", precision = "default")
+influxdbr::influx_write(con = con, 
+                        db = "mydb",
+                        xts = result$temperature$values, 
+                        measurement = "temperature_new",
+                        precision = "default")
 
 ### show all measurements in "mydb"
 # show measurements
