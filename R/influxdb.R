@@ -242,6 +242,8 @@ influx_query <- function(con,
       if (exists(x = "values", where = seriesObj)) {
 
         # extract values and columnnames
+        ### TODO: SHOW SERIES (returns an non-uniform df),
+        ###       SHOW TAG KEYS (need to be checked)
         values <- as.data.frame(Reduce(rbind, seriesObj$values),
                                 stringsAsFactors=FALSE)
 
@@ -372,7 +374,7 @@ influx_query <- function(con,
   # set R's NA values to a dummy string which can be removed easily
   # -> influxdb doesn't handle NA values
   # TODO: What if columnname contains "NA" ?
-  values[grepl("NA", values, )] <- "NA_to_remove"
+  values[grepl("NA", values)] <- "NA_to_remove"
 
   # paste and collapse rows
   values <- apply(values, 1, paste, collapse=",")
