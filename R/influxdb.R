@@ -186,7 +186,7 @@ influx_query <- function(con,
                          query="SELECT * FROM measurement",
                          timestamp_format = "default",
                          verbose=FALSE,
-                         debug=TRUE) {
+                         debug=FALSE) {
 
   #'http://localhost:8086/query' --data-urlencode "db=mydb"
   #'--data-urlencode "q=SELECT value FROM cpu_load_short WHERE region='us-west'"
