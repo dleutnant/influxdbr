@@ -374,7 +374,11 @@ influx_query <- function(con,
   # make sure all numerics contains "n" digits to ensure float64 type,
   # this also sets mode to "character",
   if (is.numeric(xts)) {
-    xts <-  format(round(xts, digits), nsmall=digits)
+    xts[,] <-  format(round(xts, digits), nsmall=digits)
+  } else {
+    # add quotes if matrix contains strings
+    options("useFancyQuotes" = FALSE)
+    xts[,] <- sapply(seq_len(ncol(xts)), function(x) base::dQuote(xts[,x]))
   }
 
   # trim leading and trailing whitespaces
