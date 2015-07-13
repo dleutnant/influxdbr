@@ -197,6 +197,7 @@ influx_query <- function(con,
 
   #'http://localhost:8086/query' --data-urlencode "db=mydb"
   #'--data-urlencode "q=SELECT value FROM cpu_load_short WHERE region='us-west'"
+  #'
 
   # handle different timestamp formats
   if (timestamp_format!="default") {
@@ -213,6 +214,10 @@ influx_query <- function(con,
                                                                   u = con$user,
                                                                   p = con$pass,
                                                                   q = query))
+
+
+  # DEBUG OUTPUT
+  if (debug) debug_influx_query_response_raw <<- response
 
   # print url
   if (verbose) print(response$url)
@@ -251,6 +256,7 @@ influx_query <- function(con,
         # extract values and columnnames
         ### TODO: SHOW SERIES (returns an non-uniform df),
         ###       SHOW TAG KEYS (need to be checked)
+
         values <- as.data.frame(Reduce(rbind, seriesObj$values),
                                 stringsAsFactors=FALSE)
 
@@ -366,8 +372,10 @@ influx_query <- function(con,
   time <- format(as.numeric(zoo::index(xts)), scientific = FALSE)
 
   # make sure all numerics contains "n" digits to ensure float64 type,
-  # this also sets mode to "character"
-  xts <- format(round(xts, digits), nsmall=digits)
+  # this also sets mode to "character",
+  if (is.numeric(xts)) {
+    xts <-  format(round(xts, digits), nsmall=digits)
+  }
 
   # trim leading and trailing whitespaces
   xts <- gsub("^\\s+|\\s+$", "", xts)
@@ -404,6 +412,8 @@ influx_query <- function(con,
   if (performance) message( paste("Converted",
                                   length(xts), "points in", Sys.time()-start,
                                   "seconds."))
+
+
 
   # invisibly return influxdb line protocol string
   invisible(influxdb_line_protocol)
