@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/dleutnant/influxdbr.svg?branch=master)](https://travis-ci.org/dleutnant/influxdbr)
 # influxdbr
 R interface to InfluxDB (>=0.9.0)
 
