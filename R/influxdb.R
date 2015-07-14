@@ -88,7 +88,7 @@ influx_connection <-  function(host=NULL,
 #' @param db The name of the database.
 #' @param xts The xts object to write to an influxdb server.
 #' @param measurement The name of the measurement.
-#' @param precision Specifies the timestamp format ("default", "s", "ms", "ns").
+#' @param precision Specifies the timestamp format ("default", "n", "u", "ms", "s", "m", "h").
 #' @param max_points Defines the maximum points per batch.
 #' @param digits How many digits are to be used.
 #' @param performance logical. Print performance measurements.
@@ -103,7 +103,7 @@ influx_write <- function(con,
                          xts,
                          measurement=NULL,
                          precision="s",
-                         max_points=15000,
+                         max_points=5000,
                          digits=5,
                          performance=F) {
 
@@ -128,9 +128,6 @@ influx_write <- function(con,
   for(i in seq_len(length(list_of_xts))) {
     xts::xtsAttributes(list_of_xts[[i]]) <- xts::xtsAttributes(xts)
   }
-
-  # create response vector
-  res <- as.vector(seq_len(length(list_of_xts)), mode = "list")
 
   res <- lapply(list_of_xts, function(x) {
 
@@ -179,7 +176,8 @@ influx_write <- function(con,
 #' @param con An influx_connection object (s. \code{influx_connection}).
 #' @param db The name of the database.
 #' @param query The influxdb query to be sent.
-#' @param timestamp_format Specifies the timestamp format ("default" (=UTC), "s", "ms", "ns")
+#' @param timestamp_format Specifies the timestamp format
+#' ("default" (=UTC), "n", "u", "ms", "s", "m", "h")
 #' @param verbose logical. Provide additional details?
 #' @param debug logical. For debugging purposes only.
 #' @return A list of xts objects
@@ -201,7 +199,7 @@ influx_query <- function(con,
 
   # handle different timestamp formats
   if (timestamp_format!="default") {
-    if (timestamp_format %in% c("s", "ms", "ns")) {
+    if (timestamp_format %in% c("n", "u", "ms", "s", "m", "h")) {
       q <- c(q, epoch = timestamp_format)
     } else {
       stop("Unknown timestamp format.")
@@ -294,7 +292,7 @@ influx_query <- function(con,
         }
 
         # select all but time vector to feed xts object
-        values <- dplyr::select(values , -time)
+        values <- values[, colnames(values) != "time"]
 
         # try to convert strings (type.convert needs characters!)
         values[] <- lapply(values, as.character)
@@ -340,7 +338,10 @@ influx_query <- function(con,
 }
 
 # method to convert an xts-object to influxdb specific line protocol
-.xts_to_influxdb_line_protocol <- function(xts, measurement, digits=5, performance=T){
+.xts_to_influxdb_line_protocol <- function(xts,
+                                           measurement,
+                                           digits=5,
+                                           performance=FALSE){
 
   if (performance) start <- Sys.time()
 
@@ -352,7 +353,7 @@ influx_query <- function(con,
   if (nrow(xts)==0) stop ("nrow(xts) is 0.")
 
   # remove rows with NA's only
-  xts <- xts[!matrixStats::rowAlls(xts, value = NA)]
+  xts <- xts[rowSums(is.na(xts))!=ncol(xts), ]
 
   # extract tag keys and tag values
   tag_keys <- names(xts::xtsAttributes(xts))

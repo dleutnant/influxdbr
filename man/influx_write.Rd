@@ -5,7 +5,7 @@
 \title{influx_write}
 \usage{
 influx_write(con, db, xts, measurement = NULL, precision = "s",
-  max_points = 15000, digits = 5, performance = F)
+  max_points = 5000, digits = 5, performance = F)
 }
 \arguments{
 \item{con}{An influx_connection object (s. \code{influx_connection}).}
@@ -16,7 +16,7 @@ influx_write(con, db, xts, measurement = NULL, precision = "s",
 
 \item{measurement}{The name of the measurement.}
 
-\item{precision}{Specifies the timestamp format ("default", "s", "ms", "ns").}
+\item{precision}{Specifies the timestamp format ("default", "n", "u", "ms", "s", "m", "h").}
 
 \item{max_points}{Defines the maximum points per batch.}
 

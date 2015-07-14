@@ -14,7 +14,8 @@ influx_query(con, db, query = "SELECT * FROM measurement",
 
 \item{query}{The influxdb query to be sent.}
 
-\item{timestamp_format}{Specifies the timestamp format ("default" (=UTC), "s", "ms", "ns")}
+\item{timestamp_format}{Specifies the timestamp format
+("default" (=UTC), "n", "u", "ms", "s", "m", "h")}
 
 \item{verbose}{logical. Provide additional details?}
 
