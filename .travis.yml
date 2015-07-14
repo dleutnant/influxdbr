@@ -1,4 +1,14 @@
-language: r
+# Sample .travis.yml for R projects
 
-# Be strict when checking our package
+language: r
 warnings_are_errors: true
+sudo: required
+
+env:
+ global:
+   - CRAN: http://cran.rstudio.com
+
+notifications:
+  email:
+    on_success: change
+    on_failure: change
