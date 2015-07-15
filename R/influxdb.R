@@ -187,7 +187,7 @@ influx_write <- function(con,
 #' @seealso \code{\link[xts]{xts}}, \code{\link[influxdbr]{influx_connection}}
 #' @references \url{https://influxdb.com/docs/v0.9/guides/querying_data.html}
 influx_query <- function(con,
-                         db,
+                         db=NULL,
                          query="SELECT * FROM measurement",
                          timestamp_format = "default",
                          verbose=FALSE,
@@ -213,10 +213,6 @@ influx_query <- function(con,
                                                                   p = con$pass,
                                                                   q = query))
 
-
-  # DEBUG OUTPUT
-  if (debug) debug_influx_query_response_raw <<- response
-
   # print url
   if (verbose) print(response$url)
 
@@ -228,110 +224,116 @@ influx_query <- function(con,
   }
 
   # parse response from json
-  response_data <- jsonlite::fromJSON(rawToChar(response$content))
+  response_data <- jsonlite::fromJSON(rawToChar(response$content),
+                                      simplifyVector = TRUE,
+                                      simplifyDataFrame = FALSE,
+                                      simplifyMatrix = FALSE)
 
   # DEBUG OUTPUT
-  if (debug) debug_influx_query_response_data <<-response_data
+  if (debug) debug_influx_query_response_data <<- response_data
 
   # Check for database or time series error
-  if (exists(x = "error", where = response_data$results)) {
-    warning("Influx query returned error: ", response_data$results$error)
+  if (exists(x = "error", where = response_data)) {
+    warning("Influx query returned error: ", response_data$error)
   }
 
-  # check if query returned series object(s)
-  if (exists(x = "series", where = response_data$results)) {
+  # Check if query returned results
+  if (exists(x = "results", where = response_data)) {
 
-    # create list of xts objects
-    list_of_xts <- lapply(response_data$results$series, function(seriesObj) {
+    # create list of results
+    list_of_results <- lapply(response_data$results, function(resultsObj) {
 
-      # extract names and tags
-      name <- seriesObj$name[1]
-      tags <- seriesObj$tags[1,]
+      # check if query returned series object(s)
+      if (exists(x = "series", where = resultsObj)) {
 
-      # check if response contains values
-      if (exists(x = "values", where = seriesObj)) {
+        # create list of xts objects
+        list_of_xts <- lapply(resultsObj$series, function(seriesObj) {
 
-        # extract values and columnnames
-        ### TODO: SHOW SERIES (returns an non-uniform df),
-        ###       SHOW TAG KEYS (need to be checked)
+          # check if response contains values
+          if (exists(x = "values", where = seriesObj)) {
 
-        values <- as.data.frame(Reduce(rbind, seriesObj$values),
-                                stringsAsFactors=FALSE)
+            # extract values and columnnames
+            values <- as.data.frame(unname(t(as.data.frame(seriesObj$values))),
+                                    stringsAsFactors=FALSE)
+
+          } else {
+
+            stop("Influx query returned series with no values.")
+
+          }
+
+          # check if response contains columns
+          if (exists(x = "columns", where = seriesObj)) {
+
+            colnames(values) <- seriesObj$columns
+
+          } else {
+
+            stop("Influx query returned series with no columns.")
+
+          }
+
+          # check if response contains times
+          if ("time" %in% colnames(values)) {
+
+            # extract time vector to feed xts object
+            if (timestamp_format!="default") {
+
+              # to do: dealing with "millisecs" and "nanosecs"
+              time <- as.POSIXct(values[,'time'], origin="1970-1-1")
+
+            } else {
+
+              time <- as.POSIXct(strptime(values[,'time'],
+                                          format = "%Y-%m-%dT%H:%M:%SZ"))
+
+            }
+
+            # select all but time vector to feed xts object
+            values <- values[, colnames(values) != 'time', drop=FALSE]
+
+            # try to convert strings (type.convert needs characters!)
+            values[] <- lapply(values, as.character)
+            values[] <- lapply(values, type.convert, as.is=TRUE)
+
+            # create xts object for each returned column
+            res <- lapply(values, function(x) xts::xts(x = x, order.by = time))
+
+            # assign colname and xtsAttributes
+            for(i in seq_len(length(res))) {
+              colnames(res[[i]]) <- colnames(values)[i]
+              xts::xtsAttributes(res[[i]]) <- seriesObj$tags
+            }
+
+            # assign measurement name
+            names(res) <- seriesObj$name
+
+          } else {
+
+            res <- values
+
+          }
+
+          return(res)
+
+        })
+
+        return(list_of_xts)
 
       } else {
 
-        stop("Influx query returned series with no values.")
+        message("Influx query returned no series.")
+
+        return(response_data)
 
       }
-
-      # check if response contains columns
-      if (exists(x = "columns", where = seriesObj)) {
-
-        colnames(values) <- seriesObj$columns[[1]]
-
-      } else {
-
-        stop("Influx query returned series with no columns.")
-
-      }
-
-      # check if response contains times
-      if ("time" %in% colnames(values)) {
-
-        # extract time vector to feed xts object
-        if (timestamp_format!="default") {
-
-          # to do: dealing with "millisecs" and "nanosecs"
-          time <- as.POSIXct(values$time, origin="1970-1-1")
-
-        } else {
-
-          time <- as.POSIXct(strptime(values$time,
-                                      format = "%Y-%m-%dT%H:%M:%SZ"))
-
-        }
-
-        # select all but time vector to feed xts object
-        values <- values[, colnames(values) != "time"]
-
-        # try to convert strings (type.convert needs characters!)
-        values[] <- lapply(values, as.character)
-        values[] <- lapply(values, type.convert, as.is=TRUE)
-
-        # create xts object for each returned column
-        # catch the case if only one column has been requested
-        if (is.null(nrow(values))) {
-          res <- xts::xts(x = values, order.by = time)
-          # assign xtsAttributes
-          xts::xtsAttributes(res[1]) <- tags
-        } else {
-          # otherwise create list of xts objects
-          res <- lapply(values, function(x) xts::xts(x = x, order.by = time))
-          # assign xtsAttributes
-          for(i in seq_len(length(res))) xts::xtsAttributes(res[[i]]) <- tags
-        }
-
-      } else {
-
-        res <- values
-
-      }
-
-      return(res)
 
     })
 
-    # set names to xts objects
-    list_of_names <- sapply(response_data$results$series, "[", 'name')
-    names(list_of_xts) <- sapply(list_of_names, head, n=1)
-
-    return(list_of_xts)
 
   } else {
 
-    message("Influx query returned no series.")
-
-    return(response_data)
+    warning("Influx query returned no results.")
 
   }
 

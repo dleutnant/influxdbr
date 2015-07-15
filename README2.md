@@ -5,9 +5,9 @@ Supports both querying and writing time series data
 
 Install using devtools:
 ```
-> if (!require(devtools))
+if (!require(devtools))
     install.packages('devtools')
-> devtools::install_github("dleutnant/influxdbr")
+devtools::install_github("dleutnant/influxdbr")
 ```
 Example use:
 
@@ -23,7 +23,7 @@ data("sample_matrix")
 xts_data <- xts::as.xts(x = sample_matrix)
 
 # assign attributes to xts object
-xts::xtsAttributes(xts_data) <- list(info="SampelDataMatrix",
+xts::xtsAttributes(xts_data) <- list(info="SampleDataMatrix",
                                      UnitTesting=TRUE, 
                                      n=180)
 
