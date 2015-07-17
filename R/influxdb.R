@@ -44,10 +44,18 @@ influx_connection <-  function(host=NULL,
       if (identical(grp, integer(0))) stop ("Group does not exist in config file.")
 
       # get db credentials
-      host <- gsub("host=", "", grep("host=", lines[(grp+1):(grp+4)], fixed=T, value = T))
-      port <- as.numeric(gsub("port=", "", grep("port=", lines[(grp+1):(grp+4)], fixed=T, value = T)))
-      user <- gsub("user=", "", grep("user=", lines[(grp+1):(grp+4)], fixed=T, value = T))
-      pass <- gsub("pass=", "", grep("pass=", lines[(grp+1):(grp+4)], fixed=T, value = T))
+      host <- gsub("host=", "",
+                   grep("host=",
+                        lines[(grp+1):(grp+4)], fixed=T, value = T))
+      port <- as.numeric(gsub("port=", "",
+                              grep("port=",
+                                   lines[(grp+1):(grp+4)], fixed=T, value = T)))
+      user <- gsub("user=", "",
+                   grep("user=",
+                        lines[(grp+1):(grp+4)], fixed=T, value = T))
+      pass <- gsub("pass=", "",
+                   grep("pass=",
+                        lines[(grp+1):(grp+4)], fixed=T, value = T))
 
       # close file connection
       close(con)
@@ -64,7 +72,10 @@ influx_connection <-  function(host=NULL,
   influxdb_srv <- list(host=host, port=port, user=user, pass=pass)
 
   # submit test ping
-  response <- httr::GET(url="", scheme="http", hostname=influxdb_srv$host, port=influxdb_srv$port, path="ping", httr::timeout(5))
+  response <- httr::GET(url="", scheme="http",
+                        hostname=influxdb_srv$host,
+                        port=influxdb_srv$port,
+                        path="ping", httr::timeout(5))
 
   # print url
   if (verbose) print(response$url)
@@ -88,7 +99,8 @@ influx_connection <-  function(host=NULL,
 #' @param db The name of the database.
 #' @param xts The xts object to write to an influxdb server.
 #' @param measurement The name of the measurement.
-#' @param precision Specifies the timestamp format ("default", "n", "u", "ms", "s", "m", "h").
+#' @param precision Specifies the timestamp format
+#' ("default", "n", "u", "ms", "s", "m", "h").
 #' @param max_points Defines the maximum points per batch.
 #' @param digits How many digits are to be used.
 #' @param performance logical. Print performance measurements.
@@ -243,97 +255,112 @@ influx_query <- function(con,
     # create list of results
     list_of_results <- lapply(response_data$results, function(resultsObj) {
 
-      # check if query returned series object(s)
-      if (exists(x = "series", where = resultsObj)) {
+      # check if query returned series object(s) with errors
+      if (exists(x = "error", where = resultsObj)) {
 
-        # create list of xts objects
-        list_of_xts <- lapply(resultsObj$series, function(seriesObj) {
+        warning("Influx query returned series object(s) with error:",
+                resultsObj$error)
 
-          # check if response contains values
-          if (exists(x = "values", where = seriesObj)) {
-
-            # extract values and columnnames
-            values <- as.data.frame(unname(t(as.data.frame(seriesObj$values))),
-                                    stringsAsFactors=FALSE)
-
-          } else {
-
-            stop("Influx query returned series with no values.")
-
-          }
-
-          # check if response contains columns
-          if (exists(x = "columns", where = seriesObj)) {
-
-            colnames(values) <- seriesObj$columns
-
-          } else {
-
-            stop("Influx query returned series with no columns.")
-
-          }
-
-          # check if response contains times
-          if ("time" %in% colnames(values)) {
-
-            # extract time vector to feed xts object
-            if (timestamp_format!="default") {
-
-              # to do: dealing with "millisecs" and "nanosecs"
-              time <- as.POSIXct(values[,'time'], origin="1970-1-1")
-
-            } else {
-
-              time <- as.POSIXct(strptime(values[,'time'],
-                                          format = "%Y-%m-%dT%H:%M:%SZ"))
-
-            }
-
-            # select all but time vector to feed xts object
-            values <- values[, colnames(values) != 'time', drop=FALSE]
-
-            # try to convert strings (type.convert needs characters!)
-            values[] <- lapply(values, as.character)
-            values[] <- lapply(values, type.convert, as.is=TRUE)
-
-            # create xts object for each returned column
-            res <- lapply(values, function(x) xts::xts(x = x, order.by = time))
-
-            # assign colname and xtsAttributes
-            for(i in seq_len(length(res))) {
-              colnames(res[[i]]) <- colnames(values)[i]
-              xts::xtsAttributes(res[[i]]) <- seriesObj$tags
-            }
-
-            # assign measurement name
-            names(res) <- seriesObj$name
-
-          } else {
-
-            res <- values
-
-          }
-
-          return(res)
-
-        })
-
-        return(list_of_xts)
+        return(response_data$error)
 
       } else {
 
-        message("Influx query returned no series.")
+        # check if query returned series object(s)
+        if (exists(x = "series", where = resultsObj)) {
 
-        return(response_data)
+          # create list of xts objects
+          list_of_xts <- lapply(resultsObj$series, function(seriesObj) {
+
+            # check if response contains values
+            if (exists(x = "values", where = seriesObj)) {
+
+              # extract values and columnnames
+              values <- as.data.frame(unname(t(as.data.frame(seriesObj$values))),
+                                      stringsAsFactors=FALSE)
+
+            } else {
+
+              stop("Influx query returned series with no values.")
+
+            }
+
+            # check if response contains columns
+            if (exists(x = "columns", where = seriesObj)) {
+
+              colnames(values) <- seriesObj$columns
+
+            } else {
+
+              stop("Influx query returned series with no columns.")
+
+            }
+
+            # check if response contains times
+            if ("time" %in% colnames(values)) {
+
+              # extract time vector to feed xts object
+              if (timestamp_format!="default") {
+
+                # to do: dealing with "millisecs" and "nanosecs"
+                time <- as.POSIXct(values[,'time'], origin="1970-1-1")
+
+              } else {
+
+                time <- as.POSIXct(strptime(values[,'time'],
+                                            format = "%Y-%m-%dT%H:%M:%SZ"))
+
+              }
+
+              # select all but time vector to feed xts object
+              values <- values[, colnames(values) != 'time', drop=FALSE]
+
+              # try to convert strings (type.convert needs characters!)
+              values[] <- lapply(values, as.character)
+              values[] <- lapply(values, type.convert, as.is=TRUE)
+
+              # create xts object for each returned column
+              res <- lapply(values, function(x) xts::xts(x = x, order.by = time))
+
+              # assign colname and xtsAttributes
+              for(i in seq_len(length(res))) {
+                colnames(res[[i]]) <- colnames(values)[i]
+                xts::xtsAttributes(res[[i]]) <- seriesObj$tags
+              }
+
+              # assign measurement name
+              names(res) <- rep(seriesObj$name, length(res))
+
+            } else {
+
+              res <- values
+
+            }
+
+            return(res)
+
+          })
+
+          return(list_of_xts)
+
+        } else {
+
+          message("Influx query returned no series.")
+
+          return(response_data)
+
+        }
 
       }
 
     })
 
+    return(list_of_results)
 
   } else {
 
-    warning("Influx query returned no results.")
+    message("Influx query returned no results.")
+
+    return(response_data)
 
   }
 
