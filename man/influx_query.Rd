@@ -4,22 +4,26 @@
 \alias{influx_query}
 \title{influx_query}
 \usage{
-influx_query(con, db, query = "SELECT * FROM measurement",
-  timestamp_format = "default", verbose = FALSE, debug = FALSE)
+influx_query(con, db = NULL, query = "SELECT * FROM measurement",
+  timestamp_format = "default", return_xts = TRUE, verbose = FALSE,
+  debug = FALSE)
 }
 \arguments{
 \item{con}{An influx_connection object (s. \code{influx_connection}).}
 
-\item{db}{The name of the database.}
+\item{db}{Sets the name of the database.}
 
 \item{query}{The influxdb query to be sent.}
 
-\item{timestamp_format}{Specifies the timestamp format
-("default" (=UTC), "n", "u", "ms", "s", "m", "h")}
+\item{timestamp_format}{Sets the timestamp format
+("default" (=UTC), "n", "u", "ms", "s", "m", "h").}
 
 \item{verbose}{logical. Provide additional details?}
 
 \item{debug}{logical. For debugging purposes only.}
+
+\item{return_type}{logical. Sets the return type. If set to TRUE, xts objects
+are returned, FALSE gives data.frames.}
 }
 \value{
 A list of xts objects
