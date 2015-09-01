@@ -3,7 +3,7 @@ Type: Package
 Title: R library to influxdb
 Version: 0.0.8
 Date: 2015-09-01
-Authors@R: person(c("Dominik", "Leutnant", email = "leutnant@fh-muenster.de", role = c("aut", "cre"))
+Authors@R: person("Dominik", "Leutnant", email = "leutnant@fh-muenster.de", role = c("aut", "cre"))
 Description: This package provides R functions for the influxdb api (>=0.9.3)
 License: GPL-3
 ByteCompile: TRUE
