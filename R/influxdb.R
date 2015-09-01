@@ -12,12 +12,13 @@
 #' @export
 #' @author Dominik Leutnant (\email{leutnant@@fh-muenster.de})
 #' @references \url{https://influxdb.com/}
-influx_connection <-  function(host=NULL,
-                               port=NULL,
-                               user="user",
-                               pass="pass",
-                               group=NULL,
-                               verbose=FALSE, config_file="~/.influxdb.cnf") {
+influx_connection <-  function(host = NULL,
+                               port = NULL,
+                               user = "user",
+                               pass = "pass",
+                               group = NULL,
+                               verbose = FALSE,
+                               config_file = "~/.influxdb.cnf") {
 
   #' group file looks like:
   #' [groupname]
@@ -32,7 +33,7 @@ influx_connection <-  function(host=NULL,
     if (file.exists(config_file)) {
 
       # open file
-      con <- file(config_file, open="r")
+      con <- file(config_file, open = "r")
 
       # read file
       lines <- readLines(con)
@@ -41,41 +42,42 @@ influx_connection <-  function(host=NULL,
       grp <- grep(paste0("[",group,"]"), x = lines, fixed = T)
 
       # catch the case if group name is not found
-      if (identical(grp, integer(0))) stop ("Group does not exist in config file.")
+      if (identical(grp, integer(0))) stop("Group does not exist in config file.")
 
       # get db credentials
       host <- gsub("host=", "",
                    grep("host=",
-                        lines[(grp+1):(grp+4)], fixed=T, value = T))
+                        lines[(grp + 1):(grp + 4)], fixed = T, value = T))
       port <- as.numeric(gsub("port=", "",
                               grep("port=",
-                                   lines[(grp+1):(grp+4)], fixed=T, value = T)))
+                                   lines[(grp + 1):(grp + 4)], fixed = T,
+                                   value = T)))
       user <- gsub("user=", "",
                    grep("user=",
-                        lines[(grp+1):(grp+4)], fixed=T, value = T))
+                        lines[(grp + 1):(grp + 4)], fixed = T, value = T))
       pass <- gsub("pass=", "",
                    grep("pass=",
-                        lines[(grp+1):(grp+4)], fixed=T, value = T))
+                        lines[(grp + 1):(grp + 4)], fixed = T, value = T))
 
       # close file connection
       close(con)
 
     } else{
 
-      stop ("Config file does not exist.")
+      stop("Config file does not exist.")
 
     }
 
   }
 
   # create list of server connection details
-  influxdb_srv <- list(host=host, port=port, user=user, pass=pass)
+  influxdb_srv <- list(host = host, port = port, user = user, pass = pass)
 
   # submit test ping
-  response <- httr::GET(url="", scheme="http",
-                        hostname=influxdb_srv$host,
-                        port=influxdb_srv$port,
-                        path="ping", httr::timeout(5))
+  response <- httr::GET(url = "", scheme = "http",
+                        hostname = influxdb_srv$host,
+                        port = influxdb_srv$port,
+                        path = "ping", httr::timeout(5))
 
   # print url
   if (verbose) print(response$url)
@@ -96,13 +98,20 @@ influx_connection <-  function(host=NULL,
 #'
 #' @title influx_write
 #' @param con An influx_connection object (s. \code{influx_connection}).
-#' @param db The name of the database.
+#' @param db Sets the target database for the write.
 #' @param xts The xts object to write to an influxdb server.
-#' @param measurement The name of the measurement.
-#' @param precision Specifies the timestamp format
-#' ("default", "n", "u", "ms", "s", "m", "h").
+#' @param measurement Sets the name of the measurement.
+#' @param rp Sets the target retention policy for the write. If not present the
+#' default retention policy is used.
+#' @param precision Sets the precision of the supplied Unix time values
+#' ("n", "u", "ms", "s", "m", "h"). If not present timestamps are assumed to be
+#' in nanoseconds. Currently only "s" is supported.
+#' @param consistency Set the number of nodes that must confirm the write.
+#' If the requirement is not met the return value will be partial write
+#' if some points in the batch fail, or write failure if all points in the batch
+#' fail.
 #' @param max_points Defines the maximum points per batch.
-#' @param digits How many digits are to be used.
+#' @param use_integers Should integers (instead of doubles) be written if present?
 #' @param performance logical. Print performance measurements.
 #' @return A list of server responses.
 #' @rdname influx_write
@@ -113,53 +122,85 @@ influx_connection <-  function(host=NULL,
 influx_write <- function(con,
                          db,
                          xts,
-                         measurement=NULL,
-                         precision="s",
-                         max_points=5000,
-                         digits=5,
-                         performance=F) {
-
-  #curl -i -XPOST 'http://localhost:8086/write?db=mydb'
-  #-d 'cpu_load_short,host=server01,region=us-west value=0.64 cpu_load_short,
-  #host=server02,region=us-west value=0.55 1422568543702900257 cpu_load_short,
-  #direction=in,host=server01,region=us-west value=23422.0 1422568543702900257'
+                         measurement = NULL,
+                         rp = NULL,
+                         precision = "s",
+                         consistency = NULL,
+                         max_points = 5000,
+                         use_integers = FALSE,
+                         performance = F) {
 
   # create query based on function parameters
-  ## TODO: handle different precision
-  q <- list(db = db, u = con$user, p = con$pass, precision = "s")
+  q <- list(db = db, u = con$user, p = con$pass)
+
+  # add precision parameter
+  if (!is.null(precision)) {
+
+    if (precision %in% c("n", "u", "ms", "s", "m", "h")) {
+
+      q <- c(q, precision = precision)
+
+    } else {
+
+        stop("bad parameter 'precision'. Must be one of 'n', 'u', 'ms', 's',
+             'm', or 'h'")
+    }
+
+  }
+
+  # add retention policy
+  if (!is.null(rp)) q <- c(q, rp = rp)
+
+  # add consistency parameter
+  if (!is.null(consistency)) {
+
+    if (consistency %in% c("one", "quroum", "all", "any")) {
+      q <- c(q, consistency = consistency)
+    } else {
+      stop("bad parameter 'consistency'. Must be one of 'one', 'quroum', 'all',
+            or 'any'")
+    }
+
+  }
+
+  # get no of points for performance analysis
+  no_of_points <- nrow(xts)
 
   # split xts object into a list of xts objects to reduce batch size
   list_of_xts <- suppressWarnings( split( xts,
                                           rep(1:ceiling((nrow(xts)/max_points)),
-                                              each=max_points)))
+                                              each = max_points)))
 
   # reclass xts objects (became "zoo" in previous split command)
   list_of_xts <- lapply(list_of_xts, xts::as.xts)
 
   # reassign attributes to elements of list_of_xts
   # (got lost in previous split command)
-  for(i in seq_len(length(list_of_xts))) {
+  for (i in seq_len(length(list_of_xts))) {
     xts::xtsAttributes(list_of_xts[[i]]) <- xts::xtsAttributes(xts)
   }
+
+  if (performance) start <- Sys.time()
 
   res <- lapply(list_of_xts, function(x) {
 
     # convert xts to line protocol
     influxdb_line_protocol <- .xts_to_influxdb_line_protocol(xts = x,
-                                                             digits = digits,
+                                                             use_integers = use_integers,
                                                              measurement = measurement,
                                                              performance = performance)
 
 
-    if (performance) start <- Sys.time()
+
 
     # submit post
-    response <- httr::POST(url="", httr::timeout(60),
-                           scheme="http",
-                           hostname=con$host,
-                           port=con$port,
-                           path="write",
-                           query=q, body = influxdb_line_protocol)
+    response <- httr::POST(url = "", httr::timeout(60),
+                           scheme = "http",
+                           hostname = con$host,
+                           port = con$port,
+                           path = "write",
+                           query = q,
+                           body = influxdb_line_protocol)
 
 
     # Check for communication errors
@@ -169,14 +210,13 @@ influx_write <- function(con,
       stop("Influx write failed with HTTP status code ", response$status_code)
     }
 
-    if (performance) message( paste("Wrote",
-                                    length(x), "points in", Sys.time()-start,
-                                    "seconds."))
-
     # assign server response to list "res"
     rawToChar(response$content)
 
   })
+
+  if (performance) message(paste("Wrote", no_of_points, "points in",
+                                 Sys.time() - start, "seconds."))
 
   invisible(res)
 
@@ -187,10 +227,10 @@ influx_write <- function(con,
 #'
 #' @title influx_query
 #' @param con An influx_connection object (s. \code{influx_connection}).
-#' @param db The name of the database.
+#' @param db Sets the name of the database.
 #' @param query The influxdb query to be sent.
-#' @param timestamp_format Specifies the timestamp format
-#' ("default" (=UTC), "n", "u", "ms", "s", "m", "h")
+#' @param timestamp_format Sets the timestamp format
+#' ("default" (=UTC), "n", "u", "ms", "s", "m", "h").
 #' @param return_type logical. Sets the return type. If set to TRUE, xts objects
 #' are returned, FALSE gives data.frames.
 #' @param verbose logical. Provide additional details?
@@ -202,19 +242,17 @@ influx_write <- function(con,
 #' @seealso \code{\link[xts]{xts}}, \code{\link[influxdbr]{influx_connection}}
 #' @references \url{https://influxdb.com/docs/v0.9/guides/querying_data.html}
 influx_query <- function(con,
-                         db=NULL,
-                         query="SELECT * FROM measurement",
+                         db = NULL,
+                         query = "SELECT * FROM measurement",
                          timestamp_format = "default",
-                         return_xts=TRUE,
-                         verbose=FALSE,
-                         debug=FALSE) {
+                         return_xts = TRUE,
+                         verbose = FALSE,
+                         debug = FALSE) {
 
-  #'http://localhost:8086/query' --data-urlencode "db=mydb"
-  #'--data-urlencode "q=SELECT value FROM cpu_load_short WHERE region='us-west'"
-  #'
+  performance <- FALSE
 
   # handle different timestamp formats
-  if (timestamp_format!="default") {
+  if (timestamp_format != "default") {
     if (timestamp_format %in% c("n", "u", "ms", "s", "m", "h")) {
       q <- c(q, epoch = timestamp_format)
     } else {
@@ -222,15 +260,27 @@ influx_query <- function(con,
     }
   }
 
+  if (performance) print(paste(Sys.time(), "before query"))
+
   # submit query
-  response <- httr::GET(url="", scheme="http", hostname=con$host,
-                        port=con$port, path="query", query = list(db = db,
-                                                                  u = con$user,
-                                                                  p = con$pass,
-                                                                  q = query))
+  response <- httr::GET(url = "",
+                        scheme = "http",
+                        hostname = con$host,
+                        port = con$port,
+                        path = "query",
+                        query = list(db = db,
+                                     u = con$user,
+                                     p = con$pass,
+                                     q = query))
+
+  if (performance) print(paste(Sys.time(), "after query"))
 
   # print url
   if (verbose) print(response$url)
+
+
+  # DEBUG OUTPUT
+  if (debug) debug_influx_query_response_data <<- response
 
   # Check for communication errors
   if (response$status_code < 200 || response$status_code >= 300) {
@@ -239,14 +289,15 @@ influx_query <- function(con,
     stop("Influx query failed with HTTP status code ", response$status_code)
   }
 
+  if (performance) print(paste(Sys.time(), "before json"))
+
   # parse response from json
   response_data <- jsonlite::fromJSON(rawToChar(response$content),
                                       simplifyVector = TRUE,
                                       simplifyDataFrame = FALSE,
                                       simplifyMatrix = FALSE)
 
-  # DEBUG OUTPUT
-  if (debug) debug_influx_query_response_data <<- response_data
+  if (performance) print(paste(Sys.time(), "after json"))
 
   # Check for database or time series error
   if (exists(x = "error", where = response_data)) {
@@ -272,20 +323,31 @@ influx_query <- function(con,
         # check if query returned series object(s)
         if (exists(x = "series", where = resultsObj)) {
 
+          if (performance) print(paste(Sys.time(), "before list_of_series"))
+
           # create list of series
           list_of_series <- lapply(resultsObj$series, function(seriesObj) {
 
             # check if response contains values
             if (exists(x = "values", where = seriesObj)) {
 
+              ### TODO: What if response contains chunked time series?
+
+              if (performance) print(paste(Sys.time(), "before extraction"))
+
               # extract values and columnnames
-              values <- as.data.frame(unname(t(as.data.frame(seriesObj$values))),
-                                      stringsAsFactors=FALSE)
+              # old command (before 0.9.3)
+              # values <- as.data.frame(unname(t(as.data.frame(seriesObj$values))),
+              #                        stringsAsFactors = FALSE)
+              # new command (from 0.9.3 on)
+              values <- as.data.frame(t(sapply(seriesObj$values, rbind)))
+
+              if (performance) print(paste(Sys.time(), "after extraction"))
 
               # convert columns to most appropriate type
               # (type.convert needs characters!)
               values[] <- lapply(values, as.character)
-              values[] <- lapply(values, type.convert, as.is=TRUE)
+              values[] <- lapply(values, type.convert, as.is = TRUE)
 
               # check if response contains columns
               if (exists(x = "columns", where = seriesObj)) {
@@ -298,10 +360,10 @@ influx_query <- function(con,
                 if ("time" %in% colnames(values)) {
 
                   # extract time vector to feed xts object
-                  if (timestamp_format!="default") {
+                  if (timestamp_format != "default") {
 
                     # to do: dealing with "millisecs" and "nanosecs"
-                    time <- as.POSIXct(values[,'time'], origin="1970-1-1")
+                    time <- as.POSIXct(values[,'time'], origin = "1970-1-1")
 
                   } else {
 
@@ -311,18 +373,18 @@ influx_query <- function(con,
                   }
 
                   # select all but time vector to feed xts object
-                  values <- values[, colnames(values) != 'time', drop=FALSE]
+                  values <- values[, colnames(values) != 'time', drop = FALSE]
 
                   # should xts objects or data.frames be returned?
-                  if (return_xts==TRUE) {
+                  if (return_xts == TRUE) {
 
                     # create xts object for each returned column
                     # xts objects are based on matrix --> always on type only!
                     values <- lapply(values, function(x) xts::xts(x = x, order.by = time))
 
                     # assign colname and xtsAttributes
-                    for(i in seq_len(length(values))) {
-                      colnames(values[[i]]) <- seriesObj$columns[i+1] # +1 to skip "time"
+                    for (i in seq_len(length(values))) {
+                      colnames(values[[i]]) <- seriesObj$columns[i + 1] # +1 to skip "time"
                       xts::xtsAttributes(values[[i]]) <- seriesObj$tags
                     }
 
@@ -369,9 +431,11 @@ influx_query <- function(con,
           })
 
           # concatenate list_of_series to produce a more intuitive list
-          if (class(list_of_series[[1]])!="data.frame") {
+          if (class(list_of_series[[1]]) != "data.frame") {
             list_of_series <- do.call(c,list_of_series)
           }
+
+          if (performance) print(paste(Sys.time(), "after list_of_series"))
 
           return(list_of_series)
 
@@ -402,20 +466,20 @@ influx_query <- function(con,
 # method to convert an xts-object to influxdb specific line protocol
 .xts_to_influxdb_line_protocol <- function(xts,
                                            measurement,
-                                           digits=5,
-                                           performance=FALSE){
+                                           use_integers = FALSE,
+                                           performance = FALSE){
 
   if (performance) start <- Sys.time()
 
   # catch error no XTS object
-  if (!xts::is.xts(xts)) stop ("Object is not an xts-object.")
+  if (!xts::is.xts(xts)) stop("Object is not an xts-object.")
   # catch error NULL colnames
-  if (any(is.null(colnames(xts)))) stop ("colnames(xts) is NULL.")
+  if (any(is.null(colnames(xts)))) stop("colnames(xts) is NULL.")
   # catch error nrow
-  if (nrow(xts)==0) stop ("nrow(xts) is 0.")
+  if (nrow(xts) == 0) stop("nrow(xts) is 0.")
 
   # remove rows with NA's only
-  xts <- xts[rowSums(is.na(xts))!=ncol(xts), ]
+  xts <- xts[rowSums(is.na(xts)) != ncol(xts), ]
 
   # extract tag keys and tag values
   tag_keys <- names(xts::xtsAttributes(xts))
@@ -429,58 +493,67 @@ influx_query <- function(con,
                    replacement = "NA", x = tag_values)
 
   # merge tag keys and values
-  tag_key_value <- paste(tag_keys, tag_values, sep="=", collapse = ",")
+  tag_key_value <- paste(tag_keys, tag_values, sep = "=", collapse = ",")
 
   # create time vector
   time <- format(as.numeric(zoo::index(xts)), scientific = FALSE)
 
-  # make sure all numerics contains "n" digits to ensure float64 type,
-  # this also sets mode to "character",
-  if (is.numeric(xts)) {
-    xts[,] <-  format(round(xts, digits), nsmall=digits)
-  } else {
-    # add quotes if matrix contains strings
-    options("useFancyQuotes" = FALSE)
-    xts[,] <- sapply(seq_len(ncol(xts)), function(x) base::dQuote(xts[,x]))
-  }
+  # make sure all integers end with "i", this also sets mode to "character"
+  # s. https://github.com/influxdb/influxdb/issues/3519
+  if ((use_integers == TRUE) & (is.integer(xts))) {
 
-  # trim leading and trailing whitespaces
-  xts <- gsub("^\\s+|\\s+$", "", xts)
+    xts[,] <- sapply(seq_len(ncol(xts)), function(x) paste(xts[,x],
+                                                           "i",
+                                                           sep = ""))
+  } else {
+    if (!is.numeric(xts)) {
+      # add quotes if matrix contains no numerics i.e. -> characters
+      options("useFancyQuotes" = FALSE)
+      xts[,] <- sapply(seq_len(ncol(xts)), function(x) base::dQuote(xts[,x]))
+      # trim leading and trailing whitespaces
+      xts <- gsub("^\\s+|\\s+$", "", xts)
+    }
+  }
 
   # assign columnname to each element
   values <- sapply(seq_len(ncol(xts)),
                    function(x) paste(colnames(xts)[x],
                                      zoo::coredata(xts)[,x],
-                                     sep="="))
+                                     sep = "="))
 
   # set R's NA values to a dummy string which can be removed easily
   # -> influxdb doesn't handle NA values
   # TODO: What if columnname contains "NA" ?
   values[grepl("NA", values)] <- "NA_to_remove"
 
+  # If values have only one row, 'apply' will result in a dim error.
+  # This occurs if the previous 'sapply' result a character vector.
+  # Thus, check if a conversion is required:
+  if (is.null(dim(values))) {
+    dim(values) <- length(values)
+  }
+
   # paste and collapse rows
-  values <- apply(values, 1, paste, collapse=",")
+  values <- apply(values, 1, paste, collapse = ",")
 
   # remove dummy strings
   values <- gsub(",NA_to_remove|NA_to_remove,", "", values)
 
   # no tags assigned
-  if (is.null(tag_values) | identical(character(0), tag_values)){
+  if (is.null(tag_values) | identical(character(0), tag_values)) {
     influxdb_line_protocol <- paste(measurement,
                                     values,
                                     time,
                                     collapse = "\n")
   } else {
     influxdb_line_protocol <- paste(measurement,
-                                    paste(",", tag_key_value, sep=""), " ",
-                                    values, " ", time, sep="",collapse = "\n")
+                                    paste(",", tag_key_value, sep = ""), " ",
+                                    values, " ", time, sep = "",collapse = "\n")
   }
 
   if (performance) message( paste("Converted",
-                                  length(xts), "points in", Sys.time()-start,
+                                  length(xts), "points in", Sys.time() - start,
                                   "seconds."))
-
-
 
   # invisibly return influxdb line protocol string
   invisible(influxdb_line_protocol)

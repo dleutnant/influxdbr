@@ -1,13 +1,14 @@
 Package: influxdbr
 Type: Package
-Title: influxdbr -  R interface to influxdb
-Version: 0.0.6
-Date: 2015-07-20
+Title: R library to influxdb
+Version: 0.0.8
+Date: 2015-09-01
 Author: Dominik Leutnant <leutnant@fh-muenster.de>
 Maintainer: Dominik Leutnant <leutnant@fh-muenster.de>
-Description: This package provides R functions for the influxdb http api (>=0.9.0)
+Description: This package provides R functions for the influxdb api (>=0.9.3)
 License: GPL-3
-URL: http://github.com/dleutnant/influxdbr
+ByteCompile: TRUE
+URL: https://github.com/dleutnant/influxdbr/tree/0.9.3
 BugReports: http://github.com/dleutnant/influxdbr/issues
 Imports:
     jsonlite,
