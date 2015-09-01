@@ -17,3 +17,5 @@ Imports:
     zoo
 Collate:
     'influxdb.R'
+    'influxdb_explore_schema.R'
+    'influxdb_explore_data.R'

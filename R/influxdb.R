@@ -231,11 +231,13 @@ influx_write <- function(con,
 #' @param query The influxdb query to be sent.
 #' @param timestamp_format Sets the timestamp format
 #' ("default" (=UTC), "n", "u", "ms", "s", "m", "h").
-#' @param return_type logical. Sets the return type. If set to TRUE, xts objects
+#' @param return_xts logical. Sets the return type. If set to TRUE, xts objects
 #' are returned, FALSE gives data.frames.
+#' @param chunk_size Sets the chunk size when querying large amounts of data
+#' By default the chunk size is 10.000.
 #' @param verbose logical. Provide additional details?
 #' @param debug logical. For debugging purposes only.
-#' @return A list of xts objects
+#' @return A list of xts or data.frame objects.
 #' @rdname influx_query
 #' @export
 #' @author Dominik Leutnant (\email{leutnant@@fh-muenster.de})
@@ -246,10 +248,14 @@ influx_query <- function(con,
                          query = "SELECT * FROM measurement",
                          timestamp_format = "default",
                          return_xts = TRUE,
+                         chunk_size = NULL,
                          verbose = FALSE,
                          debug = FALSE) {
 
   performance <- FALSE
+
+  # create query based on function parameters
+  q <- list(db = db, u = con$user, p = con$pass)
 
   # handle different timestamp formats
   if (timestamp_format != "default") {
@@ -260,6 +266,18 @@ influx_query <- function(con,
     }
   }
 
+  # add chunk_size parameter
+  if (!is.null(chunk_size)) {
+    if (is.integer(chunk_size)) {
+      q <- c(q, chunk_size = chunk_size)
+    } else {
+      stop("bad parameter 'chunk_size'. Must be of type integer.")
+    }
+  }
+
+  # add query
+  q <- c(q, q = query)
+
   if (performance) print(paste(Sys.time(), "before query"))
 
   # submit query
@@ -268,10 +286,7 @@ influx_query <- function(con,
                         hostname = con$host,
                         port = con$port,
                         path = "query",
-                        query = list(db = db,
-                                     u = con$user,
-                                     p = con$pass,
-                                     q = query))
+                        query = q)
 
   if (performance) print(paste(Sys.time(), "after query"))
 
