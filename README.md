@@ -1,4 +1,4 @@
-WARNING: Update of R library is under porgress. Use at your own risk!
+WARNING: Update of R library is under progress. Use at your own risk!
 
 # influxdbr
 R interface to InfluxDB (>=0.9.3)
