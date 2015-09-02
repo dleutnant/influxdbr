@@ -8,4 +8,5 @@ Install using devtools:
 > if (!require(devtools))
     install.packages('devtools')
 > devtools::install_github("dleutnant/influxdbr", ref = "0.9.3")
+
 ```

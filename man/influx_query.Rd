@@ -5,8 +5,8 @@
 \title{influx_query}
 \usage{
 influx_query(con, db = NULL, query = "SELECT * FROM measurement",
-  timestamp_format = "default", return_xts = TRUE, verbose = FALSE,
-  debug = FALSE)
+  timestamp_format = "default", return_xts = TRUE, chunk_size = NULL,
+  verbose = FALSE)
 }
 \arguments{
 \item{con}{An influx_connection object (s. \code{influx_connection}).}
@@ -18,15 +18,16 @@ influx_query(con, db = NULL, query = "SELECT * FROM measurement",
 \item{timestamp_format}{Sets the timestamp format
 ("default" (=UTC), "n", "u", "ms", "s", "m", "h").}
 
-\item{verbose}{logical. Provide additional details?}
-
-\item{debug}{logical. For debugging purposes only.}
-
-\item{return_type}{logical. Sets the return type. If set to TRUE, xts objects
+\item{return_xts}{logical. Sets the return type. If set to TRUE, xts objects
 are returned, FALSE gives data.frames.}
+
+\item{chunk_size}{Sets the chunk size when querying large amounts of data
+By default the chunk size is 10.000.}
+
+\item{verbose}{logical. Provide additional details?}
 }
 \value{
-A list of xts objects
+A list of xts or data.frame objects.
 }
 \description{
 Query an influxdb server

@@ -1,10 +1,10 @@
 Package: influxdbr
 Type: Package
 Title: R library to influxdb
-Version: 0.0.8
-Date: 2015-09-01
+Version: 0.0.9
+Date: 2015-09-02
 Authors@R: person("Dominik", "Leutnant", email = "leutnant@fh-muenster.de", role = c("aut", "cre"))
-Description: This package provides R functions for the influxdb api (>=0.9.3)
+Description: This package provides R functions for the influxdb api (>=0.9.3).
 License: GPL-3
 ByteCompile: TRUE
 URL: https://github.com/dleutnant/influxdbr/tree/0.9.3
@@ -12,10 +12,9 @@ BugReports: http://github.com/dleutnant/influxdbr/issues
 Imports:
     jsonlite,
     httr,
-    utils,
     xts,
     zoo
 Collate:
     'influxdb.R'
     'influxdb_explore_schema.R'
-    'influxdb_explore_data.R'
+    'influxdb_drop_data.R'

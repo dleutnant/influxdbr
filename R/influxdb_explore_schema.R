@@ -1,7 +1,7 @@
 #' Show databases
 #'
-#' This function is a convenient wrapper for showing all databases of an
-#' influxdb by calling \code{influx_query} with the corresponding query.
+#' This function is a convenient wrapper for showing all databases
+#' by calling \code{influx_query} with the corresponding query.
 #'
 #' @title show_databases
 #' @param con An influx_connection object (s. \code{influx_connection}).
@@ -24,8 +24,8 @@ show_databases <- function(con) {
 
 #' Show measurements
 #'
-#' This function is a convenient wrapper for showing all measurements of an
-#' influxdb database by calling \code{influx_query} with the corresponding query.
+#' This function is a convenient wrapper for showing all measurements
+#' by calling \code{influx_query} with the corresponding query.
 #' Measurements can be filtered by tag key values with the \code{where} clause.
 #'
 #' @title show_measurements
@@ -56,7 +56,7 @@ show_measurements <- function(con, db, where=NULL) {
 #' Show series
 #'
 #' This function is a convenient wrapper for showing all series with distinct
-#' key-value pairs of an influxdb database by calling \code{influx_query} with
+#' key-value pairs by calling \code{influx_query} with
 #' the corresponding query. Series can be shown for a specific meausurement with
 #' the (\code{from}) parameter and can also be filtered by tag key values with
 #' the \code{where} clause.
@@ -93,7 +93,7 @@ show_series <- function(con, db, from=NULL, where=NULL) {
 #' Show tag keys
 #'
 #' This function is a convenient wrapper for showing all unique tag keys
-#' associated  with each measurement of an influxdb database by calling
+#' associated with each measurement by calling
 #' \code{influx_query} with the corresponding query.
 #' The query can include a measurement (\code{from}) and tag key value (\code{where})
 #' conditions, so only certain tag keys are shown.
@@ -130,15 +130,15 @@ show_tag_keys <- function(con, db, from=NULL, where=NULL) {
 #' Show tag values
 #'
 #' This function is a convenient wrapper for showing the unique set of
-#' tag values for each measurement, for a given tag key of an influxdb database
-#' by calling \code{influx_query} with the corresponding query.
+#' tag values for each measurement, for a given tag key by calling
+#' \code{influx_query} with the corresponding query.
 #' Tag values can be filtered by a specific measurement (\code{from}).
 #'
 #' @title show_series
 #' @param con An influx_connection object (s. \code{influx_connection}).
 #' @param db Sets the target database for the query.
 #' @param from Query a specific measurement.
-#' @param where Apply filter on tag key values.
+#' @param key The key to be queried.
 #'
 #' @return A list of data.frame objects.
 #' @export

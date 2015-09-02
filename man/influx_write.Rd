@@ -5,8 +5,7 @@
 \title{influx_write}
 \usage{
 influx_write(con, db, xts, measurement = NULL, rp = NULL, precision = "s",
-  consistency = NULL, max_points = 5000, use_integers = FALSE,
-  performance = F)
+  consistency = NULL, max_points = 5000, use_integers = FALSE)
 }
 \arguments{
 \item{con}{An influx_connection object (s. \code{influx_connection}).}
@@ -32,8 +31,6 @@ fail.}
 \item{max_points}{Defines the maximum points per batch.}
 
 \item{use_integers}{Should integers (instead of doubles) be written if present?}
-
-\item{performance}{logical. Print performance measurements.}
 }
 \value{
 A list of server responses.

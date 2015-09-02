@@ -112,7 +112,6 @@ influx_connection <-  function(host = NULL,
 #' fail.
 #' @param max_points Defines the maximum points per batch.
 #' @param use_integers Should integers (instead of doubles) be written if present?
-#' @param performance logical. Print performance measurements.
 #' @return A list of server responses.
 #' @rdname influx_write
 #' @export
@@ -127,8 +126,10 @@ influx_write <- function(con,
                          precision = "s",
                          consistency = NULL,
                          max_points = 5000,
-                         use_integers = FALSE,
-                         performance = F) {
+                         use_integers = FALSE) {
+
+  # development options
+  performance <- FALSE
 
   # create query based on function parameters
   q <- list(db = db, u = con$user, p = con$pass)
@@ -187,8 +188,7 @@ influx_write <- function(con,
     # convert xts to line protocol
     influxdb_line_protocol <- .xts_to_influxdb_line_protocol(xts = x,
                                                              use_integers = use_integers,
-                                                             measurement = measurement,
-                                                             performance = performance)
+                                                             measurement = measurement)
 
 
 
@@ -236,7 +236,7 @@ influx_write <- function(con,
 #' @param chunk_size Sets the chunk size when querying large amounts of data
 #' By default the chunk size is 10.000.
 #' @param verbose logical. Provide additional details?
-#' @param debug logical. For debugging purposes only.
+#'
 #' @return A list of xts or data.frame objects.
 #' @rdname influx_query
 #' @export
@@ -249,9 +249,10 @@ influx_query <- function(con,
                          timestamp_format = "default",
                          return_xts = TRUE,
                          chunk_size = NULL,
-                         verbose = FALSE,
-                         debug = FALSE) {
+                         verbose = FALSE) {
 
+  # development options
+  debug <-  FALSE
   performance <- FALSE
 
   # create query based on function parameters
@@ -478,11 +479,107 @@ influx_query <- function(con,
 
 }
 
+
+# wrapper for influx_query ------------------------------------------------
+
+#' influx_select
+#'
+#' @param con An influx_connection object (s. \code{influx_connection}).
+#' @param db Sets the name of the database.
+#' @param value Sets the name of values to be selected.
+#' @param rp The name of the retention policy.
+#' @param from Sets the name of the measurement.
+#' @param where Apply filter on tag key values.
+#' @param group_by The group_by clause in InfluxDB is used not only for
+#' grouping by given values, but also for grouping by given time buckets.
+#' @param limit Limits the number of the n oldest points to be returned.
+#' @param offset Offsets the returned points by the value provided.
+#' @param return_xts logical. Sets the return type. If set to TRUE, xts objects
+#' are returned, FALSE gives data.frames.
+#'
+#' @return A list of xts or data.frame objects.
+#' @export
+influx_select <- function(con,
+                          db,
+                          value,
+                          rp = NULL,
+                          from,
+                          where = NULL,
+                          group_by = NULL,
+                          limit = NULL,
+                          offset = NULL,
+                          return_xts = TRUE) {
+
+  if (!is.null(rp)) {
+    options("useFancyQuotes" = FALSE)
+    from <- paste(base::dQuote(rp), from, sep = ".")
+  }
+
+  query <- paste("SELECT", value, "FROM", from)
+
+  query <- ifelse(is.null(where),
+                  query,
+                  paste(query, "WHERE", where))
+
+  query <- ifelse(is.null(group_by),
+                  paste(query, "GROUP BY *"),
+                  paste(query, "GROUP BY", group_by))
+
+  query <- ifelse(is.null(limit),
+                  query,
+                  paste(query, "LIMIT", limit))
+
+  query <- ifelse(is.null(offset),
+                  query,
+                  paste(query, "OFFSET", offset))
+
+
+  result <- influxdbr::influx_query(con = con,
+                                    db = db,
+                                    query = query,
+                                    return_xts = return_xts,
+                                    verbose = FALSE)
+
+  invisible(result)
+
+}
+
+#' Create databases
+#'
+#' This function is a convenient wrapper for creating a database
+#' by calling \code{influx_query} with the corresponding query.
+#'
+#' @title create_database
+#' @param con An influx_connection object (s. \code{influx_connection}).
+#' @param db Sets the target database to create.
+#'
+#' @return A list of server responses.
+#' @rdname create_database
+#' @export
+#' @author Dominik Leutnant (\email{leutnant@@fh-muenster.de})
+#' @seealso \code{\link[influxdbr]{influx_connection}}
+#' @references \url{https://influxdb.com/docs/v0.9/introduction/getting_started.html}
+create_database <- function(con, db) {
+
+  result <- influxdbr::influx_query(con = con,
+                                    db = db,
+                                    query = paste("CREATE DATABASE",
+                                                  db),
+                                    return_xts = FALSE)
+  return(result)
+
+}
+
+
+# conversion functions ----------------------------------------------------
+
 # method to convert an xts-object to influxdb specific line protocol
 .xts_to_influxdb_line_protocol <- function(xts,
                                            measurement,
-                                           use_integers = FALSE,
-                                           performance = FALSE){
+                                           use_integers = FALSE){
+
+  # development options
+  performance <-  FALSE
 
   if (performance) start <- Sys.time()
 
@@ -505,7 +602,7 @@ influx_query <- function(con,
 
   # handle empty values in keys
   tag_values <- gsub(pattern = "numeric\\(0\\)|character\\(0\\)",
-                   replacement = "NA", x = tag_values)
+                     replacement = "NA", x = tag_values)
 
   # merge tag keys and values
   tag_key_value <- paste(tag_keys, tag_values, sep = "=", collapse = ",")
