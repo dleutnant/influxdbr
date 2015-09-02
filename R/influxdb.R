@@ -233,8 +233,6 @@ influx_write <- function(con,
 #' ("default" (=UTC), "n", "u", "ms", "s", "m", "h").
 #' @param return_xts logical. Sets the return type. If set to TRUE, xts objects
 #' are returned, FALSE gives data.frames.
-#' @param chunk_size Sets the chunk size when querying large amounts of data
-#' By default the chunk size is 10.000.
 #' @param verbose logical. Provide additional details?
 #'
 #' @return A list of xts or data.frame objects.
@@ -248,7 +246,6 @@ influx_query <- function(con,
                          query = "SELECT * FROM measurement",
                          timestamp_format = "default",
                          return_xts = TRUE,
-                         chunk_size = NULL,
                          verbose = FALSE) {
 
   # development options
@@ -264,15 +261,6 @@ influx_query <- function(con,
       q <- c(q, epoch = timestamp_format)
     } else {
       stop("Unknown timestamp format.")
-    }
-  }
-
-  # add chunk_size parameter
-  if (!is.null(chunk_size)) {
-    if (is.integer(chunk_size)) {
-      q <- c(q, chunk_size = chunk_size)
-    } else {
-      stop("bad parameter 'chunk_size'. Must be of type integer.")
     }
   }
 
