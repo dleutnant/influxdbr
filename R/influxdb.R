@@ -378,7 +378,7 @@ influx_query <- function(con,
                   # extract time vector to feed xts object
                   if (timestamp_format != "default") {
 
-                    # to do: dealing with "millisecs" and "nanosecs"
+                    # TODO: dealing with "millisecs" and "nanosecs"
                     time <- as.POSIXct(values[,'time'], origin = "1970-1-1")
 
                   } else {

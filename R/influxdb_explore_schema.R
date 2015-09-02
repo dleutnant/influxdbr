@@ -18,6 +18,8 @@ show_databases <- function(con) {
                                     query = "show databases",
                                     return_xts = F)
 
+  result <- as.character(t(result)[[1]])
+
   return(result)
 
 }
@@ -48,6 +50,8 @@ show_measurements <- function(con, db, where=NULL) {
                                     db = db,
                                     query = query,
                                     return_xts = F)
+
+  result <- as.character(t(result)[[1]])
 
   return(result)
 
@@ -124,6 +128,10 @@ show_tag_keys <- function(con, db, from=NULL, where=NULL) {
                                     query = query,
                                     return_xts = F)
 
+  # TODO: prevent names of measurements to be dropped!
+
+  result <- lapply(lapply(result, t), unname)
+
   return(result)
 }
 
@@ -159,6 +167,8 @@ show_tag_values <- function(con, db, from=NULL, key) {
                                     db = db,
                                     query = query,
                                     return_xts = F)
+
+  result <- as.character(t(result)[[1]])
 
   return(result)
 
