@@ -7,7 +7,8 @@
 #' @param pass password
 #' @param group groupname
 #' @param verbose logical. Provide additional details?
-#' @param config_file The configuration file to be used if \code{groupname} is specified.
+#' @param config_file The configuration file to be used if \code{groupname} is
+#' specified.
 #' @rdname influx_connection
 #' @export
 #' @author Dominik Leutnant (\email{leutnant@@fh-muenster.de})
@@ -384,7 +385,8 @@ influx_query <- function(con,
 
                     # create xts object for each returned column
                     # xts objects are based on matrix --> always on type only!
-                    values <- lapply(values, function(x) xts::xts(x = x, order.by = time))
+                    values <- lapply(values, function(x) xts::xts(x = x,
+                                                                  order.by = time))
 
                     # assign colname and xtsAttributes
                     for (i in seq_len(length(values))) {
@@ -467,10 +469,10 @@ influx_query <- function(con,
 
 }
 
-
-# wrapper for influx_query ------------------------------------------------
-
 #' influx_select
+#'
+#' This function is a convenient wrapper for selecting data from a measurement
+#' by calling \code{influx_query} with the corresponding query.
 #'
 #' @param con An influx_connection object (s. \code{influx_connection}).
 #' @param db Sets the name of the database.
@@ -532,7 +534,7 @@ influx_select <- function(con,
 
 }
 
-#' Create databases
+#' Create database
 #'
 #' This function is a convenient wrapper for creating a database
 #' by calling \code{influx_query} with the corresponding query.
@@ -557,9 +559,6 @@ create_database <- function(con, db) {
   return(result)
 
 }
-
-
-# conversion functions ----------------------------------------------------
 
 # method to convert an xts-object to influxdb specific line protocol
 .xts_to_influxdb_line_protocol <- function(xts,
