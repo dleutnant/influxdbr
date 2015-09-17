@@ -4,7 +4,7 @@
 \alias{show_tag_keys}
 \title{show_series}
 \usage{
-show_tag_keys(con, db, from = NULL, where = NULL)
+show_tag_keys(con, db, from = NULL)
 }
 \arguments{
 \item{con}{An influx_connection object (s. \code{influx_connection}).}
@@ -12,11 +12,9 @@ show_tag_keys(con, db, from = NULL, where = NULL)
 \item{db}{Sets the target database for the query.}
 
 \item{from}{Query a specific measurement.}
-
-\item{where}{Apply filter on tag key values.}
 }
 \value{
-A list of data.frame objects.
+A list of character vectors containing tag keys.
 }
 \description{
 Show tag keys

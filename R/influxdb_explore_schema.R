@@ -6,7 +6,7 @@
 #' @title show_databases
 #' @param con An influx_connection object (s. \code{influx_connection}).
 #'
-#' @return A list of data.frame objects.
+#' @return A character vector containing the database names.
 #' @rdname show_databases
 #' @export
 #' @author Dominik Leutnant (\email{leutnant@@fh-muenster.de})
@@ -14,11 +14,11 @@
 #' @references \url{https://influxdb.com/docs/v0.9/query_language/schema_exploration.html}
 show_databases <- function(con) {
 
-  result <- influxdbr::influx_query(con = con,
-                                    query = "show databases",
-                                    return_xts = F)
+  result <- influx_query(con = con,
+                         query = "SHOW DATABASES",
+                         return_xts = F)
 
-  result <- as.character(t(result)[[1]])
+  result <- result[[1]]$databases$name
 
   return(result)
 
@@ -35,7 +35,7 @@ show_databases <- function(con) {
 #' @param db Sets the target database for the query.
 #' @param where Apply filter on tag key values.
 #'
-#' @return A list of data.frame objects.
+#' @return A character vector containing the measurement names.
 #' @export
 #' @author Dominik Leutnant (\email{leutnant@@fh-muenster.de})
 #' @seealso \code{\link[influxdbr]{influx_connection}}
@@ -43,15 +43,15 @@ show_databases <- function(con) {
 show_measurements <- function(con, db, where=NULL) {
 
   query <- ifelse(is.null(where),
-                  "show measurements",
-                  paste("show measurements where", where))
+                  "SHOW MEASUREMENTS",
+                  paste("SHOW MEASUREMENTS WHERE", where))
 
-  result <- influxdbr::influx_query(con = con,
-                                    db = db,
-                                    query = query,
-                                    return_xts = F)
+  result <- influx_query(con = con,
+                         db = db,
+                         query = query,
+                         return_xts = F)
 
-  result <- as.character(t(result)[[1]])
+  result <- result[[1]]$measurements$name
 
   return(result)
 
@@ -79,17 +79,20 @@ show_measurements <- function(con, db, where=NULL) {
 show_series <- function(con, db, from=NULL, where=NULL) {
 
   query <- ifelse(is.null(from),
-                  "show series",
-                  paste("show series from", from))
+                  "SHOW SERIES",
+                  paste("SHOW SERIES FROM", from))
 
   query <- ifelse(is.null(where),
                   query,
-                  paste(query, "where", where))
+                  paste(query, "WHERE", where))
 
-  result <- influxdbr::influx_query(con = con,
-                                    db = db,
-                                    query = query,
-                                    return_xts = F)
+  result <- influx_query(con = con,
+                         db = db,
+                         query = query,
+                         return_xts = F)
+
+  result <- lapply(Reduce(c, result),
+                   FUN = function(x) x[ ,!(colnames(x) == "_key")])
 
   return(result)
 }
@@ -106,31 +109,24 @@ show_series <- function(con, db, from=NULL, where=NULL) {
 #' @param con An influx_connection object (s. \code{influx_connection}).
 #' @param db Sets the target database for the query.
 #' @param from Query a specific measurement.
-#' @param where Apply filter on tag key values.
 #'
-#' @return A list of data.frame objects.
+#' @return A list of character vectors containing tag keys.
 #' @export
 #' @author Dominik Leutnant (\email{leutnant@@fh-muenster.de})
 #' @seealso \code{\link[influxdbr]{influx_connection}}
 #' @references \url{https://influxdb.com/docs/v0.9/query_language/schema_exploration.html}
-show_tag_keys <- function(con, db, from=NULL, where=NULL) {
+show_tag_keys <- function(con, db, from=NULL) {
 
   query <- ifelse(is.null(from),
-                  "show tag keys",
-                  paste("show tag keys from", from))
+                  "SHOW TAG KEYS",
+                  paste("SHOW TAG KEYS FROM", from))
 
-  query <- ifelse(is.null(where),
-                  query,
-                  paste(query, "where", where))
+  result <- influx_query(con = con,
+                         db = db,
+                         query = query,
+                         return_xts = F)
 
-  result <- influxdbr::influx_query(con = con,
-                                    db = db,
-                                    query = query,
-                                    return_xts = F)
-
-  # TODO: prevent names of measurements to be dropped!
-
-  result <- lapply(lapply(result, t), unname)
+  result <- lapply(Reduce(c, result), function(x) as.character(t(x)))
 
   return(result)
 }
@@ -148,7 +144,7 @@ show_tag_keys <- function(con, db, from=NULL, where=NULL) {
 #' @param from Query a specific measurement.
 #' @param key The key to be queried.
 #'
-#' @return A list of data.frame objects.
+#' @return A character vector containing tag values.
 #' @export
 #' @author Dominik Leutnant (\email{leutnant@@fh-muenster.de})
 #' @seealso \code{\link[influxdbr]{influx_connection}}
@@ -156,21 +152,20 @@ show_tag_keys <- function(con, db, from=NULL, where=NULL) {
 show_tag_values <- function(con, db, from=NULL, key) {
 
   query <- ifelse(is.null(from),
-                  "show tag values",
-                  paste("show tag values from", from))
+                  "SHOW TAG VALUES",
+                  paste("SHOW TAG VALUES FROM", from))
 
   query <- ifelse(is.null(key),
                   query,
-                  paste(query, "with key=", key))
+                  paste(query, "WITH KEY=", key))
 
-  result <- influxdbr::influx_query(con = con,
-                                    db = db,
-                                    query = query,
-                                    return_xts = F)
+  result <- influx_query(con = con,
+                         db = db,
+                         query = query,
+                         return_xts = F)
 
-  result <- as.character(t(result)[[1]])
+  result <- Reduce(c, result[[1]][[1]])
 
   return(result)
 
 }
-

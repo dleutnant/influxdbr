@@ -16,12 +16,12 @@
 #' @references \url{https://influxdb.com/docs/v0.9/query_language/data_exploration.html}
 drop_measurement <- function(con, db, measurement) {
 
-  result <- influxdbr::influx_query(con = con,
-                                    db = db,
-                                    query = paste("DROP MEASUREMENT",
-                                                  measurement),
-                                    return_xts = F)
-  return(result)
+  result <- influx_query(con = con,
+                         db = db,
+                         query = paste("DROP MEASUREMENT",
+                         measurement),
+                         return_xts = F)
+  invisible(result)
 
 }
 
@@ -64,12 +64,12 @@ drop_series <- function(con, db, id=NULL, from=NULL, where=NULL) {
 
   }
 
-  result <- influxdbr::influx_query(con = con,
-                                    db = db,
-                                    query = query,
-                                    return_xts = F)
+  result <- influx_query(con = con,
+                         db = db,
+                         query = query,
+                         return_xts = F)
 
-  return(result)
+  invisible(result)
 
 }
 
@@ -90,11 +90,10 @@ drop_series <- function(con, db, id=NULL, from=NULL, where=NULL) {
 #' @references \url{https://influxdb.com/docs/v0.9/query_language/data_exploration.html}
 drop_database <- function(con, db) {
 
-  result <- influxdbr::influx_query(con = con,
-                                    db = db,
-                                    query = paste("DROP DATABASE",
-                                                  db),
-                                    return_xts = FALSE)
-  return(result)
+  result <- influx_query(con = con,
+                         db = db,
+                         query = paste("DROP DATABASE", db),
+                         return_xts = FALSE)
+  invisible(result)
 
 }

@@ -21,7 +21,8 @@ influx_connection(host = NULL, port = NULL, user = "user",
 
 \item{verbose}{logical. Provide additional details?}
 
-\item{config_file}{The configuration file to be used if \code{groupname} is specified.}
+\item{config_file}{The configuration file to be used if \code{groupname} is
+specified.}
 }
 \description{
 Create an influxdb_connection object

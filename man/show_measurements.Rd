@@ -14,7 +14,7 @@ show_measurements(con, db, where = NULL)
 \item{where}{Apply filter on tag key values.}
 }
 \value{
-A list of data.frame objects.
+A character vector containing the measurement names.
 }
 \description{
 Show measurements

@@ -15,7 +15,7 @@ create_database(con, db)
 A list of server responses.
 }
 \description{
-Create databases
+Create database
 }
 \details{
 This function is a convenient wrapper for creating a database

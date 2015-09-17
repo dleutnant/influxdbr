@@ -5,7 +5,8 @@
 \title{influx_select}
 \usage{
 influx_select(con, db, value, rp = NULL, from, where = NULL,
-  group_by = NULL, limit = NULL, offset = NULL, return_xts = TRUE)
+  group_by = NULL, limit = NULL, slimit = FALSE, offset = NULL,
+  order_desc = FALSE, return_xts = TRUE)
 }
 \arguments{
 \item{con}{An influx_connection object (s. \code{influx_connection}).}
@@ -25,7 +26,11 @@ grouping by given values, but also for grouping by given time buckets.}
 
 \item{limit}{Limits the number of the n oldest points to be returned.}
 
+\item{slimit}{logical. Sets limiting procedure (slimit vs. limit).}
+
 \item{offset}{Offsets the returned points by the value provided.}
+
+\item{order_desc}{logical. Change sort order to descending.}
 
 \item{return_xts}{logical. Sets the return type. If set to TRUE, xts objects
 are returned, FALSE gives data.frames.}
@@ -34,6 +39,7 @@ are returned, FALSE gives data.frames.}
 A list of xts or data.frame objects.
 }
 \description{
-influx_select
+This function is a convenient wrapper for selecting data from a measurement
+by calling \code{influx_query} with the corresponding query.
 }
 

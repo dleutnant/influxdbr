@@ -16,7 +16,7 @@ show_tag_values(con, db, from = NULL, key)
 \item{key}{The key to be queried.}
 }
 \value{
-A list of data.frame objects.
+A character vector containing tag values.
 }
 \description{
 Show tag values

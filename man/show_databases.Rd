@@ -10,7 +10,7 @@ show_databases(con)
 \item{con}{An influx_connection object (s. \code{influx_connection}).}
 }
 \value{
-A list of data.frame objects.
+A character vector containing the database names.
 }
 \description{
 Show databases

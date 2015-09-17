@@ -21,7 +21,7 @@ influx_connection <-  function(host = NULL,
                                verbose = FALSE,
                                config_file = "~/.influxdb.cnf") {
 
-  #' group file looks like:
+  #' A group file looks like:
   #' [groupname]
   #' host=localhost
   #' port=8086
@@ -191,9 +191,6 @@ influx_write <- function(con,
                                                              use_integers = use_integers,
                                                              measurement = measurement)
 
-
-
-
     # submit post
     response <- httr::POST(url = "", httr::timeout(60),
                            scheme = "http",
@@ -207,8 +204,7 @@ influx_write <- function(con,
     # Check for communication errors
     if (response$status_code < 200 || response$status_code >= 300) {
       if (length(response$content) > 0)
-        warning(rawToChar(response$content))
-      stop("Influx write failed with HTTP status code ", response$status_code)
+        stop(rawToChar(response$content), call. = FALSE)
     }
 
     # assign server response to list "res"
@@ -290,8 +286,7 @@ influx_query <- function(con,
   # Check for communication errors
   if (response$status_code < 200 || response$status_code >= 300) {
     if (length(response$content) > 0)
-      warning(rawToChar(response$content))
-    stop("Influx query failed with HTTP status code ", response$status_code)
+      stop(rawToChar(response$content), call. = FALSE)
   }
 
   if (performance) print(paste(Sys.time(), "before json"))
@@ -306,7 +301,7 @@ influx_query <- function(con,
 
   # Check for database or time series error
   if (exists(x = "error", where = response_data)) {
-    warning("Influx query returned error: ", response_data$error)
+    stop(response_data$error, call. = FALSE)
   }
 
   # Check if query returned results
@@ -318,10 +313,7 @@ influx_query <- function(con,
       # check if query returned series object(s) with errors
       if (exists(x = "error", where = resultsObj)) {
 
-        warning("Influx query returned series object(s) with error:",
-                resultsObj$error)
-
-        return(response_data$error)
+        stop(resultsObj$error, call. = FALSE)
 
       } else {
 
@@ -338,19 +330,13 @@ influx_query <- function(con,
 
               ### TODO: What if response contains chunked time series?
 
-              if (performance) print(paste(Sys.time(), "before extraction"))
-
               # extract values and columnnames
-              # old command (before 0.9.3)
-              # values <- as.data.frame(unname(t(as.data.frame(seriesObj$values))),
-              #                        stringsAsFactors = FALSE)
-              # new command (from 0.9.3 on)
-              values <- as.data.frame(t(sapply(seriesObj$values, rbind)))
-
-              if (performance) print(paste(Sys.time(), "after extraction"))
+              values <- as.data.frame(do.call(rbind, seriesObj$values),
+                                      stringsAsFactors = FALSE,
+                                      row.names = NULL)
 
               # convert columns to most appropriate type
-              # (type.convert needs characters!)
+              # type.convert needs characters!
               values[] <- lapply(values, as.character)
               values[] <- lapply(values, type.convert, as.is = TRUE)
 
@@ -391,21 +377,23 @@ influx_query <- function(con,
                     # assign colname and xtsAttributes
                     for (i in seq_len(length(values))) {
                       colnames(values[[i]]) <- seriesObj$columns[i + 1] # +1 to skip "time"
-                      xts::xtsAttributes(values[[i]]) <- seriesObj$tags
+                      xts::xtsAttributes(values[[i]]) <- c(influx_query = query,
+                                                           seriesObj$tags)
                     }
 
                     # assign measurement name
                     names(values) <- rep(seriesObj$name, length(values))
 
-                    # return values as a list of xts object(s)
+                    # return values as list of xts object(s)
                     return(values)
 
                   } else {
 
-                    # return values as a list with one data.frame
+                    # return values as list with one data.frame
                     # with converted cols
                     values <- list( structure( cbind(time, values),
-                                               influxdb_tags = seriesObj$tags))
+                                               influx_query = query,
+                                               influx_tags = seriesObj$tags))
 
                     # assign measurement name
                     names(values) <- seriesObj$name
@@ -414,10 +402,16 @@ influx_query <- function(con,
 
                   }
 
-
                 } else {
 
-                  # return values as a data.frame as is.
+                  # return values as data.frame as is.
+                  values <- list( structure( values,
+                                             influx_query = query,
+                                             influx_tags = seriesObj$tags))
+
+                  # assign measurement name
+                  names(values) <- seriesObj$name
+
                   return(values)
 
                 }
@@ -436,20 +430,15 @@ influx_query <- function(con,
 
           })
 
-          # concatenate list_of_series to produce a more intuitive list
-          if (class(list_of_series[[1]]) != "data.frame") {
-            list_of_series <- do.call(c,list_of_series)
-          }
-
           if (performance) print(paste(Sys.time(), "after list_of_series"))
 
           return(list_of_series)
 
         } else {
 
-          message("Influx query returned no series.")
+          #warning("Influx query returned no series.")
 
-          return(response_data)
+          return(NULL)
 
         }
 
@@ -461,9 +450,9 @@ influx_query <- function(con,
 
   } else {
 
-    message("Influx query returned no results.")
+    warning("Influx query returned no results.")
 
-    return(response_data)
+    return(NULL)
 
   }
 
@@ -483,7 +472,9 @@ influx_query <- function(con,
 #' @param group_by The group_by clause in InfluxDB is used not only for
 #' grouping by given values, but also for grouping by given time buckets.
 #' @param limit Limits the number of the n oldest points to be returned.
+#' @param slimit logical. Sets limiting procedure (slimit vs. limit).
 #' @param offset Offsets the returned points by the value provided.
+#' @param order_desc logical. Change sort order to descending.
 #' @param return_xts logical. Sets the return type. If set to TRUE, xts objects
 #' are returned, FALSE gives data.frames.
 #'
@@ -497,7 +488,9 @@ influx_select <- function(con,
                           where = NULL,
                           group_by = NULL,
                           limit = NULL,
+                          slimit = FALSE,
                           offset = NULL,
+                          order_desc = FALSE,
                           return_xts = TRUE) {
 
   if (!is.null(rp)) {
@@ -512,23 +505,29 @@ influx_select <- function(con,
                   paste(query, "WHERE", where))
 
   query <- ifelse(is.null(group_by),
-                  paste(query, "GROUP BY *"),
+                  query,
                   paste(query, "GROUP BY", group_by))
+
+  query <- ifelse(!order_desc,
+                  query,
+                  paste(query, "ORDER BY time DESC"))
 
   query <- ifelse(is.null(limit),
                   query,
-                  paste(query, "LIMIT", limit))
+                  paste(query, ifelse(slimit, "SLIMIT", "LIMIT"), limit))
 
   query <- ifelse(is.null(offset),
                   query,
                   paste(query, "OFFSET", offset))
 
+  result <- influx_query(con = con,
+                         db = db,
+                         query = query,
+                         return_xts = return_xts,
+                         verbose = FALSE)
 
-  result <- influxdbr::influx_query(con = con,
-                                    db = db,
-                                    query = query,
-                                    return_xts = return_xts,
-                                    verbose = FALSE)
+  # concatenate list to get a more intuitive list
+  result <- do.call(c,result)
 
   invisible(result)
 
@@ -551,12 +550,12 @@ influx_select <- function(con,
 #' @references \url{https://influxdb.com/docs/v0.9/introduction/getting_started.html}
 create_database <- function(con, db) {
 
-  result <- influxdbr::influx_query(con = con,
-                                    db = db,
-                                    query = paste("CREATE DATABASE",
-                                                  db),
-                                    return_xts = FALSE)
-  return(result)
+  result <- influx_query(con = con,
+                         db = db,
+                         query = paste("CREATE DATABASE", db),
+                         return_xts = FALSE)
+
+  invisible(result)
 
 }
 
