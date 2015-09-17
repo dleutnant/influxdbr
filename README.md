@@ -1,5 +1,6 @@
+[![Build Status](https://travis-ci.org/dleutnant/influxdbr.svg?branch=master)](https://travis-ci.org/dleutnant/influxdbr)
 # influxdbr
-R interface to InfluxDB (>=0.9.3)
+R interface to InfluxDB (>=0.9.3, 0.9.4 diagnotics already included)
 
 Install using devtools:
 ```
