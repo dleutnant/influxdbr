@@ -4,25 +4,33 @@
 \alias{influx_write}
 \title{influx_write}
 \usage{
-influx_write(con, db, xts, measurement = NULL, precision = "s",
-  max_points = 5000, digits = 5, performance = F)
+influx_write(con, db, xts, measurement = NULL, rp = NULL, precision = "s",
+  consistency = NULL, max_points = 5000, use_integers = FALSE)
 }
 \arguments{
 \item{con}{An influx_connection object (s. \code{influx_connection}).}
 
-\item{db}{The name of the database.}
+\item{db}{Sets the target database for the write.}
 
 \item{xts}{The xts object to write to an influxdb server.}
 
-\item{measurement}{The name of the measurement.}
+\item{measurement}{Sets the name of the measurement.}
 
-\item{precision}{Specifies the timestamp format ("default", "n", "u", "ms", "s", "m", "h").}
+\item{rp}{Sets the target retention policy for the write. If not present the
+default retention policy is used.}
+
+\item{precision}{Sets the precision of the supplied Unix time values
+("n", "u", "ms", "s", "m", "h"). If not present timestamps are assumed to be
+in nanoseconds. Currently only "s" is supported.}
+
+\item{consistency}{Set the number of nodes that must confirm the write.
+If the requirement is not met the return value will be partial write
+if some points in the batch fail, or write failure if all points in the batch
+fail.}
 
 \item{max_points}{Defines the maximum points per batch.}
 
-\item{digits}{How many digits are to be used.}
-
-\item{performance}{logical. Print performance measurements.}
+\item{use_integers}{Should integers (instead of doubles) be written if present?}
 }
 \value{
 A list of server responses.
