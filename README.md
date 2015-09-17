@@ -1,5 +1,3 @@
-INFO: Update of R library as response to influxdb's 0.9.3 breaking changes is under progress (s. branch '0.9.3'). 
-
 [![Build Status](https://travis-ci.org/dleutnant/influxdbr.svg?branch=master)](https://travis-ci.org/dleutnant/influxdbr)
 # influxdbr
 R interface to InfluxDB (>=0.9.3, 0.9.4 diagnotics already included)
