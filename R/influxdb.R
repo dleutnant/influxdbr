@@ -598,7 +598,7 @@ create_database <- function(con, db) {
 
   # make sure all integers end with "i", this also sets mode to "character"
   # s. https://github.com/influxdb/influxdb/issues/3519
-  if ((use_integers == TRUE) & (is.integer(xts))) {
+  if ((use_integers == TRUE) & (all(xts == floor(xts)))) {
 
     xts[,] <- sapply(seq_len(ncol(xts)), function(x) paste(xts[,x],
                                                            "i",
