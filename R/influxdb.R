@@ -353,13 +353,15 @@ influx_query <- function(con,
                   # extract time vector to feed xts object
                   if (timestamp_format != "default") {
 
-                    # dealing with "millisecs" and "nanosecs"
-                    if (timestamp_format == "n") div <- 1e+9
-                    if (timestamp_format == "u") div <- 1e+6
-                    if (timestamp_format == "ms") div <- 1e+3
-                    if (timestamp_format == "s") div <- 1
-                    if (timestamp_format == "m") div <- 1/60
-                    if (timestamp_format == "h") div <- 1/(60*60)
+                    # when dealing with "millisecs", "nanosecs" or ... we need
+                    # a divisor:
+                    div <- switch(timestamp_format,
+                                  "n" = 1e+9,
+                                  "u" = 1e+6,
+                                  "ms" = 1e+3,
+                                  "s" = 1,
+                                  "m" = 1/60,
+                                  "h" = 1/(60*60))
 
                     time <- as.POSIXct(values[,'time']/div, origin = "1970-1-1")
 
@@ -377,7 +379,7 @@ influx_query <- function(con,
                   if (return_xts == TRUE) {
 
                     # create xts object for each returned column
-                    # xts objects are based on matrix --> always on type only!
+                    # xts objects are based on matrix --> always one type only!
                     values <- lapply(values, function(x) xts::xts(x = x,
                                                                   order.by = time))
 
