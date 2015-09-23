@@ -353,13 +353,20 @@ influx_query <- function(con,
                   # extract time vector to feed xts object
                   if (timestamp_format != "default") {
 
-                    # TODO: dealing with "millisecs" and "nanosecs"
-                    time <- as.POSIXct(values[,'time'], origin = "1970-1-1")
+                    # dealing with "millisecs" and "nanosecs"
+                    if (timestamp_format == "n") div <- 1e+9
+                    if (timestamp_format == "u") div <- 1e+6
+                    if (timestamp_format == "ms") div <- 1e+3
+                    if (timestamp_format == "s") div <- 1
+                    if (timestamp_format == "m") div <- 1/60
+                    if (timestamp_format == "h") div <- 1/(60*60)
+
+                    time <- as.POSIXct(values[,'time']/div, origin = "1970-1-1")
 
                   } else {
 
                     time <- as.POSIXct(strptime(values[,'time'],
-                                                format = "%Y-%m-%dT%H:%M:%SZ"))
+                                                format = "%Y-%m-%dT%H:%M:%OSZ"))
 
                   }
 
@@ -389,7 +396,7 @@ influx_query <- function(con,
 
                   } else {
 
-                    # return values as list with one data.frame
+                    # return values as structure: data.frame with attributes
                     # with converted cols
                     values <- list( structure( cbind(time, values),
                                                influx_query = query,
@@ -404,7 +411,7 @@ influx_query <- function(con,
 
                 } else {
 
-                  # return values as data.frame as is.
+                  # return values as structure: data.frame with attributes
                   values <- list( structure( values,
                                              influx_query = query,
                                              influx_tags = seriesObj$tags))
