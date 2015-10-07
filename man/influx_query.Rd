@@ -32,7 +32,7 @@ Query an influxdb server
 Dominik Leutnant (\email{leutnant@fh-muenster.de})
 }
 \references{
-\url{https://influxdb.com/docs/v0.9/guides/querying_data.html}
+\url{https://influxdb.com/docs/v0.9/concepts/api.html}
 }
 \seealso{
 \code{\link[xts]{xts}}, \code{\link[influxdbr]{influx_connection}}

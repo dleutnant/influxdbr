@@ -42,4 +42,7 @@ A list of xts or data.frame objects.
 This function is a convenient wrapper for selecting data from a measurement
 by calling \code{influx_query} with the corresponding query.
 }
+\references{
+\url{https://influxdb.com/docs/v0.9/guides/querying_data.html}
+}
 
