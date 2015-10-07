@@ -94,133 +94,32 @@ influx_connection <-  function(host = NULL,
   invisible(influxdb_srv)
 }
 
-#' Write an xts object to an influxdb server
+#' Ping an influxdb server
 #'
-#'
-#' @title influx_write
+#' @title influx_ping
 #' @param con An influx_connection object (s. \code{influx_connection}).
-#' @param db Sets the target database for the write.
-#' @param xts The xts object to write to an influxdb server.
-#' @param measurement Sets the name of the measurement.
-#' @param rp Sets the target retention policy for the write. If not present the
-#' default retention policy is used.
-#' @param precision Sets the precision of the supplied Unix time values
-#' ("n", "u", "ms", "s", "m", "h"). If not present timestamps are assumed to be
-#' in nanoseconds. Currently only "s" is supported.
-#' @param consistency Set the number of nodes that must confirm the write.
-#' If the requirement is not met the return value will be partial write
-#' if some points in the batch fail, or write failure if all points in the batch
-#' fail.
-#' @param max_points Defines the maximum points per batch.
-#' @param use_integers Should integers (instead of doubles) be written if present?
-#' @return A list of server responses.
-#' @rdname influx_write
+#'
+#' @return A list of xts or data.frame objects.
+#' @rdname influx_ping
 #' @export
 #' @author Dominik Leutnant (\email{leutnant@@fh-muenster.de})
 #' @seealso \code{\link[xts]{xts}}, \code{\link[influxdbr]{influx_connection}}
-#' @references \url{https://influxdb.com/docs/v0.9/guides/writing_data.html}
-influx_write <- function(con,
-                         db,
-                         xts,
-                         measurement = NULL,
-                         rp = NULL,
-                         precision = "s",
-                         consistency = NULL,
-                         max_points = 5000,
-                         use_integers = FALSE) {
+#' @references \url{https://influxdb.com/docs/v0.9/concepts/api.html}
+influx_ping <- function(con) {
 
-  # development options
-  performance <- FALSE
-
-  # create query based on function parameters
-  q <- list(db = db, u = con$user, p = con$pass)
-
-  # add precision parameter
-  if (!is.null(precision)) {
-
-    if (precision %in% c("n", "u", "ms", "s", "m", "h")) {
-
-      q <- c(q, precision = precision)
-
-    } else {
-
-        stop("bad parameter 'precision'. Must be one of 'n', 'u', 'ms', 's',
-             'm', or 'h'")
-    }
-
-  }
-
-  # add retention policy
-  if (!is.null(rp)) q <- c(q, rp = rp)
-
-  # add consistency parameter
-  if (!is.null(consistency)) {
-
-    if (consistency %in% c("one", "quroum", "all", "any")) {
-      q <- c(q, consistency = consistency)
-    } else {
-      stop("bad parameter 'consistency'. Must be one of 'one', 'quroum', 'all',
-            or 'any'")
-    }
-
-  }
-
-  # get no of points for performance analysis
-  no_of_points <- nrow(xts)
-
-  # split xts object into a list of xts objects to reduce batch size
-  list_of_xts <- suppressWarnings( split( xts,
-                                          rep(1:ceiling((nrow(xts)/max_points)),
-                                              each = max_points)))
-
-  # reclass xts objects (became "zoo" in previous split command)
-  list_of_xts <- lapply(list_of_xts, xts::as.xts)
-
-  # reassign attributes to elements of list_of_xts
-  # (got lost in previous split command)
-  for (i in seq_len(length(list_of_xts))) {
-    xts::xtsAttributes(list_of_xts[[i]]) <- xts::xtsAttributes(xts)
-  }
-
-  if (performance) start <- Sys.time()
-
-  res <- lapply(list_of_xts, function(x) {
-
-    # convert xts to line protocol
-    influxdb_line_protocol <- .xts_to_influxdb_line_protocol(xts = x,
-                                                             use_integers = use_integers,
-                                                             measurement = measurement)
-
-    # submit post
-    response <- httr::POST(url = "", httr::timeout(60),
-                           scheme = "http",
-                           hostname = con$host,
-                           port = con$port,
-                           path = "write",
-                           query = q,
-                           body = influxdb_line_protocol)
+  # submit ping
+  response <- httr::GET(url = "",
+                        scheme = "http",
+                        hostname = con$host,
+                        port = con$port,
+                        path = "ping")
 
 
-    # Check for communication errors
-    if (response$status_code < 200 || response$status_code >= 300) {
-      if (length(response$content) > 0)
-        stop(rawToChar(response$content), call. = FALSE)
-    }
-
-    # assign server response to list "res"
-    rawToChar(response$content)
-
-  })
-
-  if (performance) message(paste("Wrote", no_of_points, "points in",
-                                 Sys.time() - start, "seconds."))
-
-  invisible(res)
+  return(response$all_headers)
 
 }
 
 #' Query an influxdb server
-#'
 #'
 #' @title influx_query
 #' @param con An influx_connection object (s. \code{influx_connection}).
@@ -237,7 +136,7 @@ influx_write <- function(con,
 #' @export
 #' @author Dominik Leutnant (\email{leutnant@@fh-muenster.de})
 #' @seealso \code{\link[xts]{xts}}, \code{\link[influxdbr]{influx_connection}}
-#' @references \url{https://influxdb.com/docs/v0.9/guides/querying_data.html}
+#' @references \url{https://influxdb.com/docs/v0.9/concepts/api.html}
 influx_query <- function(con,
                          db = NULL,
                          query = "SELECT * FROM measurement",
@@ -467,6 +366,131 @@ influx_query <- function(con,
 
 }
 
+#' Write an xts object to an influxdb server
+#'
+#'
+#' @title influx_write
+#' @param con An influx_connection object (s. \code{influx_connection}).
+#' @param db Sets the target database for the write.
+#' @param xts The xts object to write to an influxdb server.
+#' @param measurement Sets the name of the measurement.
+#' @param rp Sets the target retention policy for the write. If not present the
+#' default retention policy is used.
+#' @param precision Sets the precision of the supplied Unix time values
+#' ("n", "u", "ms", "s", "m", "h"). If not present timestamps are assumed to be
+#' in nanoseconds. Currently only "s" is supported.
+#' @param consistency Set the number of nodes that must confirm the write.
+#' If the requirement is not met the return value will be partial write
+#' if some points in the batch fail, or write failure if all points in the batch
+#' fail.
+#' @param max_points Defines the maximum points per batch.
+#' @param use_integers Should integers (instead of doubles) be written if present?
+#' @return A list of server responses.
+#' @rdname influx_write
+#' @export
+#' @author Dominik Leutnant (\email{leutnant@@fh-muenster.de})
+#' @seealso \code{\link[xts]{xts}}, \code{\link[influxdbr]{influx_connection}}
+#' @references \url{https://influxdb.com/docs/v0.9/concepts/api.html}
+influx_write <- function(con,
+                         db,
+                         xts,
+                         measurement = NULL,
+                         rp = NULL,
+                         precision = "s",
+                         consistency = NULL,
+                         max_points = 5000,
+                         use_integers = FALSE) {
+
+  # development options
+  performance <- FALSE
+
+  # create query based on function parameters
+  q <- list(db = db, u = con$user, p = con$pass)
+
+  # add precision parameter
+  if (!is.null(precision)) {
+
+    if (precision %in% c("n", "u", "ms", "s", "m", "h")) {
+
+      q <- c(q, precision = precision)
+
+    } else {
+
+      stop("bad parameter 'precision'. Must be one of 'n', 'u', 'ms', 's',
+           'm', or 'h'")
+    }
+
+    }
+
+  # add retention policy
+  if (!is.null(rp)) q <- c(q, rp = rp)
+
+  # add consistency parameter
+  if (!is.null(consistency)) {
+
+    if (consistency %in% c("one", "quroum", "all", "any")) {
+      q <- c(q, consistency = consistency)
+    } else {
+      stop("bad parameter 'consistency'. Must be one of 'one', 'quroum', 'all',
+           or 'any'")
+    }
+
+    }
+
+  # get no of points for performance analysis
+  no_of_points <- nrow(xts)
+
+  # split xts object into a list of xts objects to reduce batch size
+  list_of_xts <- suppressWarnings( split( xts,
+                                          rep(1:ceiling((nrow(xts)/max_points)),
+                                              each = max_points)))
+
+  # reclass xts objects (became "zoo" in previous split command)
+  list_of_xts <- lapply(list_of_xts, xts::as.xts)
+
+  # reassign attributes to elements of list_of_xts
+  # (got lost in previous split command)
+  for (i in seq_len(length(list_of_xts))) {
+    xts::xtsAttributes(list_of_xts[[i]]) <- xts::xtsAttributes(xts)
+  }
+
+  if (performance) start <- Sys.time()
+
+  res <- lapply(list_of_xts, function(x) {
+
+    # convert xts to line protocol
+    influxdb_line_protocol <- .xts_to_influxdb_line_protocol(xts = x,
+                                                             use_integers = use_integers,
+                                                             measurement = measurement)
+
+    # submit post
+    response <- httr::POST(url = "", httr::timeout(60),
+                           scheme = "http",
+                           hostname = con$host,
+                           port = con$port,
+                           path = "write",
+                           query = q,
+                           body = influxdb_line_protocol)
+
+
+    # Check for communication errors
+    if (response$status_code < 200 || response$status_code >= 300) {
+      if (length(response$content) > 0)
+        stop(rawToChar(response$content), call. = FALSE)
+    }
+
+    # assign server response to list "res"
+    rawToChar(response$content)
+
+  })
+
+  if (performance) message(paste("Wrote", no_of_points, "points in",
+                                 Sys.time() - start, "seconds."))
+
+  invisible(res)
+
+}
+
 #' influx_select
 #'
 #' This function is a convenient wrapper for selecting data from a measurement
@@ -489,6 +513,7 @@ influx_query <- function(con,
 #'
 #' @return A list of xts or data.frame objects.
 #' @export
+#' @references \url{https://influxdb.com/docs/v0.9/guides/querying_data.html}
 influx_select <- function(con,
                           db,
                           value,
