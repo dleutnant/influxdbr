@@ -99,7 +99,7 @@ influx_connection <-  function(host = NULL,
 #' @title influx_ping
 #' @param con An influx_connection object (s. \code{influx_connection}).
 #'
-#' @return A list of xts or data.frame objects.
+#' @return A list of server information.
 #' @rdname influx_ping
 #' @export
 #' @author Dominik Leutnant (\email{leutnant@@fh-muenster.de})
