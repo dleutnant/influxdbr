@@ -105,7 +105,7 @@ show_series <- function(con, db, from=NULL, where=NULL) {
 #' The query can include a measurement (\code{from}) and tag key value (\code{where})
 #' conditions, so only certain tag keys are shown.
 #'
-#' @title show_series
+#' @title show_tag_keys
 #' @param con An influx_connection object (s. \code{influx_connection}).
 #' @param db Sets the target database for the query.
 #' @param from Query a specific measurement.
@@ -138,7 +138,7 @@ show_tag_keys <- function(con, db, from=NULL) {
 #' \code{influx_query} with the corresponding query.
 #' Tag values can be filtered by a specific measurement (\code{from}).
 #'
-#' @title show_series
+#' @title show_tag_values
 #' @param con An influx_connection object (s. \code{influx_connection}).
 #' @param db Sets the target database for the query.
 #' @param from Query a specific measurement.
