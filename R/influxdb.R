@@ -613,9 +613,12 @@ create_database <- function(con, db) {
   # remove rows with NA's only
   xts <- xts[rowSums(is.na(xts)) != ncol(xts), ]
 
+  # take only valid attributes
+  valid_attr <- which(xts::xtsAttributes(xts) != "")
+
   # extract tag keys and tag values
-  tag_keys <- names(xts::xtsAttributes(xts))
-  tag_values <- xts::xtsAttributes(xts)
+  tag_keys <- names(xts::xtsAttributes(xts)[valid_attr])
+  tag_values <- xts::xtsAttributes(xts)[valid_attr]
 
   # handle commas and spaces in values
   tag_values <- gsub(pattern = ",| ", replacement = "_", x = tag_values)

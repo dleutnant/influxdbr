@@ -1,8 +1,8 @@
 Package: influxdbr
 Type: Package
 Title: R library to influxdb
-Version: 0.0.14
-Date: 2015-10-10
+Version: 0.0.15
+Date: 2015-12-22
 Authors@R: person("Dominik", "Leutnant", email = "leutnant@fh-muenster.de", role = c("aut", "cre"))
 Description: This package provides R functions for the influxdb api (>=0.9.3).
 License: GPL-3
@@ -19,3 +19,4 @@ Collate:
     'influxdb_explore_schema.R'
     'influxdb_drop_data.R'
     'influxdb_diagnostics.R'
+RoxygenNote: 5.0.1
