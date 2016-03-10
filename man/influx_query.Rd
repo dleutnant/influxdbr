@@ -16,7 +16,7 @@ influx_query(con, db = NULL, query = "SELECT * FROM measurement",
 \item{query}{The influxdb query to be sent.}
 
 \item{timestamp_format}{Sets the timestamp format
-("default" (=UTC), "n", "u", "ms", "s", "m", "h").}
+("n", "u", "ms", "s", "m", "h").}
 
 \item{return_xts}{logical. Sets the return type. If set to TRUE, xts objects
 are returned, FALSE gives data.frames.}
