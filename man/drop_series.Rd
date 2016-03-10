@@ -4,7 +4,7 @@
 \alias{drop_series}
 \title{drop_series}
 \usage{
-drop_series(con, db, id = NULL, from = NULL, where = NULL)
+drop_series(con, db, id = NULL, measurement = NULL, where = NULL)
 }
 \arguments{
 \item{con}{An influx_connection object (s. \code{influx_connection}).}
@@ -13,7 +13,7 @@ drop_series(con, db, id = NULL, from = NULL, where = NULL)
 
 \item{id}{Sets the series ID.}
 
-\item{from}{Sets a specific measurement.}
+\item{measurement}{Sets a specific measurement.}
 
 \item{where}{Apply filter on tag key values.}
 }

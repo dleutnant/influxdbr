@@ -4,14 +4,14 @@
 \alias{show_series}
 \title{show_series}
 \usage{
-show_series(con, db, from = NULL, where = NULL)
+show_series(con, db, measurement = NULL, where = NULL)
 }
 \arguments{
 \item{con}{An influx_connection object (s. \code{influx_connection}).}
 
 \item{db}{Sets the target database for the query.}
 
-\item{from}{Query a specific measurement.}
+\item{measurement}{Query a specific measurement.}
 
 \item{where}{Apply filter on tag key values.}
 }
@@ -25,7 +25,7 @@ Show series
 This function is a convenient wrapper for showing all series with distinct
 key-value pairs by calling \code{influx_query} with
 the corresponding query. Series can be shown for a specific meausurement with
-the (\code{from}) parameter and can also be filtered by tag key values with
+the (\code{measurement}) parameter and can also be filtered by tag key values with
 the \code{where} clause.
 }
 \author{

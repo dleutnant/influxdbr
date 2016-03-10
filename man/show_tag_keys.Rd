@@ -4,14 +4,14 @@
 \alias{show_tag_keys}
 \title{show_tag_keys}
 \usage{
-show_tag_keys(con, db, from = NULL)
+show_tag_keys(con, db, measurement = NULL)
 }
 \arguments{
 \item{con}{An influx_connection object (s. \code{influx_connection}).}
 
 \item{db}{Sets the target database for the query.}
 
-\item{from}{Query a specific measurement.}
+\item{measurement}{Query a specific measurement.}
 }
 \value{
 A list of character vectors containing tag keys.
@@ -23,7 +23,7 @@ Show tag keys
 This function is a convenient wrapper for showing all unique tag keys
 associated with each measurement by calling
 \code{influx_query} with the corresponding query.
-The query can include a measurement (\code{from}) and tag key value (\code{where})
+The query can include a measurement (\code{measurement}) and tag key value (\code{where})
 conditions, so only certain tag keys are shown.
 }
 \author{

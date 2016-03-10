@@ -4,14 +4,14 @@
 \alias{show_field_keys}
 \title{show_field_keys}
 \usage{
-show_field_keys(con, db, from = NULL)
+show_field_keys(con, db, measurement = NULL)
 }
 \arguments{
 \item{con}{An influx_connection object (s. \code{influx_connection}).}
 
 \item{db}{Sets the target database for the query.}
 
-\item{from}{Query a specific measurement.}
+\item{measurement}{Query a specific measurement.}
 }
 \value{
 A list with data.frames containing field keys.
@@ -23,7 +23,7 @@ Show field keys
 This function is a convenient wrapper for showing the
 field keys across each measurement in the database by calling
 \code{influx_query} with the corresponding query.
-A measurement can be specified (\code{from}).
+A measurement can be specified (\code{measurement}).
 }
 \author{
 Dominik Leutnant (\email{leutnant@fh-muenster.de})

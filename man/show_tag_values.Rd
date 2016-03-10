@@ -4,14 +4,14 @@
 \alias{show_tag_values}
 \title{show_tag_values}
 \usage{
-show_tag_values(con, db, from = NULL, key)
+show_tag_values(con, db, measurement = NULL, key)
 }
 \arguments{
 \item{con}{An influx_connection object (s. \code{influx_connection}).}
 
 \item{db}{Sets the target database for the query.}
 
-\item{from}{Query a specific measurement.}
+\item{measurement}{Query a specific measurement.}
 
 \item{key}{The key to be queried.}
 }
@@ -25,7 +25,7 @@ Show tag values
 This function is a convenient wrapper for showing the unique set of
 tag values for each measurement, for a given tag key by calling
 \code{influx_query} with the corresponding query.
-Tag values can be filtered by a specific measurement (\code{from}).
+Tag values can be filtered by a specific measurement (\code{measurement}).
 }
 \author{
 Dominik Leutnant (\email{leutnant@fh-muenster.de})
