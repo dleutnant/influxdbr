@@ -126,7 +126,7 @@ influx_ping <- function(con) {
 #' @param db Sets the name of the database.
 #' @param query The influxdb query to be sent.
 #' @param timestamp_format Sets the timestamp format
-#' ("default" (=UTC), "n", "u", "ms", "s", "m", "h").
+#' ("n", "u", "ms", "s", "m", "h").
 #' @param return_xts logical. Sets the return type. If set to TRUE, xts objects
 #' are returned, FALSE gives data.frames.
 #' @param verbose logical. Provide additional details?
@@ -150,9 +150,8 @@ influx_query <- function(con,
   # create query based on function parameters
   q <- list(db = db, u = con$user, p = con$pass)
 
-  timestamp_format <- match.arg(timestamp_format)
-
   # handle different timestamp formats
+  timestamp_format <- match.arg(timestamp_format)
   q <- c(q, epoch = timestamp_format)
 
   # add query
