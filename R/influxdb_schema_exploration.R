@@ -11,7 +11,7 @@
 #' @export
 #' @author Dominik Leutnant (\email{leutnant@@fh-muenster.de})
 #' @seealso \code{\link[influxdbr]{influx_connection}}
-#' @references \url{https://influxdb.com/docs/v0.9/query_language/schema_exploration.html}
+#' @references \url{https://docs.influxdata.com/influxdb/v0.10/query_language/schema_exploration/}
 show_databases <- function(con) {
 
   result <- influx_query(con = con,
@@ -39,7 +39,7 @@ show_databases <- function(con) {
 #' @export
 #' @author Dominik Leutnant (\email{leutnant@@fh-muenster.de})
 #' @seealso \code{\link[influxdbr]{influx_connection}}
-#' @references \url{https://influxdb.com/docs/v0.9/query_language/schema_exploration.html}
+#' @references \url{https://docs.influxdata.com/influxdb/v0.10/query_language/schema_exploration/}
 show_measurements <- function(con, db, where=NULL) {
 
   query <- ifelse(is.null(where),
@@ -75,7 +75,7 @@ show_measurements <- function(con, db, where=NULL) {
 #' @export
 #' @author Dominik Leutnant (\email{leutnant@@fh-muenster.de})
 #' @seealso \code{\link[influxdbr]{influx_connection}}
-#' @references \url{https://influxdb.com/docs/v0.9/query_language/schema_exploration.html}
+#' @references \url{https://docs.influxdata.com/influxdb/v0.10/query_language/schema_exploration/}
 show_series <- function(con, db, from=NULL, where=NULL) {
 
   query <- ifelse(is.null(from),
@@ -114,7 +114,7 @@ show_series <- function(con, db, from=NULL, where=NULL) {
 #' @export
 #' @author Dominik Leutnant (\email{leutnant@@fh-muenster.de})
 #' @seealso \code{\link[influxdbr]{influx_connection}}
-#' @references \url{https://influxdb.com/docs/v0.9/query_language/schema_exploration.html}
+#' @references \url{https://docs.influxdata.com/influxdb/v0.10/query_language/schema_exploration/}
 show_tag_keys <- function(con, db, from=NULL) {
 
   query <- ifelse(is.null(from),
@@ -148,7 +148,7 @@ show_tag_keys <- function(con, db, from=NULL) {
 #' @export
 #' @author Dominik Leutnant (\email{leutnant@@fh-muenster.de})
 #' @seealso \code{\link[influxdbr]{influx_connection}}
-#' @references \url{https://influxdb.com/docs/v0.9/query_language/schema_exploration.html}
+#' @references \url{https://docs.influxdata.com/influxdb/v0.10/query_language/schema_exploration/}
 show_tag_values <- function(con, db, from=NULL, key) {
 
   query <- ifelse(is.null(from),
@@ -186,7 +186,7 @@ show_tag_values <- function(con, db, from=NULL, key) {
 #' @export
 #' @author Dominik Leutnant (\email{leutnant@@fh-muenster.de})
 #' @seealso \code{\link[influxdbr]{influx_connection}}
-#' @references \url{https://influxdb.com/docs/v0.9/query_language/schema_exploration.html}
+#' @references \url{https://docs.influxdata.com/influxdb/v0.10/query_language/schema_exploration/}
 show_field_keys <- function(con, db, from=NULL) {
 
   query <- ifelse(is.null(from),
@@ -199,6 +199,33 @@ show_field_keys <- function(con, db, from=NULL) {
                          return_xts = F)
 
   result <- Reduce(c, result)
+
+  return(result)
+
+}
+
+#' Show retention policies
+#'
+#' This function is a convenient wrapper for listing the existent retention
+#' policies on a given database by calling \code{influx_query} with the
+#' corresponding query.
+#'
+#' @title show_retention_policies
+#' @param con An influx_connection object (s. \code{influx_connection}).
+#' @param db Sets the target database for the query.
+#' @return A data.frame containing the retention plocies.
+#' @rdname show_retention_policies
+#' @export
+#' @author Dominik Leutnant (\email{leutnant@@fh-muenster.de})
+#' @seealso \code{\link[influxdbr]{influx_connection}}
+#' @references \url{https://docs.influxdata.com/influxdb/v0.10/query_language/schema_exploration/}
+show_retention_policies <- function(con, db) {
+
+  result <- influx_query(con = con,
+                         query = paste("SHOW RETENTION POLICIES ON", db),
+                         return_xts = F)
+
+  result <- data.frame(result[[1]])
 
   return(result)
 

@@ -7,12 +7,12 @@
 #' @param pass password
 #' @param group groupname
 #' @param verbose logical. Provide additional details?
-#' @param config_file The configuration file to be used if \code{groupname} is
+#' @param config_file The configuration file to be used if \code{group} is
 #' specified.
 #' @rdname influx_connection
 #' @export
 #' @author Dominik Leutnant (\email{leutnant@@fh-muenster.de})
-#' @references \url{https://influxdb.com/}
+#' @references \url{https://docs.influxdata.com/influxdb/}
 influx_connection <-  function(host = NULL,
                                port = NULL,
                                user = "user",
@@ -104,7 +104,7 @@ influx_connection <-  function(host = NULL,
 #' @export
 #' @author Dominik Leutnant (\email{leutnant@@fh-muenster.de})
 #' @seealso \code{\link[xts]{xts}}, \code{\link[influxdbr]{influx_connection}}
-#' @references \url{https://influxdb.com/docs/v0.9/concepts/api.html}
+#' @references \url{https://docs.influxdata.com/influxdb/v0.10/concepts/api/}
 influx_ping <- function(con) {
 
   # submit ping
@@ -136,34 +136,27 @@ influx_ping <- function(con) {
 #' @export
 #' @author Dominik Leutnant (\email{leutnant@@fh-muenster.de})
 #' @seealso \code{\link[xts]{xts}}, \code{\link[influxdbr]{influx_connection}}
-#' @references \url{https://influxdb.com/docs/v0.9/concepts/api.html}
+#' @references \url{https://docs.influxdata.com/influxdb/v0.10/guides/querying_data/}
 influx_query <- function(con,
                          db = NULL,
                          query = "SELECT * FROM measurement",
-                         timestamp_format = "default",
+                         timestamp_format = c("n", "u", "ms", "s", "m", "h"),
                          return_xts = TRUE,
                          verbose = FALSE) {
 
   # development options
   debug <-  FALSE
-  performance <- FALSE
 
   # create query based on function parameters
   q <- list(db = db, u = con$user, p = con$pass)
 
+  timestamp_format <- match.arg(timestamp_format)
+
   # handle different timestamp formats
-  if (timestamp_format != "default") {
-    if (timestamp_format %in% c("n", "u", "ms", "s", "m", "h")) {
-      q <- c(q, epoch = timestamp_format)
-    } else {
-      stop("Unknown timestamp format.")
-    }
-  }
+  q <- c(q, epoch = timestamp_format)
 
   # add query
   q <- c(q, q = query)
-
-  if (performance) print(paste(Sys.time(), "before query"))
 
   # submit query
   response <- httr::GET(url = "",
@@ -173,11 +166,8 @@ influx_query <- function(con,
                         path = "query",
                         query = q)
 
-  if (performance) print(paste(Sys.time(), "after query"))
-
   # print url
   if (verbose) print(response$url)
-
 
   # DEBUG OUTPUT
   if (debug) debug_influx_query_response_data <<- response
@@ -188,15 +178,11 @@ influx_query <- function(con,
       stop(rawToChar(response$content), call. = FALSE)
   }
 
-  if (performance) print(paste(Sys.time(), "before json"))
-
   # parse response from json
   response_data <- jsonlite::fromJSON(rawToChar(response$content),
-                                      simplifyVector = TRUE,
+                                      simplifyVector = FALSE,
                                       simplifyDataFrame = FALSE,
                                       simplifyMatrix = FALSE)
-
-  if (performance) print(paste(Sys.time(), "after json"))
 
   # Check for database or time series error
   if (exists(x = "error", where = response_data)) {
@@ -207,7 +193,7 @@ influx_query <- function(con,
   if (exists(x = "results", where = response_data)) {
 
     # create list of results
-    list_of_results <- sapply(response_data$results, function(resultsObj) {
+    list_of_results <- lapply(response_data$results, function(resultsObj) {
 
       # check if query returned series object(s) with errors
       if (exists(x = "error", where = resultsObj)) {
@@ -219,8 +205,6 @@ influx_query <- function(con,
         # check if query returned series object(s)
         if (exists(x = "series", where = resultsObj)) {
 
-          if (performance) print(paste(Sys.time(), "before list_of_series"))
-
           # create list of series
           list_of_series <- lapply(resultsObj$series, function(seriesObj) {
 
@@ -230,9 +214,10 @@ influx_query <- function(con,
               ### TODO: What if response contains chunked time series?
 
               # extract values and columnnames
-              values <- as.data.frame(do.call(rbind, seriesObj$values),
-                                      stringsAsFactors = FALSE,
-                                      row.names = NULL)
+              values <- as.data.frame(t(matrix(unlist(seriesObj$values),
+                                               nrow = length(unlist(seriesObj$values[1])))),
+                                     stringsAsFactors = FALSE,
+                                     row.names = NULL)
 
               # convert columns to most appropriate type
               # type.convert needs characters!
@@ -249,12 +234,11 @@ influx_query <- function(con,
                 # and "Show Tag Values" queries do not provide "time"
                 if ("time" %in% colnames(values)) {
 
-                  # extract time vector to feed xts object
-                  if (timestamp_format != "default") {
+                  # extract time vector to feed xts object...
 
-                    # when dealing with "millisecs", "nanosecs" or ... we need
-                    # a divisor:
-                    div <- switch(timestamp_format,
+                  # when dealing with "millisecs", "nanosecs" or ... we need
+                  # a divisor:
+                  div <- switch(timestamp_format,
                                   "n" = 1e+9,
                                   "u" = 1e+6,
                                   "ms" = 1e+3,
@@ -262,14 +246,7 @@ influx_query <- function(con,
                                   "m" = 1/60,
                                   "h" = 1/(60*60))
 
-                    time <- as.POSIXct(values[,'time']/div, origin = "1970-1-1")
-
-                  } else {
-
-                    time <- as.POSIXct(strptime(values[,'time'],
-                                                format = "%Y-%m-%dT%H:%M:%OSZ"))
-
-                  }
+                  time <- as.POSIXct(values[,'time']/div, origin = "1970-1-1")
 
                   # select all but time vector to feed xts object
                   values <- values[, colnames(values) != 'time', drop = FALSE]
@@ -338,8 +315,6 @@ influx_query <- function(con,
 
           })
 
-          if (performance) print(paste(Sys.time(), "after list_of_series"))
-
           return(list_of_series)
 
         } else {
@@ -390,14 +365,14 @@ influx_query <- function(con,
 #' @export
 #' @author Dominik Leutnant (\email{leutnant@@fh-muenster.de})
 #' @seealso \code{\link[xts]{xts}}, \code{\link[influxdbr]{influx_connection}}
-#' @references \url{https://influxdb.com/docs/v0.9/concepts/api.html}
+#' @references \url{https://docs.influxdata.com/influxdb/v0.10/guides/writing_data/}
 influx_write <- function(con,
                          db,
                          xts,
                          measurement = NULL,
                          rp = NULL,
-                         precision = "s",
-                         consistency = NULL,
+                         precision = c("s", "n", "u", "ms", "m", "h"),
+                         consistency = c(NULL, "one", "quroum", "all", "any"),
                          max_points = 5000,
                          use_integers = FALSE) {
 
@@ -408,34 +383,15 @@ influx_write <- function(con,
   q <- list(db = db, u = con$user, p = con$pass)
 
   # add precision parameter
-  if (!is.null(precision)) {
-
-    if (precision %in% c("n", "u", "ms", "s", "m", "h")) {
-
-      q <- c(q, precision = precision)
-
-    } else {
-
-      stop("bad parameter 'precision'. Must be one of 'n', 'u', 'ms', 's',
-           'm', or 'h'")
-    }
-
-    }
+  q <- c(q, precision = match.arg(precision))
 
   # add retention policy
   if (!is.null(rp)) q <- c(q, rp = rp)
 
   # add consistency parameter
   if (!is.null(consistency)) {
-
-    if (consistency %in% c("one", "quroum", "all", "any")) {
-      q <- c(q, consistency = consistency)
-    } else {
-      stop("bad parameter 'consistency'. Must be one of 'one', 'quroum', 'all',
-           or 'any'")
-    }
-
-    }
+    q <- c(q, consistency = match.arg(consistency))
+  }
 
   # get no of points for performance analysis
   no_of_points <- nrow(xts)
@@ -498,9 +454,9 @@ influx_write <- function(con,
 #'
 #' @param con An influx_connection object (s. \code{influx_connection}).
 #' @param db Sets the name of the database.
-#' @param value Sets the name of values to be selected.
+#' @param field_keys Specifies the fields to be selected.
 #' @param rp The name of the retention policy.
-#' @param from Sets the name of the measurement.
+#' @param measurement Sets the name of the measurement.
 #' @param where Apply filter on tag key values.
 #' @param group_by The group_by clause in InfluxDB is used not only for
 #' grouping by given values, but also for grouping by given time buckets.
@@ -513,12 +469,12 @@ influx_write <- function(con,
 #'
 #' @return A list of xts or data.frame objects.
 #' @export
-#' @references \url{https://influxdb.com/docs/v0.9/guides/querying_data.html}
+#' @references \url{https://docs.influxdata.com/influxdb/v0.10/query_language/data_exploration/}
 influx_select <- function(con,
                           db,
-                          value,
+                          field_keys,
                           rp = NULL,
-                          from,
+                          measurement,
                           where = NULL,
                           group_by = NULL,
                           limit = NULL,
@@ -529,10 +485,10 @@ influx_select <- function(con,
 
   if (!is.null(rp)) {
     options("useFancyQuotes" = FALSE)
-    from <- paste(base::dQuote(rp), from, sep = ".")
+    measurement <- paste(base::dQuote(rp), measurement, sep = ".")
   }
 
-  query <- paste("SELECT", value, "FROM", from)
+  query <- paste("SELECT", field_keys, "FROM", measurement)
 
   query <- ifelse(is.null(where),
                   query,
@@ -567,31 +523,6 @@ influx_select <- function(con,
 
 }
 
-#' Create database
-#'
-#' This function is a convenient wrapper for creating a database
-#' by calling \code{influx_query} with the corresponding query.
-#'
-#' @title create_database
-#' @param con An influx_connection object (s. \code{influx_connection}).
-#' @param db Sets the target database to create.
-#'
-#' @return A list of server responses.
-#' @rdname create_database
-#' @export
-#' @author Dominik Leutnant (\email{leutnant@@fh-muenster.de})
-#' @seealso \code{\link[influxdbr]{influx_connection}}
-#' @references \url{https://influxdb.com/docs/v0.9/introduction/getting_started.html}
-create_database <- function(con, db) {
-
-  result <- influx_query(con = con,
-                         db = db,
-                         query = paste("CREATE DATABASE", db),
-                         return_xts = FALSE)
-
-  invisible(result)
-
-}
 
 # method to convert an xts-object to influxdb specific line protocol
 .xts_to_influxdb_line_protocol <- function(xts,

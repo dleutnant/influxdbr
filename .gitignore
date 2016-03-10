@@ -9,3 +9,6 @@
 # R data files from past sessions
 .Rdata
 
+# test
+.tests.R
+.tests2.R
