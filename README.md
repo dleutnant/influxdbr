@@ -68,8 +68,12 @@ influxdbr::show_measurements(con = con, db = "mydb")
 [1] "sampledata"
 
 # select values
-result <- influx_select(con = con, db = "mydb", value = "Open, High", 
-                        from = "sampledata", limit = 10, order_desc = TRUE)
+result <- influx_select(con = con, 
+                        db = "mydb",
+                        field_keys = "Open, High", 
+                        measurement = "sampledata", 
+                        limit = 10,
+                        order_desc = TRUE)
 result
 $sampledata
                         Open

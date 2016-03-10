@@ -3,9 +3,6 @@ get_timeseries <- function(con,
                            measurement = NULL){
 
 
-  # show
-
-
-
+  message("under construction")
 
 }

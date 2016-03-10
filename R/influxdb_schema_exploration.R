@@ -62,13 +62,13 @@ show_measurements <- function(con, db, where=NULL) {
 #' This function is a convenient wrapper for showing all series with distinct
 #' key-value pairs by calling \code{influx_query} with
 #' the corresponding query. Series can be shown for a specific meausurement with
-#' the (\code{from}) parameter and can also be filtered by tag key values with
+#' the (\code{measurement}) parameter and can also be filtered by tag key values with
 #' the \code{where} clause.
 #'
 #' @title show_series
 #' @param con An influx_connection object (s. \code{influx_connection}).
 #' @param db Sets the target database for the query.
-#' @param from Query a specific measurement.
+#' @param measurement Query a specific measurement.
 #' @param where Apply filter on tag key values.
 #'
 #' @return A list of data.frame objects.
@@ -76,11 +76,11 @@ show_measurements <- function(con, db, where=NULL) {
 #' @author Dominik Leutnant (\email{leutnant@@fh-muenster.de})
 #' @seealso \code{\link[influxdbr]{influx_connection}}
 #' @references \url{https://docs.influxdata.com/influxdb/v0.10/query_language/schema_exploration/}
-show_series <- function(con, db, from=NULL, where=NULL) {
+show_series <- function(con, db, measurement=NULL, where=NULL) {
 
-  query <- ifelse(is.null(from),
+  query <- ifelse(is.null(measurement),
                   "SHOW SERIES",
-                  paste("SHOW SERIES FROM", from))
+                  paste("SHOW SERIES FROM", measurement))
 
   query <- ifelse(is.null(where),
                   query,
@@ -102,24 +102,24 @@ show_series <- function(con, db, from=NULL, where=NULL) {
 #' This function is a convenient wrapper for showing all unique tag keys
 #' associated with each measurement by calling
 #' \code{influx_query} with the corresponding query.
-#' The query can include a measurement (\code{from}) and tag key value (\code{where})
+#' The query can include a measurement (\code{measurement}) and tag key value (\code{where})
 #' conditions, so only certain tag keys are shown.
 #'
 #' @title show_tag_keys
 #' @param con An influx_connection object (s. \code{influx_connection}).
 #' @param db Sets the target database for the query.
-#' @param from Query a specific measurement.
+#' @param measurement Query a specific measurement.
 #'
 #' @return A list of character vectors containing tag keys.
 #' @export
 #' @author Dominik Leutnant (\email{leutnant@@fh-muenster.de})
 #' @seealso \code{\link[influxdbr]{influx_connection}}
 #' @references \url{https://docs.influxdata.com/influxdb/v0.10/query_language/schema_exploration/}
-show_tag_keys <- function(con, db, from=NULL) {
+show_tag_keys <- function(con, db, measurement=NULL) {
 
-  query <- ifelse(is.null(from),
+  query <- ifelse(is.null(measurement),
                   "SHOW TAG KEYS",
-                  paste("SHOW TAG KEYS FROM", from))
+                  paste("SHOW TAG KEYS FROM", measurement))
 
   result <- influx_query(con = con,
                          db = db,
@@ -136,12 +136,12 @@ show_tag_keys <- function(con, db, from=NULL) {
 #' This function is a convenient wrapper for showing the unique set of
 #' tag values for each measurement, for a given tag key by calling
 #' \code{influx_query} with the corresponding query.
-#' Tag values can be filtered by a specific measurement (\code{from}).
+#' Tag values can be filtered by a specific measurement (\code{measurement}).
 #'
 #' @title show_tag_values
 #' @param con An influx_connection object (s. \code{influx_connection}).
 #' @param db Sets the target database for the query.
-#' @param from Query a specific measurement.
+#' @param measurement Query a specific measurement.
 #' @param key The key to be queried.
 #'
 #' @return A character vector containing tag values.
@@ -149,11 +149,11 @@ show_tag_keys <- function(con, db, from=NULL) {
 #' @author Dominik Leutnant (\email{leutnant@@fh-muenster.de})
 #' @seealso \code{\link[influxdbr]{influx_connection}}
 #' @references \url{https://docs.influxdata.com/influxdb/v0.10/query_language/schema_exploration/}
-show_tag_values <- function(con, db, from=NULL, key) {
+show_tag_values <- function(con, db, measurement=NULL, key) {
 
-  query <- ifelse(is.null(from),
+  query <- ifelse(is.null(measurement),
                   "SHOW TAG VALUES",
-                  paste("SHOW TAG VALUES FROM", from))
+                  paste("SHOW TAG VALUES FROM", measurement))
 
   query <- ifelse(is.null(key),
                   query,
@@ -175,23 +175,23 @@ show_tag_values <- function(con, db, from=NULL, key) {
 #' This function is a convenient wrapper for showing the
 #' field keys across each measurement in the database by calling
 #' \code{influx_query} with the corresponding query.
-#' A measurement can be specified (\code{from}).
+#' A measurement can be specified (\code{measurement}).
 #'
 #' @title show_field_keys
 #' @param con An influx_connection object (s. \code{influx_connection}).
 #' @param db Sets the target database for the query.
-#' @param from Query a specific measurement.
+#' @param measurement Query a specific measurement.
 #'
 #' @return A list with data.frames containing field keys.
 #' @export
 #' @author Dominik Leutnant (\email{leutnant@@fh-muenster.de})
 #' @seealso \code{\link[influxdbr]{influx_connection}}
 #' @references \url{https://docs.influxdata.com/influxdb/v0.10/query_language/schema_exploration/}
-show_field_keys <- function(con, db, from=NULL) {
+show_field_keys <- function(con, db, measurement=NULL) {
 
-  query <- ifelse(is.null(from),
+  query <- ifelse(is.null(measurement),
                   "SHOW FIELD KEYS",
-                  paste("SHOW FIELD KEYS FROM", from))
+                  paste("SHOW FIELD KEYS FROM", measurement))
 
   result <- influx_query(con = con,
                          db = db,

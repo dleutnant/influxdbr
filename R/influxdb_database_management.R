@@ -59,7 +59,7 @@ drop_database <- function(con, db) {
 #' @param con An influx_connection object (s. \code{influx_connection}).
 #' @param db Sets the target database for the query.
 #' @param id Sets the series ID.
-#' @param from Sets a specific measurement.
+#' @param measurement Sets a specific measurement.
 #' @param where Apply filter on tag key values.
 #'
 #' @return A list of server responses.
@@ -68,7 +68,7 @@ drop_database <- function(con, db) {
 #' @author Dominik Leutnant (\email{leutnant@@fh-muenster.de})
 #' @seealso \code{\link[influxdbr]{influx_connection}}
 #' @references \url{https://docs.influxdata.com/influxdb/v0.10/query_language/database_management/}
-drop_series <- function(con, db, id=NULL, from=NULL, where=NULL) {
+drop_series <- function(con, db, id=NULL, measurement=NULL, where=NULL) {
 
   query <- "DROP SERIES"
 
@@ -78,9 +78,9 @@ drop_series <- function(con, db, id=NULL, from=NULL, where=NULL) {
 
   } else {
 
-    query <- ifelse(is.null(from),
+    query <- ifelse(is.null(measurement),
                     query,
-                    paste(query, "FROM", from))
+                    paste(query, "FROM", measurement))
 
     query <- ifelse(is.null(where),
                     query,
