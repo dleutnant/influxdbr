@@ -18,7 +18,7 @@ show_databases <- function(con) {
                          query = "SHOW DATABASES",
                          return_xts = F)
 
-  result <- result[[1]]$databases$name
+  result <- result[[1]][[1]]$databases$name
 
   return(result)
 
@@ -51,7 +51,7 @@ show_measurements <- function(con, db, where=NULL) {
                          query = query,
                          return_xts = F)
 
-  result <- result[[1]]$measurements$name
+  result <- result[[1]][[1]]$measurements$name
 
   return(result)
 
@@ -91,7 +91,7 @@ show_series <- function(con, db, measurement=NULL, where=NULL) {
                          query = query,
                          return_xts = F)
 
-  result <- lapply(Reduce(c, result),
+  result <- lapply(Reduce(c, result[[1]]),
                    FUN = function(x) x[ ,!(colnames(x) == "_key")])
 
   return(result)
@@ -126,7 +126,7 @@ show_tag_keys <- function(con, db, measurement=NULL) {
                          query = query,
                          return_xts = F)
 
-  result <- lapply(Reduce(c, result), function(x) as.character(t(x)))
+  result <- lapply(Reduce(c, result[[1]]), function(x) as.character(t(x)))
 
   return(result)
 }
@@ -198,7 +198,7 @@ show_field_keys <- function(con, db, measurement=NULL) {
                          query = query,
                          return_xts = F)
 
-  result <- Reduce(c, result)
+  result <- Reduce(c, result[[1]])
 
   return(result)
 
