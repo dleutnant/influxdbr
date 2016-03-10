@@ -107,5 +107,5 @@ $sampledata
 [1] "UnitTesting" "info"        "n" 
 
 # show tag values
-show_tag_values(con = con, db = "mydb", from = NULL, key = "UnitTesting")
+show_tag_values(con = con, db = "mydb", measurement = NULL, key = "UnitTesting")
 [1] TRUE
