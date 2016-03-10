@@ -1,4 +1,6 @@
 # query large ones
+system.time(tmp <- influx_select(con, "stbmod", "value", measurement = "Durchfluss", where = "Version = '5'", return_xts = T, limit = 10))
+
 system.time(tmp1 <- influx_select(con, "stbmod", "value", measurement = "Durchfluss", where = "Version = '5'", return_xts = T))
 
 system.time(tmp2 <- influx_select(con, "stbmod", "value", measurement = "Durchfluss", return_xts = T))

@@ -10,5 +10,5 @@
 .Rdata
 
 # test
-.tests/
-.tests/performance_tests
+tests/
+tests/performance_tests
