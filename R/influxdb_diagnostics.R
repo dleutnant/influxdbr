@@ -17,6 +17,8 @@ show_stats <- function(con) {
                          query = "SHOW STATS",
                          return_xts = F)
 
+  result <- result[[1]]
+
   # extract names as identifier
   list_of_names <- sapply(result, names)
 
@@ -47,7 +49,7 @@ show_diagnostics <- function(con) {
                          query = "SHOW DIAGNOSTICS",
                          return_xts = F)
 
-  result <- Reduce(c, result)
+  result <- Reduce(c, result[[1]])
 
   return(result)
 }
