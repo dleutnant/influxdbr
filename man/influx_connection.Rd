@@ -6,7 +6,7 @@
 \usage{
 influx_connection(host = NULL, port = NULL, user = "user",
   pass = "pass", group = NULL, verbose = FALSE,
-  config_file = "~/.influxdb.cnf")
+  config_file = "~/.influxdb.cnf", timeout = 5)
 }
 \arguments{
 \item{host}{hostname}
@@ -21,7 +21,9 @@ influx_connection(host = NULL, port = NULL, user = "user",
 
 \item{verbose}{logical. Provide additional details?}
 
-\item{config_file}{The configuration file to be used if \code{group} is
+\item{config_file}{The configuration file to be used if \code{group} is}
+
+\item{timeout}{Set maximum request time
 specified.}
 }
 \description{

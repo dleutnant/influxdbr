@@ -8,6 +8,7 @@
 #' @param group groupname
 #' @param verbose logical. Provide additional details?
 #' @param config_file The configuration file to be used if \code{group} is
+#' @param timeout Set maximum request time
 #' specified.
 #' @rdname influx_connection
 #' @export
@@ -19,7 +20,8 @@ influx_connection <-  function(host = NULL,
                                pass = "pass",
                                group = NULL,
                                verbose = FALSE,
-                               config_file = "~/.influxdb.cnf") {
+                               config_file = "~/.influxdb.cnf",
+                               timeout = 5) {
 
   #' A group file looks like:
   #' [groupname]
@@ -43,29 +45,35 @@ influx_connection <-  function(host = NULL,
       grp <- grep(paste0("[",group,"]"), x = lines, fixed = T)
 
       # catch the case if group name is not found
-      if (identical(grp, integer(0))) stop("Group does not exist in config file.")
+      if (identical(grp, integer(0))) {
 
-      # get db credentials
-      host <- gsub("host=", "",
-                   grep("host=",
-                        lines[(grp + 1):(grp + 4)], fixed = T, value = T))
-      port <- as.numeric(gsub("port=", "",
-                              grep("port=",
-                                   lines[(grp + 1):(grp + 4)], fixed = T,
-                                   value = T)))
-      user <- gsub("user=", "",
-                   grep("user=",
-                        lines[(grp + 1):(grp + 4)], fixed = T, value = T))
-      pass <- gsub("pass=", "",
-                   grep("pass=",
-                        lines[(grp + 1):(grp + 4)], fixed = T, value = T))
+        warning("Group does not exist in config file.")
 
-      # close file connection
-      close(con)
+      } else {
+
+        # get db credentials
+        host <- gsub("host=", "",
+                     grep("host=",
+                          lines[(grp + 1):(grp + 4)], fixed = T, value = T))
+        port <- as.numeric(gsub("port=", "",
+                                grep("port=",
+                                     lines[(grp + 1):(grp + 4)], fixed = T,
+                                     value = T)))
+        user <- gsub("user=", "",
+                     grep("user=",
+                          lines[(grp + 1):(grp + 4)], fixed = T, value = T))
+        pass <- gsub("pass=", "",
+                     grep("pass=",
+                          lines[(grp + 1):(grp + 4)], fixed = T, value = T))
+
+        # close file connection
+        close(con)
+
+      }
 
     } else{
 
-      stop("Config file does not exist.")
+      warning("Config file does not exist.")
 
     }
 
@@ -75,10 +83,15 @@ influx_connection <-  function(host = NULL,
   influxdb_srv <- list(host = host, port = port, user = user, pass = pass)
 
   # submit test ping
-  response <- httr::GET(url = "", scheme = "http",
-                        hostname = influxdb_srv$host,
-                        port = influxdb_srv$port,
-                        path = "ping", httr::timeout(5))
+  response <- tryCatch(httr::GET(url = "", scheme = "http",
+                       hostname = influxdb_srv$host,
+                       port = influxdb_srv$port,
+                       path = "ping", httr::timeout(timeout)),
+                       error = function(e) {print(e); return(NULL)})
+
+  if (is.null(response)) {
+    return(NULL)
+  }
 
   # print url
   if (verbose) print(response$url)
@@ -86,7 +99,8 @@ influx_connection <-  function(host = NULL,
   # Check for communication errors
   if (response$status_code != 204) {
     if (length(response$content) > 0) warning(rawToChar(response$content))
-    stop("Influx connection failed with HTTP status code ", response$status_code)
+    warning("Influx connection failed with HTTP status code ", response$status_code)
+    return(NULL)
   }
 
   # print server response
@@ -144,6 +158,11 @@ influx_query <- function(con,
                          return_xts = TRUE,
                          verbose = FALSE) {
 
+  if (is.null(con)) {
+    warning("Connection object is NULL.")
+    return(NULL)
+  }
+
   # development options
   debug <-  FALSE
 
@@ -157,13 +176,21 @@ influx_query <- function(con,
   # add query
   q <- c(q, q = query)
 
+  if (verbose) print(query)
+
   # submit query
-  response <- httr::GET(url = "",
-                        scheme = "http",
-                        hostname = con$host,
-                        port = con$port,
-                        path = "query",
-                        query = q)
+  response <- tryCatch(httr::GET(url = "",
+                                 scheme = "http",
+                                 hostname = con$host,
+                                 port = con$port,
+                                 path = "query",
+                                 query = q),
+                       error = function(e) {print(e); return(NULL)})
+
+  # if curl fails return NULL
+  if (is.null(response)) {
+    return(NULL)
+  }
 
   # print url
   if (verbose) print(response$url)
@@ -172,9 +199,10 @@ influx_query <- function(con,
   if (debug) debug_influx_query_response_data <<- response
 
   # Check for communication errors
-  if (response$status_code < 200 || response$status_code >= 300) {
-    if (length(response$content) > 0)
-      stop(rawToChar(response$content), call. = FALSE)
+  if (!response$status_code %in% c(200,204)) {
+    response_data <- jsonlite::fromJSON(rawToChar(response$content))
+    warning(paste("http:", response_data$error), call. = FALSE)
+    return(NULL)
   }
 
   # parse response from json
@@ -185,7 +213,8 @@ influx_query <- function(con,
 
   # Check for database or time series error
   if (exists(x = "error", where = response_data)) {
-    stop(response_data$error, call. = FALSE)
+    warning(response_data$error, call. = FALSE)
+    return(NULL)
   }
 
   # Check if query returned results
@@ -197,7 +226,8 @@ influx_query <- function(con,
       # check if query returned series object(s) with errors
       if (exists(x = "error", where = resultsObj)) {
 
-        stop(resultsObj$error, call. = FALSE)
+        warning(resultsObj$error, call. = FALSE)
+        return(NULL)
 
       } else {
 
@@ -220,6 +250,7 @@ influx_query <- function(con,
 
               # convert columns to most appropriate type
               # type.convert needs characters!
+              # TODO: CONSUMES A LOT OF TIME OF FUN CALL!!! ALTERNATIVES ?
               values[] <- lapply(values, as.character)
               values[] <- lapply(values, type.convert, as.is = TRUE)
 
@@ -445,83 +476,6 @@ influx_write <- function(con,
   invisible(res)
 
 }
-
-#' influx_select
-#'
-#' This function is a convenient wrapper for selecting data from a measurement
-#' by calling \code{influx_query} with the corresponding query.
-#'
-#' @param con An influx_connection object (s. \code{influx_connection}).
-#' @param db Sets the name of the database.
-#' @param field_keys Specifies the fields to be selected.
-#' @param rp The name of the retention policy.
-#' @param measurement Sets the name of the measurement.
-#' @param where Apply filter on tag key values.
-#' @param group_by The group_by clause in InfluxDB is used not only for
-#' grouping by given values, but also for grouping by given time buckets.
-#' @param limit Limits the number of the n oldest points to be returned.
-#' @param slimit logical. Sets limiting procedure (slimit vs. limit).
-#' @param offset Offsets the returned points by the value provided.
-#' @param order_desc logical. Change sort order to descending.
-#' @param return_xts logical. Sets the return type. If set to TRUE, xts objects
-#' are returned, FALSE gives data.frames.
-#'
-#' @return A list of xts or data.frame objects.
-#' @export
-#' @references \url{https://docs.influxdata.com/influxdb/v0.10/query_language/data_exploration/}
-influx_select <- function(con,
-                          db,
-                          field_keys,
-                          rp = NULL,
-                          measurement,
-                          where = NULL,
-                          group_by = NULL,
-                          limit = NULL,
-                          slimit = FALSE,
-                          offset = NULL,
-                          order_desc = FALSE,
-                          return_xts = TRUE) {
-
-  if (!is.null(rp)) {
-    options("useFancyQuotes" = FALSE)
-    measurement <- paste(base::dQuote(rp), measurement, sep = ".")
-  }
-
-  query <- paste("SELECT", field_keys, "FROM", measurement)
-
-  query <- ifelse(is.null(where),
-                  query,
-                  paste(query, "WHERE", where))
-
-  query <- ifelse(is.null(group_by),
-                  query,
-                  paste(query, "GROUP BY", group_by))
-
-  query <- ifelse(!order_desc,
-                  query,
-                  paste(query, "ORDER BY time DESC"))
-
-  query <- ifelse(is.null(limit),
-                  query,
-                  paste(query, ifelse(slimit, "SLIMIT", "LIMIT"), limit))
-
-  query <- ifelse(is.null(offset),
-                  query,
-                  paste(query, "OFFSET", offset))
-
-  result <- influx_query(con = con,
-                         db = db,
-                         query = query,
-                         return_xts = return_xts,
-                         verbose = FALSE)
-
-  # concatenate list to get a more intuitive list
-  result <- do.call(c,result)
-
-  invisible(result)
-
-}
-
 
 # method to convert an xts-object to influxdb specific line protocol
 .xts_to_influxdb_line_protocol <- function(xts,
