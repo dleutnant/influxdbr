@@ -67,8 +67,10 @@ influx_select <- function(con,
                          return_xts = return_xts,
                          verbose = FALSE)
 
+  if (is.null(result)) return(NULL)
+
   # concatenate list to get a more intuitive list
-  result <- do.call(c,result)
+  result <- do.call(c, result)
 
   invisible(result)
 

@@ -210,7 +210,7 @@ influxdb_inspector <- function() {
                                                measurement = .measurement)
 
       if (!is.null(field_keys)) {
-        field_keys <- field_keys[[1]]$fieldkey
+        field_keys <- field_keys[[1]]$fieldKey
       } else {
         field_keys <- ""
       }
