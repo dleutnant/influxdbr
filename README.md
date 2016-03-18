@@ -1,15 +1,16 @@
-[![Build Status](https://travis-ci.org/dleutnant/influxdbr.svg?branch=0.9.6)](https://travis-ci.org/dleutnant/influxdbr)
 influxdbr
 ================
+
+[![Build Status](https://travis-ci.org/dleutnant/influxdbr.svg?branch=0.10.3)](https://travis-ci.org/dleutnant/influxdbr)
 
 R interface to InfluxDB (&gt;=0.9.3, 0.10.3 compatible, diagnostics &gt;= 0.9.4)
 
 Install using devtools:
 
 ``` r
-if(!require(devtools)) {
+if (!require(devtools)) {
   install.packages('devtools')
-  devtools::install_github("dleutnant/influxdbr")
+  devtools::install_github("dleutnant/influxdbr@0.10.3")
 }
 ```
 
@@ -63,10 +64,11 @@ str(xts_data)
     ##  $ n          : num 180
 
 ``` r
-con <- influxdbr::influx_connection(host = "localhost",
-                                      port = 8086,
-                                      user = "root",
-                                      pass = "root")
+# con <- influxdbr::influx_connection(host = "localhost",
+#                                     port = 8086,
+#                                     user = "root",
+#                                     pass = "root")
+con <- influxdbr::influx_connection(group = "admin")
 ```
 
     ## Success: (204) No Content
@@ -77,7 +79,7 @@ influxdbr::create_database(con = con, db = "mydb")
 influxdbr::show_databases(con = con)
 ```
 
-    ## [1] "_internal" "mydb"
+    ## [1] "_internal" "stbmod"    "wasig"     "mydb"
 
 ``` r
 influxdbr::influx_write(con = con, 
