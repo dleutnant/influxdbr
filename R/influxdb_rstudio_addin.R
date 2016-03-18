@@ -109,7 +109,7 @@ influxdb_inspector <- function() {
                        flex = c(2,3), width = "100%", height = "100%")),
                    miniUI::miniButtonBlock(
                      shiny::actionButton(inputId = "getseries",
-                                  label = "Get Series")
+                                  label = "get series")
                    )
                    ),
       miniUI::miniTabPanel("Visualize", icon = shiny::icon("area-chart"),
