@@ -104,6 +104,7 @@ influxdb_inspector <- function() {
                                          placeholder = "the name of the result object
                                          in the global environment",
                                          value = "")
+                        # TODO: add some datepickers
                         ),
                        DT::dataTableOutput("series"),
                        flex = c(2,3), width = "100%", height = "100%")),
