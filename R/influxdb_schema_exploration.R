@@ -91,8 +91,20 @@ show_series <- function(con, db, measurement=NULL, where=NULL) {
                          query = query,
                          return_xts = F)
 
-  result <- lapply(Reduce(c, result[[1]]),
-                   FUN = function(x) x[ ,!(colnames(x) == "_key")])
+  # extract keys
+  result <- result[[1]][[1]][[1]]$key
+
+  # do the conversion
+  result <- lapply(result, .influxdb_line_protocol_to_array)
+
+  # produce one data.frame
+  result <- Reduce(function(x, y) merge(x, y,
+                                        all = TRUE),
+                   x = result)
+
+  # old version before influxdb 0.11.0
+  # result <- lapply(Reduce(c, result[[1]]),
+  #                  FUN = function(x) x[ ,!(colnames(x) == "_key")])
 
   return(result)
 }
@@ -165,6 +177,9 @@ show_tag_values <- function(con, db, measurement=NULL, key) {
                          return_xts = F)
 
   result <- Reduce(c, result[[1]][[1]])
+
+  # new due to upgrade to 0.11.1
+  result <- result$value
 
   return(result)
 

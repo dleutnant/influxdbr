@@ -577,3 +577,24 @@ influx_write <- function(con,
   # invisibly return influxdb line protocol string
   invisible(influxdb_line_protocol)
 }
+
+
+.influxdb_line_protocol_to_array <- function(x) {
+
+  # split by ","
+  splitted_string <- unlist(strsplit(x, split = ","))
+
+  # extract measurement name
+  #measurement_name <- splitted_string[1]
+
+  # extract tags and tag values
+  df <- strsplit(x = splitted_string[-1], split = "=")
+  df <- do.call(cbind, df)
+
+  # create result df with tag names as colnames
+  result <- data.frame(t(df[2,]), stringsAsFactors = FALSE)
+  colnames(result) <- df[1,]
+
+  return(result)
+
+}

@@ -1,16 +1,16 @@
 influxdbr
 ================
 
-[![Build Status](https://travis-ci.org/dleutnant/influxdbr.svg?branch=0.10.3)](https://travis-ci.org/dleutnant/influxdbr)
+[![Build Status](https://travis-ci.org/dleutnant/influxdbr.svg?branch=0.11.1)](https://travis-ci.org/dleutnant/influxdbr)
 
-R interface to InfluxDB (&gt;=0.9.3, 0.10.3 compatible, diagnostics &gt;= 0.9.4)
+R interface to InfluxDB (&gt;=0.11.1)
 
 Install using devtools:
 
 ``` r
 if (!require(devtools)) {
   install.packages('devtools')
-  devtools::install_github("dleutnant/influxdbr@0.10.3")
+  devtools::install_github("dleutnant/influxdbr@0.11.1")
 }
 ```
 
@@ -79,7 +79,7 @@ influxdbr::create_database(con = con, db = "mydb")
 influxdbr::show_databases(con = con)
 ```
 
-    ## [1] "_internal" "stbmod"    "wasig"     "mydb"
+    ## [1] "_internal" "wasig"     "mydb"      "stbmod"
 
 ``` r
 influxdbr::influx_write(con = con, 
@@ -143,5 +143,4 @@ show_tag_keys(con = con, db = "mydb")
 show_tag_values(con = con, db = "mydb", measurement = NULL, key = "UnitTesting")
 ```
 
-    ##   UnitTesting
-    ## 1        TRUE
+    ## [1] TRUE

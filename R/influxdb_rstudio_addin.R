@@ -10,16 +10,18 @@ create_query_string <- function(series, tags) {
 
     for (j in 1:ncol(series)) {
 
-      if ((colnames(series)[j]) %in% tags) {
+      if (((colnames(series)[j]) %in% tags) & (!is.na(series[i,j]))) {
 
         if (is.null(query_string)) {
 
-          query_string <- paste(colnames(series)[j], base::sQuote(series[i,j]),sep = "=")
+          query_string <- paste(colnames(series)[j],
+                                base::sQuote(series[i,j]),sep = "=")
 
         } else {
 
           query_string <- paste(query_string,
-                                paste(colnames(series)[j], base::sQuote(series[i,j]),
+                                paste(colnames(series)[j],
+                                      base::sQuote(series[i,j]),
                                       sep = "="), sep = "AND ")
         }
 
@@ -31,6 +33,7 @@ create_query_string <- function(series, tags) {
   return(string)
 }
 
+#' @importFrom magrittr %>%
 influxdb_inspector <- function() {
 
   # check if suggested packages are available:
@@ -177,7 +180,7 @@ influxdb_inspector <- function() {
                                           measurement = .measurement)
 
       if (length(series_df) > 0) {
-        return(series_df[[1]])
+        return(series_df)
       } else {
         return(data.frame(NULL))
       }
