@@ -1,4 +1,4 @@
 Name: influxdbr
 Description: An easy-to-use UI to get timeseries from an influxdb instance
-Binding: influxdb_inspector
+Binding: influxdb_addin
 Interactive: false

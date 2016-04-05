@@ -34,7 +34,7 @@ create_query_string <- function(series, tags) {
 }
 
 #' @importFrom magrittr %>%
-influxdb_inspector <- function() {
+influxdb_addin <- function() {
 
   # check if suggested packages are available:
   required_pkgs <- c("DT", "leaflet", "miniUI", "rstudioapi", "shiny")
