@@ -15,6 +15,7 @@
 #' @references \url{https://influxdb.com/}
 influx_connection <-  function(host = NULL,
                                port = NULL,
+                               scheme = "http",
                                user = "user",
                                pass = "pass",
                                group = NULL,
@@ -60,6 +61,10 @@ influx_connection <-  function(host = NULL,
                    grep("pass=",
                         lines[(grp + 1):(grp + 4)], fixed = T, value = T))
 
+      pass <- gsub("scheme=", "",
+                   grep("scheme=",
+                        lines[(grp + 1):(grp + 4)], fixed = T, value = T))
+
       # close file connection
       close(con)
 
@@ -72,10 +77,10 @@ influx_connection <-  function(host = NULL,
   }
 
   # create list of server connection details
-  influxdb_srv <- list(host = host, port = port, user = user, pass = pass)
+  influxdb_srv <- list(host = host, port = port, scheme = scheme, user = user, pass = pass)
 
   # submit test ping
-  response <- httr::GET(url = "", scheme = "http",
+  response <- httr::GET(url = "", scheme = influxdb_srv$scheme,
                         hostname = influxdb_srv$host,
                         port = influxdb_srv$port,
                         path = "ping", httr::timeout(5))
@@ -109,7 +114,7 @@ influx_ping <- function(con) {
 
   # submit ping
   response <- httr::GET(url = "",
-                        scheme = "http",
+                        scheme = con$scheme,
                         hostname = con$host,
                         port = con$port,
                         path = "ping")
