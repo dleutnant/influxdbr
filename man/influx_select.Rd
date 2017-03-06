@@ -45,4 +45,3 @@ by calling \code{influx_query} with the corresponding query.
 \references{
 \url{https://docs.influxdata.com/influxdb/v0.10/query_language/data_exploration/}
 }
-

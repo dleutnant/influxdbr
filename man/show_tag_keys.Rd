@@ -26,13 +26,12 @@ associated with each measurement by calling
 The query can include a measurement (\code{measurement}) and tag key value (\code{where})
 conditions, so only certain tag keys are shown.
 }
-\author{
-Dominik Leutnant (\email{leutnant@fh-muenster.de})
-}
 \references{
 \url{https://docs.influxdata.com/influxdb/v0.10/query_language/schema_exploration/}
 }
 \seealso{
 \code{\link[influxdbr]{influx_connection}}
 }
-
+\author{
+Dominik Leutnant (\email{leutnant@fh-muenster.de})
+}

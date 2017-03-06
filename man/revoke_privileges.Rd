@@ -22,13 +22,12 @@ Revoke database privileges
 This function is a convenient wrapper for revoking database privileges to an
 existing user by calling \code{influx_query} with the corresponding query.
 }
-\author{
-Dominik Leutnant (\email{leutnant@fh-muenster.de})
-}
 \references{
 \url{https://docs.influxdata.com/influxdb/v0.10/administration/authentication_and_authorization/}
 }
 \seealso{
 \code{\link[influxdbr]{influx_connection}}
 }
-
+\author{
+Dominik Leutnant (\email{leutnant@fh-muenster.de})
+}

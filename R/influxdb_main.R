@@ -252,7 +252,7 @@ influx_query <- function(con,
               # type.convert needs characters!
               # TODO: CONSUMES A LOT OF TIME OF FUN CALL!!! ALTERNATIVES ?
               values[] <- lapply(values, as.character)
-              values[] <- lapply(values, type.convert, as.is = TRUE)
+              values[] <- lapply(values, utils::type.convert, as.is = TRUE)
 
               # check if response contains columns
               if (exists(x = "columns", where = seriesObj)) {

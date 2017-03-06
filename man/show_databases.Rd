@@ -19,13 +19,12 @@ Show databases
 This function is a convenient wrapper for showing all databases
 by calling \code{influx_query} with the corresponding query.
 }
-\author{
-Dominik Leutnant (\email{leutnant@fh-muenster.de})
-}
 \references{
 \url{https://docs.influxdata.com/influxdb/v0.10/query_language/schema_exploration/}
 }
 \seealso{
 \code{\link[influxdbr]{influx_connection}}
 }
-
+\author{
+Dominik Leutnant (\email{leutnant@fh-muenster.de})
+}

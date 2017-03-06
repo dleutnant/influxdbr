@@ -25,13 +25,12 @@ field keys across each measurement in the database by calling
 \code{influx_query} with the corresponding query.
 A measurement can be specified (\code{measurement}).
 }
-\author{
-Dominik Leutnant (\email{leutnant@fh-muenster.de})
-}
 \references{
 \url{https://docs.influxdata.com/influxdb/v0.10/query_language/schema_exploration/}
 }
 \seealso{
 \code{\link[influxdbr]{influx_connection}}
 }
-
+\author{
+Dominik Leutnant (\email{leutnant@fh-muenster.de})
+}

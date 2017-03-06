@@ -28,13 +28,12 @@ the corresponding query. Series can be shown for a specific meausurement with
 the (\code{measurement}) parameter and can also be filtered by tag key values with
 the \code{where} clause.
 }
-\author{
-Dominik Leutnant (\email{leutnant@fh-muenster.de})
-}
 \references{
 \url{https://docs.influxdata.com/influxdb/v0.10/query_language/schema_exploration/}
 }
 \seealso{
 \code{\link[influxdbr]{influx_connection}}
 }
-
+\author{
+Dominik Leutnant (\email{leutnant@fh-muenster.de})
+}

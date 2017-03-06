@@ -29,9 +29,6 @@ specified.}
 \description{
 Create an influxdb_connection object
 }
-\author{
-Dominik Leutnant (\email{leutnant@fh-muenster.de})
-}
 \references{
 \url{https://docs.influxdata.com/influxdb/}
 A group file looks like:
@@ -41,4 +38,6 @@ port=8086
 user=username
 pass=password
 }
-
+\author{
+Dominik Leutnant (\email{leutnant@fh-muenster.de})
+}

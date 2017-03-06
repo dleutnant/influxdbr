@@ -29,13 +29,12 @@ A list of xts or data.frame objects.
 \description{
 Query an influxdb server
 }
-\author{
-Dominik Leutnant (\email{leutnant@fh-muenster.de})
-}
 \references{
 \url{https://docs.influxdata.com/influxdb/v0.10/guides/querying_data/}
 }
 \seealso{
 \code{\link[xts]{xts}}, \code{\link[influxdbr]{influx_connection}}
 }
-
+\author{
+Dominik Leutnant (\email{leutnant@fh-muenster.de})
+}

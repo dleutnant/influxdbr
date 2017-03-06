@@ -15,13 +15,12 @@ A list of server information.
 \description{
 Ping an influxdb server
 }
-\author{
-Dominik Leutnant (\email{leutnant@fh-muenster.de})
-}
 \references{
 \url{https://docs.influxdata.com/influxdb/v0.10/concepts/api/}
 }
 \seealso{
 \code{\link[xts]{xts}}, \code{\link[influxdbr]{influx_connection}}
 }
-
+\author{
+Dominik Leutnant (\email{leutnant@fh-muenster.de})
+}
