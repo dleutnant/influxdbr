@@ -4,40 +4,41 @@
 \alias{influx_connection}
 \title{influx_connection}
 \usage{
-influx_connection(host = NULL, port = NULL, user = "user",
-  pass = "pass", group = NULL, verbose = FALSE,
-  config_file = "~/.influxdb.cnf", timeout = 5)
+influx_connection(scheme = "http", host = "localhost", port = 8086,
+  user = "user", pass = "pass", path = "/", group = NULL,
+  verbose = FALSE, config_file = "~/.influxdb.cnf")
 }
 \arguments{
-\item{host}{hostname}
+\item{scheme}{The scheme to use, either http or https. Defaults to http.}
 
-\item{port}{numerical. port number}
+\item{host}{Hostname of the InfluxDB server. Defaults to localhost}
 
-\item{user}{username}
+\item{port}{numerical. Port number of the InfluxDB server. Defaults to 8086.}
 
-\item{pass}{password}
+\item{user}{username The username to use. Defaults to "user"}
 
-\item{group}{groupname}
+\item{pass}{password The password to use. Defaults to "pass".}
+
+\item{path}{The prefix path on which the InfluxDB is running. Can be useful in proxy situations.}
+
+\item{group}{The group to use within the config file.}
 
 \item{verbose}{logical. Provide additional details?}
 
-\item{config_file}{The configuration file to be used if \code{group} is}
-
-\item{timeout}{Set maximum request time
+\item{config_file}{The configuration file to be used if \code{groupname} is
 specified.}
 }
 \description{
 Create an influxdb_connection object
 }
 \references{
-\url{https://docs.influxdata.com/influxdb/}
+\url{https://influxdb.com/}
 A group file looks like:
 [groupname]
+scheme=http
 host=localhost
 port=8086
 user=username
 pass=password
-}
-\author{
-Dominik Leutnant (\email{leutnant@fh-muenster.de})
+path=/
 }

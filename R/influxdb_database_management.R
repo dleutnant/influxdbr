@@ -10,7 +10,6 @@
 #' @return A list of server responses.
 #' @rdname create_database
 #' @export
-#' @author Dominik Leutnant (\email{leutnant@@fh-muenster.de})
 #' @seealso \code{\link[influxdbr]{influx_connection}}
 #' @references \url{https://docs.influxdata.com/influxdb/}
 create_database <- function(con, db) {
@@ -36,7 +35,6 @@ create_database <- function(con, db) {
 #' @return A list of server responses.
 #' @rdname drop_database
 #' @export
-#' @author Dominik Leutnant (\email{leutnant@@fh-muenster.de})
 #' @seealso \code{\link[influxdbr]{influx_connection}}
 #' @references \url{https://docs.influxdata.com/influxdb/}
 drop_database <- function(con, db) {
@@ -65,7 +63,6 @@ drop_database <- function(con, db) {
 #' @return A list of server responses.
 #' @rdname drop_series
 #' @export
-#' @author Dominik Leutnant (\email{leutnant@@fh-muenster.de})
 #' @seealso \code{\link[influxdbr]{influx_connection}}
 #' @references \url{https://docs.influxdata.com/influxdb/}
 drop_series <- function(con, db, id=NULL, measurement=NULL, where=NULL) {
@@ -110,7 +107,6 @@ drop_series <- function(con, db, id=NULL, measurement=NULL, where=NULL) {
 #' @return A list of server responses.
 #' @rdname drop_measurement
 #' @export
-#' @author Dominik Leutnant (\email{leutnant@@fh-muenster.de})
 #' @seealso \code{\link[influxdbr]{influx_connection}}
 #' @references \url{https://docs.influxdata.com/influxdb/}
 drop_measurement <- function(con, db, measurement) {
@@ -140,7 +136,6 @@ drop_measurement <- function(con, db, measurement) {
 #' @return A list of server responses.
 #' @rdname create_retention_policy
 #' @export
-#' @author Dominik Leutnant (\email{leutnant@@fh-muenster.de})
 #' @seealso \code{\link[influxdbr]{influx_connection}}
 #' @references \url{https://docs.influxdata.com/influxdb/}
 create_retention_policy <- function(con,
@@ -185,7 +180,6 @@ create_retention_policy <- function(con,
 #' @return A list of server responses.
 #' @rdname alter_retention_policy
 #' @export
-#' @author Dominik Leutnant (\email{leutnant@@fh-muenster.de})
 #' @seealso \code{\link[influxdbr]{influx_connection}}
 #' @references \url{https://docs.influxdata.com/influxdb/}
 alter_retention_policy <- function(con,
@@ -224,7 +218,6 @@ alter_retention_policy <- function(con,
 #' @return A list of server responses.
 #' @rdname drop_retention_policy
 #' @export
-#' @author Dominik Leutnant (\email{leutnant@@fh-muenster.de})
 #' @seealso \code{\link[influxdbr]{influx_connection}}
 #' @references \url{https://docs.influxdata.com/influxdb/}
 drop_retention_policy <- function(con, rp_name, db) {

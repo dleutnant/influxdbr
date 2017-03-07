@@ -27,11 +27,8 @@ The query can include a measurement (\code{measurement}) and tag key value (\cod
 conditions, so only certain tag keys are shown.
 }
 \references{
-\url{https://docs.influxdata.com/influxdb/v0.10/query_language/schema_exploration/}
+\url{https://docs.influxdata.com/influxdb/}
 }
 \seealso{
 \code{\link[influxdbr]{influx_connection}}
-}
-\author{
-Dominik Leutnant (\email{leutnant@fh-muenster.de})
 }

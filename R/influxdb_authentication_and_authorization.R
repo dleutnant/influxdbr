@@ -9,7 +9,6 @@
 #' @param password Sets the password.
 #' @rdname create_user
 #' @export
-#' @author Dominik Leutnant (\email{leutnant@@fh-muenster.de})
 #' @seealso \code{\link[influxdbr]{influx_connection}}
 #' @references \url{https://docs.influxdata.com/influxdb/}
 create_user <- function(con, username, password) {
@@ -37,7 +36,6 @@ create_user <- function(con, username, password) {
 #' @param username Specifies the user to be dropped.
 #' @rdname drop_user
 #' @export
-#' @author Dominik Leutnant (\email{leutnant@@fh-muenster.de})
 #' @seealso \code{\link[influxdbr]{influx_connection}}
 #' @references \url{https://docs.influxdata.com/influxdb/}
 drop_user <- function(con, username) {
@@ -64,7 +62,6 @@ drop_user <- function(con, username) {
 #' @param username Specifies the user.
 #' @rdname grant_privileges
 #' @export
-#' @author Dominik Leutnant (\email{leutnant@@fh-muenster.de})
 #' @seealso \code{\link[influxdbr]{influx_connection}}
 #' @references \url{https://docs.influxdata.com/influxdb/}
 grant_privileges <- function(con, privilege = c("READ", "WRITE", "ALL"), db, username) {
@@ -93,7 +90,6 @@ grant_privileges <- function(con, privilege = c("READ", "WRITE", "ALL"), db, use
 #' @param username Specifies the user.
 #' @rdname revoke_privileges
 #' @export
-#' @author Dominik Leutnant (\email{leutnant@@fh-muenster.de})
 #' @seealso \code{\link[influxdbr]{influx_connection}}
 #' @references \url{https://docs.influxdata.com/influxdb/}
 revoke_privileges <- function(con, privilege = c("READ", "WRITE", "ALL"), db, username) {
@@ -119,7 +115,6 @@ revoke_privileges <- function(con, privilege = c("READ", "WRITE", "ALL"), db, us
 #' @param con An influx_connection object (s. \code{influx_connection}).
 #' @rdname show_users
 #' @export
-#' @author Dominik Leutnant (\email{leutnant@@fh-muenster.de})
 #' @seealso \code{\link[influxdbr]{influx_connection}}
 #' @references \url{https://docs.influxdata.com/influxdb/}
 show_users <- function(con) {
@@ -144,7 +139,6 @@ show_users <- function(con) {
 #' @param user The username.
 #' @rdname show_grants
 #' @export
-#' @author Dominik Leutnant (\email{leutnant@@fh-muenster.de})
 #' @seealso \code{\link[influxdbr]{influx_connection}}
 #' @references \url{https://docs.influxdata.com/influxdb/}
 show_grants <- function(con, user) {

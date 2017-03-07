@@ -19,11 +19,8 @@ This function is a convenient wrapper for dropping a user from an influxdb
 server by calling \code{influx_query} with the corresponding query.
 }
 \references{
-\url{https://docs.influxdata.com/influxdb/v0.10/administration/authentication_and_authorization/}
+\url{https://docs.influxdata.com/influxdb/}
 }
 \seealso{
 \code{\link[influxdbr]{influx_connection}}
-}
-\author{
-Dominik Leutnant (\email{leutnant@fh-muenster.de})
 }

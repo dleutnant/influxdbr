@@ -9,7 +9,6 @@
 #' @return A character vector containing the database names.
 #' @rdname show_databases
 #' @export
-#' @author Dominik Leutnant (\email{leutnant@@fh-muenster.de})
 #' @seealso \code{\link[influxdbr]{influx_connection}}
 #' @references \url{https://docs.influxdata.com/influxdb/}
 show_databases <- function(con) {
@@ -37,7 +36,6 @@ show_databases <- function(con) {
 #'
 #' @return A character vector containing the measurement names.
 #' @export
-#' @author Dominik Leutnant (\email{leutnant@@fh-muenster.de})
 #' @seealso \code{\link[influxdbr]{influx_connection}}
 #' @references \url{https://docs.influxdata.com/influxdb/}
 show_measurements <- function(con, db, where=NULL) {
@@ -73,7 +71,6 @@ show_measurements <- function(con, db, where=NULL) {
 #'
 #' @return A list of data.frame objects.
 #' @export
-#' @author Dominik Leutnant (\email{leutnant@@fh-muenster.de})
 #' @seealso \code{\link[influxdbr]{influx_connection}}
 #' @references \url{https://docs.influxdata.com/influxdb/}
 show_series <- function(con, db, measurement=NULL, where=NULL) {
@@ -124,7 +121,6 @@ show_series <- function(con, db, measurement=NULL, where=NULL) {
 #'
 #' @return A list of character vectors containing tag keys.
 #' @export
-#' @author Dominik Leutnant (\email{leutnant@@fh-muenster.de})
 #' @seealso \code{\link[influxdbr]{influx_connection}}
 #' @references \url{https://docs.influxdata.com/influxdb/}
 show_tag_keys <- function(con, db, measurement=NULL) {
@@ -158,7 +154,6 @@ show_tag_keys <- function(con, db, measurement=NULL) {
 #'
 #' @return A character vector containing tag values.
 #' @export
-#' @author Dominik Leutnant (\email{leutnant@@fh-muenster.de})
 #' @seealso \code{\link[influxdbr]{influx_connection}}
 #' @references \url{https://docs.influxdata.com/influxdb/}
 show_tag_values <- function(con, db, measurement=NULL, key) {
@@ -199,7 +194,6 @@ show_tag_values <- function(con, db, measurement=NULL, key) {
 #'
 #' @return A list with data.frames containing field keys.
 #' @export
-#' @author Dominik Leutnant (\email{leutnant@@fh-muenster.de})
 #' @seealso \code{\link[influxdbr]{influx_connection}}
 #' @references \url{https://docs.influxdata.com/influxdb/}
 show_field_keys <- function(con, db, measurement=NULL) {
@@ -231,7 +225,6 @@ show_field_keys <- function(con, db, measurement=NULL) {
 #' @return A data.frame containing the retention plocies.
 #' @rdname show_retention_policies
 #' @export
-#' @author Dominik Leutnant (\email{leutnant@@fh-muenster.de})
 #' @seealso \code{\link[influxdbr]{influx_connection}}
 #' @references \url{https://docs.influxdata.com/influxdb/}
 show_retention_policies <- function(con, db) {

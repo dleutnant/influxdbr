@@ -9,7 +9,6 @@
 #' @return A list of data.frame objects.
 #' @rdname show_stats
 #' @export
-#' @author Dominik Leutnant (\email{leutnant@@fh-muenster.de})
 #' @seealso \code{\link[influxdbr]{influx_connection}}
 show_stats <- function(con) {
 
@@ -41,7 +40,6 @@ show_stats <- function(con) {
 #' @return A list with diagnostics.
 #' @rdname show_diagnostics
 #' @export
-#' @author Dominik Leutnant (\email{leutnant@@fh-muenster.de})
 #' @seealso \code{\link[influxdbr]{influx_connection}}
 show_diagnostics <- function(con) {
 

@@ -25,11 +25,8 @@ by calling \code{influx_query} with the corresponding query.
 Measurements can be filtered by tag key values with the \code{where} clause.
 }
 \references{
-\url{https://docs.influxdata.com/influxdb/v0.10/query_language/schema_exploration/}
+\url{https://docs.influxdata.com/influxdb/}
 }
 \seealso{
 \code{\link[influxdbr]{influx_connection}}
-}
-\author{
-Dominik Leutnant (\email{leutnant@fh-muenster.de})
 }

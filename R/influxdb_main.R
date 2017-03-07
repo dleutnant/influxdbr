@@ -383,7 +383,6 @@ influx_query <- function(con,
 #' @return A list of server responses.
 #' @rdname influx_write
 #' @export
-#' @author Dominik Leutnant (\email{leutnant@@fh-muenster.de})
 #' @seealso \code{\link[xts]{xts}}, \code{\link[influxdbr]{influx_connection}}
 #' @references \url{https://docs.influxdata.com/influxdb/}
 influx_write <- function(con,

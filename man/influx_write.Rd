@@ -40,11 +40,8 @@ A list of server responses.
 Write an xts object to an influxdb server
 }
 \references{
-\url{https://docs.influxdata.com/influxdb/v0.10/guides/writing_data/}
+\url{https://docs.influxdata.com/influxdb/}
 }
 \seealso{
 \code{\link[xts]{xts}}, \code{\link[influxdbr]{influx_connection}}
-}
-\author{
-Dominik Leutnant (\email{leutnant@fh-muenster.de})
 }

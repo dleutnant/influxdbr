@@ -30,11 +30,8 @@ A list of xts or data.frame objects.
 Query an influxdb server
 }
 \references{
-\url{https://docs.influxdata.com/influxdb/v0.10/guides/querying_data/}
+\url{https://docs.influxdata.com/influxdb/}
 }
 \seealso{
 \code{\link[xts]{xts}}, \code{\link[influxdbr]{influx_connection}}
-}
-\author{
-Dominik Leutnant (\email{leutnant@fh-muenster.de})
 }

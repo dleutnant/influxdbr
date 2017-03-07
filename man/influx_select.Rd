@@ -43,5 +43,5 @@ This function is a convenient wrapper for selecting data from a measurement
 by calling \code{influx_query} with the corresponding query.
 }
 \references{
-\url{https://docs.influxdata.com/influxdb/v0.10/query_language/data_exploration/}
+\url{https://docs.influxdata.com/influxdb/}
 }
