@@ -2,7 +2,7 @@
 % Please edit documentation in R/influxdb_schema_exploration.R
 \name{show_tag_keys}
 \alias{show_tag_keys}
-\title{show_tag_keys}
+\title{Show tag keys}
 \usage{
 show_tag_keys(con, db, measurement = NULL)
 }
@@ -17,9 +17,6 @@ show_tag_keys(con, db, measurement = NULL)
 A list of character vectors containing tag keys.
 }
 \description{
-Show tag keys
-}
-\details{
 This function is a convenient wrapper for showing all unique tag keys
 associated with each measurement by calling
 \code{influx_query} with the corresponding query.

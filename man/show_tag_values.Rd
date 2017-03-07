@@ -2,7 +2,7 @@
 % Please edit documentation in R/influxdb_schema_exploration.R
 \name{show_tag_values}
 \alias{show_tag_values}
-\title{show_tag_values}
+\title{Show tag values}
 \usage{
 show_tag_values(con, db, measurement = NULL, key)
 }
@@ -19,9 +19,6 @@ show_tag_values(con, db, measurement = NULL, key)
 A character vector containing tag values.
 }
 \description{
-Show tag values
-}
-\details{
 This function is a convenient wrapper for showing the unique set of
 tag values for each measurement, for a given tag key by calling
 \code{influx_query} with the corresponding query.

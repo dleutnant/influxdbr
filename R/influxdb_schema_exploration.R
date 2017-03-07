@@ -1,9 +1,6 @@
-#' Show databases
-#'
-#' This function is a convenient wrapper for showing all databases
+#' @title Show databases
+#' @description This function is a convenient wrapper for showing all databases
 #' by calling \code{influx_query} with the corresponding query.
-#'
-#' @title show_databases
 #' @param con An influx_connection object (s. \code{influx_connection}).
 #'
 #' @return A character vector containing the database names.
@@ -23,13 +20,10 @@ show_databases <- function(con) {
 
 }
 
-#' Show measurements
-#'
-#' This function is a convenient wrapper for showing all measurements
+#' @title Show measurements
+#' @description This function is a convenient wrapper for showing all measurements
 #' by calling \code{influx_query} with the corresponding query.
 #' Measurements can be filtered by tag key values with the \code{where} clause.
-#'
-#' @title show_measurements
 #' @param con An influx_connection object (s. \code{influx_connection}).
 #' @param db Sets the target database for the query.
 #' @param where Apply filter on tag key values.
@@ -55,15 +49,12 @@ show_measurements <- function(con, db, where=NULL) {
 
 }
 
-#' Show series
-#'
-#' This function is a convenient wrapper for showing all series with distinct
+#' @title Show series
+#' @description This function is a convenient wrapper for showing all series with distinct
 #' key-value pairs by calling \code{influx_query} with
 #' the corresponding query. Series can be shown for a specific meausurement with
 #' the (\code{measurement}) parameter and can also be filtered by tag key values with
 #' the \code{where} clause.
-#'
-#' @title show_series
 #' @param con An influx_connection object (s. \code{influx_connection}).
 #' @param db Sets the target database for the query.
 #' @param measurement Query a specific measurement.
@@ -106,15 +97,12 @@ show_series <- function(con, db, measurement=NULL, where=NULL) {
   return(result)
 }
 
-#' Show tag keys
-#'
-#' This function is a convenient wrapper for showing all unique tag keys
+#' @title Show tag keys
+#' @description This function is a convenient wrapper for showing all unique tag keys
 #' associated with each measurement by calling
 #' \code{influx_query} with the corresponding query.
 #' The query can include a measurement (\code{measurement}) and tag key value (\code{where})
 #' conditions, so only certain tag keys are shown.
-#'
-#' @title show_tag_keys
 #' @param con An influx_connection object (s. \code{influx_connection}).
 #' @param db Sets the target database for the query.
 #' @param measurement Query a specific measurement.
@@ -139,14 +127,11 @@ show_tag_keys <- function(con, db, measurement=NULL) {
   return(result)
 }
 
-#' Show tag values
-#'
-#' This function is a convenient wrapper for showing the unique set of
+#' @title Show tag values
+#' @description This function is a convenient wrapper for showing the unique set of
 #' tag values for each measurement, for a given tag key by calling
 #' \code{influx_query} with the corresponding query.
 #' Tag values can be filtered by a specific measurement (\code{measurement}).
-#'
-#' @title show_tag_values
 #' @param con An influx_connection object (s. \code{influx_connection}).
 #' @param db Sets the target database for the query.
 #' @param measurement Query a specific measurement.
@@ -180,14 +165,11 @@ show_tag_values <- function(con, db, measurement=NULL, key) {
 
 }
 
-#' Show field keys
-#'
-#' This function is a convenient wrapper for showing the
+#' @title Show field keys
+#' @description This function is a convenient wrapper for showing the
 #' field keys across each measurement in the database by calling
 #' \code{influx_query} with the corresponding query.
 #' A measurement can be specified (\code{measurement}).
-#'
-#' @title show_field_keys
 #' @param con An influx_connection object (s. \code{influx_connection}).
 #' @param db Sets the target database for the query.
 #' @param measurement Query a specific measurement.
@@ -213,13 +195,10 @@ show_field_keys <- function(con, db, measurement=NULL) {
 
 }
 
-#' Show retention policies
-#'
-#' This function is a convenient wrapper for listing the existent retention
+#' @title Show retention policies
+#' @description This function is a convenient wrapper for listing the existent retention
 #' policies on a given database by calling \code{influx_query} with the
 #' corresponding query.
-#'
-#' @title show_retention_policies
 #' @param con An influx_connection object (s. \code{influx_connection}).
 #' @param db Sets the target database for the query.
 #' @return A data.frame containing the retention plocies.

@@ -2,7 +2,7 @@
 % Please edit documentation in R/influxdb_schema_exploration.R
 \name{show_retention_policies}
 \alias{show_retention_policies}
-\title{show_retention_policies}
+\title{Show retention policies}
 \usage{
 show_retention_policies(con, db)
 }
@@ -15,9 +15,6 @@ show_retention_policies(con, db)
 A data.frame containing the retention plocies.
 }
 \description{
-Show retention policies
-}
-\details{
 This function is a convenient wrapper for listing the existent retention
 policies on a given database by calling \code{influx_query} with the
 corresponding query.

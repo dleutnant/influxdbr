@@ -2,7 +2,7 @@
 % Please edit documentation in R/influxdb_schema_exploration.R
 \name{show_field_keys}
 \alias{show_field_keys}
-\title{show_field_keys}
+\title{Show field keys}
 \usage{
 show_field_keys(con, db, measurement = NULL)
 }
@@ -17,9 +17,6 @@ show_field_keys(con, db, measurement = NULL)
 A list with data.frames containing field keys.
 }
 \description{
-Show field keys
-}
-\details{
 This function is a convenient wrapper for showing the
 field keys across each measurement in the database by calling
 \code{influx_query} with the corresponding query.

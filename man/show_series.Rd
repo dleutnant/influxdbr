@@ -2,7 +2,7 @@
 % Please edit documentation in R/influxdb_schema_exploration.R
 \name{show_series}
 \alias{show_series}
-\title{show_series}
+\title{Show series}
 \usage{
 show_series(con, db, measurement = NULL, where = NULL)
 }
@@ -19,9 +19,6 @@ show_series(con, db, measurement = NULL, where = NULL)
 A list of data.frame objects.
 }
 \description{
-Show series
-}
-\details{
 This function is a convenient wrapper for showing all series with distinct
 key-value pairs by calling \code{influx_query} with
 the corresponding query. Series can be shown for a specific meausurement with

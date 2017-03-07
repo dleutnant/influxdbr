@@ -2,7 +2,7 @@
 % Please edit documentation in R/influxdb_schema_exploration.R
 \name{show_measurements}
 \alias{show_measurements}
-\title{show_measurements}
+\title{Show measurements}
 \usage{
 show_measurements(con, db, where = NULL)
 }
@@ -17,9 +17,6 @@ show_measurements(con, db, where = NULL)
 A character vector containing the measurement names.
 }
 \description{
-Show measurements
-}
-\details{
 This function is a convenient wrapper for showing all measurements
 by calling \code{influx_query} with the corresponding query.
 Measurements can be filtered by tag key values with the \code{where} clause.

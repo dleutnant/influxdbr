@@ -2,7 +2,7 @@
 % Please edit documentation in R/influxdb_schema_exploration.R
 \name{show_databases}
 \alias{show_databases}
-\title{show_databases}
+\title{Show databases}
 \usage{
 show_databases(con)
 }
@@ -13,9 +13,6 @@ show_databases(con)
 A character vector containing the database names.
 }
 \description{
-Show databases
-}
-\details{
 This function is a convenient wrapper for showing all databases
 by calling \code{influx_query} with the corresponding query.
 }
