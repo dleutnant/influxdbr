@@ -138,7 +138,6 @@ influx_ping <- function(con) {
 #' @return A list of xts or data.frame objects.
 #' @rdname influx_query
 #' @export
-#' @author Dominik Leutnant (\email{leutnant@@fh-muenster.de})
 #' @seealso \code{\link[xts]{xts}}, \code{\link[influxdbr]{influx_connection}}
 #' @references \url{https://docs.influxdata.com/influxdb/}
 influx_query <- function(con,
@@ -438,7 +437,8 @@ influx_write <- function(con,
     # convert xts to line protocol
     influxdb_line_protocol <- .xts_to_influxdb_line_protocol(xts = x,
                                                              use_integers = use_integers,
-                                                             measurement = measurement)
+                                                             measurement = measurement,
+                                                             precision = precision)
 
     # submit post
     response <- httr::POST(url = "", httr::timeout(60),
@@ -471,6 +471,7 @@ influx_write <- function(con,
 # method to convert an xts-object to influxdb specific line protocol
 .xts_to_influxdb_line_protocol <- function(xts,
                                            measurement,
+                                           precision = precision,
                                            use_integers = FALSE){
 
   # development options
@@ -506,7 +507,15 @@ influx_write <- function(con,
   tag_key_value <- paste(tag_keys, tag_values, sep = "=", collapse = ",")
 
   # create time vector
-  time <- format(as.numeric(zoo::index(xts)), scientific = FALSE)
+  div <- switch(precision,
+                "n" = 1e+9,
+                "u" = 1e+6,
+                "ms" = 1e+3,
+                "s" = 1,
+                "m" = 1/60,
+                "h" = 1/(60*60))
+
+  time <- format(as.integer(as.numeric(zoo::index(xts)) * div), scientific = FALSE)
 
   # make sure all integers end with "i", this also sets mode to "character"
   # s. https://github.com/influxdb/influxdb/issues/3519
