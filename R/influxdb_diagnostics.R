@@ -16,13 +16,17 @@ show_stats <- function(con) {
   result <- result[[1]]
 
   # extract names as identifier
-  list_of_names <- sapply(result, names)
+  list_of_names <- unique(unlist(lapply(result, names)))
 
-  return <- sapply(unique(list_of_names),
-                   function(x) Reduce(rbind,
-                                      result[which(list_of_names == x)]))
+  result <- lapply(list_of_names,
+                   function(x) do.call(rbind,
+                                       unlist(Filter(function(y) names(y) == x,
+                                                     result),
+                                              recursive = FALSE)))
 
-  return(return)
+  names(result) <- list_of_names
+
+  return(result)
 
 }
 
