@@ -184,7 +184,7 @@ influx_query <- function(con,
   if (verbose) print(response$url)
 
   # DEBUG OUTPUT
-  if (debug) debug_influx_query_response_data <<- response
+  #if (debug) debug_influx_query_response_data <<- response
 
   # Check for communication errors
   if (!response$status_code %in% c(200,204)) {

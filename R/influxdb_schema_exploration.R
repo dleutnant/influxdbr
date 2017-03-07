@@ -94,10 +94,10 @@ show_series <- function(con, db, measurement=NULL, where=NULL, verbose = TRUE) {
   # therefore, before converting to one single data.frame, we kindly inform the user
   # about a pontentially long runnnig conversion (which is mainly caused by REDUCE ...)
   if ((verbose) & (length(result) > 1000)) {
-    choice <- select.list(choices = c("yes", "no"),
-                          title = paste("Merging multiple data.frames (", length(result),
-                                        ") might take a long time. Do you want to continue? Otherwise refine the query with 'measurement' or 'where'.",
-                                        sep = ""))
+    choice <- utils::select.list(choices = c("yes", "no"),
+                                 title = paste("Merging multiple data.frames (", length(result),
+                                               ") might take a long time. Do you want to continue? Otherwise refine the query with 'measurement' or 'where'.",
+                                               sep = ""))
     if (choice != "yes") return(result)
   }
 
