@@ -1,9 +1,6 @@
-#' Create user
-#'
-#' This function is a convenient wrapper for creating a new user
+#' @title Create user
+#' @description This function is a convenient wrapper for creating a new user
 #' by calling \code{influx_query} with the corresponding query.
-#'
-#' @title create_user
 #' @param con An influx_connection object (s. \code{influx_connection}).
 #' @param username Sets the username.
 #' @param password Sets the password.
@@ -26,12 +23,9 @@ create_user <- function(con, username, password) {
 
 }
 
-#' Drop user
-#'
-#' This function is a convenient wrapper for dropping a user from an influxdb
+#' @title Drop user
+#' @description This function is a convenient wrapper for dropping a user from an influxdb
 #' server by calling \code{influx_query} with the corresponding query.
-#'
-#' @title drop_user
 #' @param con An influx_connection object (s. \code{influx_connection}).
 #' @param username Specifies the user to be dropped.
 #' @rdname drop_user
@@ -50,12 +44,9 @@ drop_user <- function(con, username) {
 
 }
 
-#' Grant database privileges
-#'
-#' This function is a convenient wrapper for granting database privileges to an
+#' @title Grant database privileges
+#' @description This function is a convenient wrapper for granting database privileges to an
 #' existing user by calling \code{influx_query} with the corresponding query.
-#'
-#' @title grant_privileges
 #' @param con An influx_connection object (s. \code{influx_connection}).
 #' @param privilege Specifies the user privilege.
 #' @param db Sets the target database.
@@ -78,12 +69,9 @@ grant_privileges <- function(con, privilege = c("READ", "WRITE", "ALL"), db, use
 
 }
 
-#' Revoke database privileges
-#'
-#' This function is a convenient wrapper for revoking database privileges to an
+#' @title Revoke database privileges
+#' @description This function is a convenient wrapper for revoking database privileges to an
 #' existing user by calling \code{influx_query} with the corresponding query.
-#'
-#' @title revoke_privileges
 #' @param con An influx_connection object (s. \code{influx_connection}).
 #' @param privilege Specifies the user privilege.
 #' @param db Sets the target database.
@@ -106,12 +94,9 @@ revoke_privileges <- function(con, privilege = c("READ", "WRITE", "ALL"), db, us
 
 }
 
-#' Show users
-#'
-#' This function is a convenient wrapper for listing all existent users
+#' @title Show users
+#' @description This function is a convenient wrapper for listing all existent users
 #' by calling \code{influx_query} with the corresponding query.
-#'
-#' @title show_users
 #' @param con An influx_connection object (s. \code{influx_connection}).
 #' @rdname show_users
 #' @export
@@ -129,12 +114,9 @@ show_users <- function(con) {
 
 }
 
-#' Show grants
-#'
-#' This function is a convenient wrapper for listing a user's database privileges
+#' @title Show grants
+#' @description This function is a convenient wrapper for listing a user's database privileges
 #' by calling \code{influx_query} with the corresponding query.
-#'
-#' @title show_grants
 #' @param con An influx_connection object (s. \code{influx_connection}).
 #' @param user The username.
 #' @rdname show_grants

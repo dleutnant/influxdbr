@@ -2,7 +2,7 @@
 % Please edit documentation in R/influxdb_database_management.R
 \name{create_database}
 \alias{create_database}
-\title{create_database}
+\title{Create database}
 \usage{
 create_database(con, db)
 }
@@ -15,9 +15,6 @@ create_database(con, db)
 A list of server responses.
 }
 \description{
-Create database
-}
-\details{
 This function is a convenient wrapper for creating a database
 by calling \code{influx_query} with the corresponding query.
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/influxdb_helper.R
 \name{influx_select}
 \alias{influx_select}
-\title{influx_select}
+\title{Perform SELECT query}
 \usage{
 influx_select(con, db, field_keys, rp = NULL, measurement, where = NULL,
   group_by = NULL, limit = NULL, slimit = FALSE, offset = NULL,

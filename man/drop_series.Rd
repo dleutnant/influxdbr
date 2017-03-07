@@ -2,7 +2,7 @@
 % Please edit documentation in R/influxdb_database_management.R
 \name{drop_series}
 \alias{drop_series}
-\title{drop_series}
+\title{Drop series}
 \usage{
 drop_series(con, db, id = NULL, measurement = NULL, where = NULL)
 }
@@ -21,9 +21,6 @@ drop_series(con, db, id = NULL, measurement = NULL, where = NULL)
 A list of server responses.
 }
 \description{
-Drop series
-}
-\details{
 This function is a convenient wrapper for dropping an individual series
 within a measurement that match given tags by calling \code{influx_query}
 with the corresponding query.

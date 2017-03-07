@@ -2,7 +2,7 @@
 % Please edit documentation in R/influxdb_diagnostics.R
 \name{show_stats}
 \alias{show_stats}
-\title{show_stats}
+\title{Show stats}
 \usage{
 show_stats(con)
 }
@@ -13,9 +13,6 @@ show_stats(con)
 A list of data.frame objects.
 }
 \description{
-Show stats
-}
-\details{
 This function is a convenient wrapper for showing stats
 by calling \code{influx_query} with the corresponding query.
 }

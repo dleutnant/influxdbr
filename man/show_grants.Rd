@@ -2,7 +2,7 @@
 % Please edit documentation in R/influxdb_authentication_and_authorization.R
 \name{show_grants}
 \alias{show_grants}
-\title{show_grants}
+\title{Show grants}
 \usage{
 show_grants(con, user)
 }
@@ -12,9 +12,6 @@ show_grants(con, user)
 \item{user}{The username.}
 }
 \description{
-Show grants
-}
-\details{
 This function is a convenient wrapper for listing a user's database privileges
 by calling \code{influx_query} with the corresponding query.
 }

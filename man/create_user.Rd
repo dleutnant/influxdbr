@@ -2,7 +2,7 @@
 % Please edit documentation in R/influxdb_authentication_and_authorization.R
 \name{create_user}
 \alias{create_user}
-\title{create_user}
+\title{Create user}
 \usage{
 create_user(con, username, password)
 }
@@ -14,9 +14,6 @@ create_user(con, username, password)
 \item{password}{Sets the password.}
 }
 \description{
-Create user
-}
-\details{
 This function is a convenient wrapper for creating a new user
 by calling \code{influx_query} with the corresponding query.
 }

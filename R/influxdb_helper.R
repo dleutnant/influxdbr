@@ -1,8 +1,6 @@
-#' influx_select
-#'
-#' This function is a convenient wrapper for selecting data from a measurement
+#' @title Perform SELECT query
+#' @description This function is a convenient wrapper for selecting data from a measurement
 #' by calling \code{influx_query} with the corresponding query.
-#'
 #' @param con An influx_connection object (s. \code{influx_connection}).
 #' @param db Sets the name of the database.
 #' @param field_keys Specifies the fields to be selected.

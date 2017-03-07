@@ -2,7 +2,7 @@
 % Please edit documentation in R/influxdb_database_management.R
 \name{create_retention_policy}
 \alias{create_retention_policy}
-\title{create_retention_policy}
+\title{Create retention policy}
 \usage{
 create_retention_policy(con, rp_name, db, duration, replication,
   default = FALSE)
@@ -25,9 +25,6 @@ for the database.}
 A list of server responses.
 }
 \description{
-Create retention policy
-}
-\details{
 This function is a convenient wrapper for creating a retention policy on a
 given database by calling \code{influx_query} with the corresponding query.
 }

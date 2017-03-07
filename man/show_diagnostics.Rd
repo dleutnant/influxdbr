@@ -2,7 +2,7 @@
 % Please edit documentation in R/influxdb_diagnostics.R
 \name{show_diagnostics}
 \alias{show_diagnostics}
-\title{show_diagnostics}
+\title{Show diagnostics}
 \usage{
 show_diagnostics(con)
 }
@@ -13,9 +13,6 @@ show_diagnostics(con)
 A list with diagnostics.
 }
 \description{
-Show diagnostics
-}
-\details{
 This function is a convenient wrapper for showing diagnostics
 by calling \code{influx_query} with the corresponding query.
 }

@@ -1,9 +1,6 @@
-#' Create database
-#'
-#' This function is a convenient wrapper for creating a database
+#' @title Create database
+#' @description This function is a convenient wrapper for creating a database
 #' by calling \code{influx_query} with the corresponding query.
-#'
-#' @title create_database
 #' @param con An influx_connection object (s. \code{influx_connection}).
 #' @param db Sets the target database to create.
 #'
@@ -23,12 +20,9 @@ create_database <- function(con, db) {
 
 }
 
-#' Drop databases
-#'
-#' This function is a convenient wrapper for dropping a database
+#' @title Drop databases
+#' @description This function is a convenient wrapper for dropping a database
 #' by calling \code{influx_query} with the corresponding query.
-#'
-#' @title drop_database
 #' @param con An influx_connection object (s. \code{influx_connection}).
 #' @param db Sets the target database to drop.
 #'
@@ -47,13 +41,10 @@ drop_database <- function(con, db) {
 
 }
 
-#' Drop series
-#'
-#' This function is a convenient wrapper for dropping an individual series
+#' @title Drop series
+#' @description This function is a convenient wrapper for dropping an individual series
 #' within a measurement that match given tags by calling \code{influx_query}
 #' with the corresponding query.
-#'
-#' @title drop_series
 #' @param con An influx_connection object (s. \code{influx_connection}).
 #' @param db Sets the target database for the query.
 #' @param id Sets the series ID.
@@ -94,12 +85,9 @@ drop_series <- function(con, db, id=NULL, measurement=NULL, where=NULL) {
 
 }
 
-#' Drop measurement
-#'
-#' This function is a convenient wrapper for dropping an entire measurement
+#' @title Drop measurement
+#' @description This function is a convenient wrapper for dropping an entire measurement
 #' by calling \code{influx_query} with the corresponding query.
-#'
-#' @title drop_measurement
 #' @param con An influx_connection object (s. \code{influx_connection}).
 #' @param db Sets the target database for the query.
 #' @param measurement Sets the measurement to be dropped.
@@ -120,12 +108,9 @@ drop_measurement <- function(con, db, measurement) {
 
 }
 
-#' Create retention policy
-#'
-#' This function is a convenient wrapper for creating a retention policy on a
+#' @title Create retention policy
+#' @description This function is a convenient wrapper for creating a retention policy on a
 #' given database by calling \code{influx_query} with the corresponding query.
-#'
-#' @title create_retention_policy
 #' @param con An influx_connection object (s. \code{influx_connection}).
 #' @param rp_name The name of the retention policy.
 #' @param db The name of the database.
@@ -164,12 +149,9 @@ create_retention_policy <- function(con,
 
 }
 
-#' Alter retention policy
-#'
-#' This function is a convenient wrapper for modifying a retention policy on a
+#' @title Alter retention policy
+#' @description This function is a convenient wrapper for modifying a retention policy on a
 #' given database by calling \code{influx_query} with the corresponding query.
-#'
-#' @title alter_retention_policy
 #' @param con An influx_connection object (s. \code{influx_connection}).
 #' @param rp_name The name of the retention policy.
 #' @param db The name of the database.
@@ -206,12 +188,9 @@ alter_retention_policy <- function(con,
 
 }
 
-#' Delete retention policy
-#'
-#' This function is a convenient wrapper for deleting a retention policy on a
+#' @title Delete retention policy
+#' @description This function is a convenient wrapper for deleting a retention policy on a
 #' given database by calling \code{influx_query} with the corresponding query.
-#'
-#' @title drop_retention_policy
 #' @param con An influx_connection object (s. \code{influx_connection}).
 #' @param rp_name The name of the retention policy.
 #' @param db The name of the database.

@@ -2,7 +2,7 @@
 % Please edit documentation in R/influxdb_authentication_and_authorization.R
 \name{revoke_privileges}
 \alias{revoke_privileges}
-\title{revoke_privileges}
+\title{Revoke database privileges}
 \usage{
 revoke_privileges(con, privilege = c("READ", "WRITE", "ALL"), db, username)
 }
@@ -16,9 +16,6 @@ revoke_privileges(con, privilege = c("READ", "WRITE", "ALL"), db, username)
 \item{username}{Specifies the user.}
 }
 \description{
-Revoke database privileges
-}
-\details{
 This function is a convenient wrapper for revoking database privileges to an
 existing user by calling \code{influx_query} with the corresponding query.
 }

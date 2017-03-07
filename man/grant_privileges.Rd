@@ -2,7 +2,7 @@
 % Please edit documentation in R/influxdb_authentication_and_authorization.R
 \name{grant_privileges}
 \alias{grant_privileges}
-\title{grant_privileges}
+\title{Grant database privileges}
 \usage{
 grant_privileges(con, privilege = c("READ", "WRITE", "ALL"), db, username)
 }
@@ -16,9 +16,6 @@ grant_privileges(con, privilege = c("READ", "WRITE", "ALL"), db, username)
 \item{username}{Specifies the user.}
 }
 \description{
-Grant database privileges
-}
-\details{
 This function is a convenient wrapper for granting database privileges to an
 existing user by calling \code{influx_query} with the corresponding query.
 }

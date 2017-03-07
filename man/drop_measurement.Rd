@@ -2,7 +2,7 @@
 % Please edit documentation in R/influxdb_database_management.R
 \name{drop_measurement}
 \alias{drop_measurement}
-\title{drop_measurement}
+\title{Drop measurement}
 \usage{
 drop_measurement(con, db, measurement)
 }
@@ -17,9 +17,6 @@ drop_measurement(con, db, measurement)
 A list of server responses.
 }
 \description{
-Drop measurement
-}
-\details{
 This function is a convenient wrapper for dropping an entire measurement
 by calling \code{influx_query} with the corresponding query.
 }

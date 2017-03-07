@@ -2,7 +2,7 @@
 % Please edit documentation in R/influxdb_database_management.R
 \name{drop_retention_policy}
 \alias{drop_retention_policy}
-\title{drop_retention_policy}
+\title{Delete retention policy}
 \usage{
 drop_retention_policy(con, rp_name, db)
 }
@@ -17,9 +17,6 @@ drop_retention_policy(con, rp_name, db)
 A list of server responses.
 }
 \description{
-Delete retention policy
-}
-\details{
 This function is a convenient wrapper for deleting a retention policy on a
 given database by calling \code{influx_query} with the corresponding query.
 }

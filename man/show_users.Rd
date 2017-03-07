@@ -2,7 +2,7 @@
 % Please edit documentation in R/influxdb_authentication_and_authorization.R
 \name{show_users}
 \alias{show_users}
-\title{show_users}
+\title{Show users}
 \usage{
 show_users(con)
 }
@@ -10,9 +10,6 @@ show_users(con)
 \item{con}{An influx_connection object (s. \code{influx_connection}).}
 }
 \description{
-Show users
-}
-\details{
 This function is a convenient wrapper for listing all existent users
 by calling \code{influx_query} with the corresponding query.
 }

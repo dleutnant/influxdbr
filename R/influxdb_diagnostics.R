@@ -1,9 +1,6 @@
-#' Show stats
-#'
-#' This function is a convenient wrapper for showing stats
+#' @title Show stats
+#' @description This function is a convenient wrapper for showing stats
 #' by calling \code{influx_query} with the corresponding query.
-#'
-#' @title show_stats
 #' @param con An influx_connection object (s. \code{influx_connection}).
 #'
 #' @return A list of data.frame objects.
@@ -29,12 +26,9 @@ show_stats <- function(con) {
 
 }
 
-#' Show diagnostics
-#'
-#' This function is a convenient wrapper for showing diagnostics
+#' @title Show diagnostics
+#' @description This function is a convenient wrapper for showing diagnostics
 #' by calling \code{influx_query} with the corresponding query.
-#'
-#' @title show_diagnostics
 #' @param con An influx_connection object (s. \code{influx_connection}).
 #'
 #' @return A list with diagnostics.

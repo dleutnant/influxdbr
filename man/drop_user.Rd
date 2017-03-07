@@ -2,7 +2,7 @@
 % Please edit documentation in R/influxdb_authentication_and_authorization.R
 \name{drop_user}
 \alias{drop_user}
-\title{drop_user}
+\title{Drop user}
 \usage{
 drop_user(con, username)
 }
@@ -12,9 +12,6 @@ drop_user(con, username)
 \item{username}{Specifies the user to be dropped.}
 }
 \description{
-Drop user
-}
-\details{
 This function is a convenient wrapper for dropping a user from an influxdb
 server by calling \code{influx_query} with the corresponding query.
 }

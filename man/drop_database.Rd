@@ -2,7 +2,7 @@
 % Please edit documentation in R/influxdb_database_management.R
 \name{drop_database}
 \alias{drop_database}
-\title{drop_database}
+\title{Drop databases}
 \usage{
 drop_database(con, db)
 }
@@ -15,9 +15,6 @@ drop_database(con, db)
 A list of server responses.
 }
 \description{
-Drop databases
-}
-\details{
 This function is a convenient wrapper for dropping a database
 by calling \code{influx_query} with the corresponding query.
 }
