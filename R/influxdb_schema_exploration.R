@@ -171,10 +171,8 @@ show_tag_values <- function(con, db, measurement=NULL, key) {
                          query = query,
                          return_xts = F)
 
-  result <- Reduce(c, result[[1]][[1]])
-
-  # new due to upgrade to 0.11.1
-  result <- result$value
+  # return character vector with tag values
+  result <- do.call(rbind, lapply(result[[1]], "[[", 1))$value
 
   return(result)
 
@@ -204,7 +202,7 @@ show_field_keys <- function(con, db, measurement=NULL) {
                          query = query,
                          return_xts = F)
 
-  result <- Reduce(c, result[[1]])
+  result <- unlist(result[[1]], recursive = FALSE)
 
   return(result)
 

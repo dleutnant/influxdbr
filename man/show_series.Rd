@@ -4,7 +4,7 @@
 \alias{show_series}
 \title{Show series}
 \usage{
-show_series(con, db, measurement = NULL, where = NULL)
+show_series(con, db, measurement = NULL, where = NULL, verbose = TRUE)
 }
 \arguments{
 \item{con}{An influx_connection object (s. \code{influx_connection}).}
@@ -14,6 +14,15 @@ show_series(con, db, measurement = NULL, where = NULL)
 \item{measurement}{Query a specific measurement.}
 
 \item{where}{Apply filter on tag key values.}
+
+\item{verbose}{logical. Occasionally, an influxdb server might be queried without
+specifying 'measurement' and/or 'where' which could result in a large number of
+individual series. Due to the function's purpose to result one single data.frame
+containing all series, the merging process of mulitple data.frames with unequal
+colnames potentially take some time. If \code{verbose} is set to \code{TRUE},
+the user is informed about an evtl. long running process and can interrupt the
+function call. The server result will be returned unpolished in this case.
+Defaults to TRUE.}
 }
 \value{
 A list of data.frame objects.
