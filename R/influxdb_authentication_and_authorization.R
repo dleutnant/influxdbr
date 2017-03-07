@@ -11,7 +11,7 @@
 #' @export
 #' @author Dominik Leutnant (\email{leutnant@@fh-muenster.de})
 #' @seealso \code{\link[influxdbr]{influx_connection}}
-#' @references \url{https://docs.influxdata.com/influxdb/v0.10/administration/authentication_and_authorization/}
+#' @references \url{https://docs.influxdata.com/influxdb/}
 create_user <- function(con, username, password) {
 
   options("useFancyQuotes" = FALSE)
@@ -39,7 +39,7 @@ create_user <- function(con, username, password) {
 #' @export
 #' @author Dominik Leutnant (\email{leutnant@@fh-muenster.de})
 #' @seealso \code{\link[influxdbr]{influx_connection}}
-#' @references \url{https://docs.influxdata.com/influxdb/v0.10/administration/authentication_and_authorization/}
+#' @references \url{https://docs.influxdata.com/influxdb/}
 drop_user <- function(con, username) {
 
   result <- influx_query(con = con,
@@ -66,7 +66,7 @@ drop_user <- function(con, username) {
 #' @export
 #' @author Dominik Leutnant (\email{leutnant@@fh-muenster.de})
 #' @seealso \code{\link[influxdbr]{influx_connection}}
-#' @references \url{https://docs.influxdata.com/influxdb/v0.10/administration/authentication_and_authorization/}
+#' @references \url{https://docs.influxdata.com/influxdb/}
 grant_privileges <- function(con, privilege = c("READ", "WRITE", "ALL"), db, username) {
 
   result <- influx_query(con = con,
@@ -95,7 +95,7 @@ grant_privileges <- function(con, privilege = c("READ", "WRITE", "ALL"), db, use
 #' @export
 #' @author Dominik Leutnant (\email{leutnant@@fh-muenster.de})
 #' @seealso \code{\link[influxdbr]{influx_connection}}
-#' @references \url{https://docs.influxdata.com/influxdb/v0.10/administration/authentication_and_authorization/}
+#' @references \url{https://docs.influxdata.com/influxdb/}
 revoke_privileges <- function(con, privilege = c("READ", "WRITE", "ALL"), db, username) {
 
   result <- influx_query(con = con,
@@ -121,7 +121,7 @@ revoke_privileges <- function(con, privilege = c("READ", "WRITE", "ALL"), db, us
 #' @export
 #' @author Dominik Leutnant (\email{leutnant@@fh-muenster.de})
 #' @seealso \code{\link[influxdbr]{influx_connection}}
-#' @references \url{https://docs.influxdata.com/influxdb/v0.10/administration/authentication_and_authorization/}
+#' @references \url{https://docs.influxdata.com/influxdb/}
 show_users <- function(con) {
 
   result <- influx_query(con = con,
@@ -146,7 +146,7 @@ show_users <- function(con) {
 #' @export
 #' @author Dominik Leutnant (\email{leutnant@@fh-muenster.de})
 #' @seealso \code{\link[influxdbr]{influx_connection}}
-#' @references \url{https://docs.influxdata.com/influxdb/v0.10/administration/authentication_and_authorization/}
+#' @references \url{https://docs.influxdata.com/influxdb/}
 show_grants <- function(con, user) {
 
   result <- influx_query(con = con,

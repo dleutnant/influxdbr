@@ -11,7 +11,7 @@
 #' @export
 #' @author Dominik Leutnant (\email{leutnant@@fh-muenster.de})
 #' @seealso \code{\link[influxdbr]{influx_connection}}
-#' @references \url{https://docs.influxdata.com/influxdb/v0.10/query_language/schema_exploration/}
+#' @references \url{https://docs.influxdata.com/influxdb/}
 show_databases <- function(con) {
 
   result <- influx_query(con = con,
@@ -39,7 +39,7 @@ show_databases <- function(con) {
 #' @export
 #' @author Dominik Leutnant (\email{leutnant@@fh-muenster.de})
 #' @seealso \code{\link[influxdbr]{influx_connection}}
-#' @references \url{https://docs.influxdata.com/influxdb/v0.10/query_language/schema_exploration/}
+#' @references \url{https://docs.influxdata.com/influxdb/}
 show_measurements <- function(con, db, where=NULL) {
 
   query <- ifelse(is.null(where),
@@ -75,7 +75,7 @@ show_measurements <- function(con, db, where=NULL) {
 #' @export
 #' @author Dominik Leutnant (\email{leutnant@@fh-muenster.de})
 #' @seealso \code{\link[influxdbr]{influx_connection}}
-#' @references \url{https://docs.influxdata.com/influxdb/v0.10/query_language/schema_exploration/}
+#' @references \url{https://docs.influxdata.com/influxdb/}
 show_series <- function(con, db, measurement=NULL, where=NULL) {
 
   query <- ifelse(is.null(measurement),
@@ -126,7 +126,7 @@ show_series <- function(con, db, measurement=NULL, where=NULL) {
 #' @export
 #' @author Dominik Leutnant (\email{leutnant@@fh-muenster.de})
 #' @seealso \code{\link[influxdbr]{influx_connection}}
-#' @references \url{https://docs.influxdata.com/influxdb/v0.10/query_language/schema_exploration/}
+#' @references \url{https://docs.influxdata.com/influxdb/}
 show_tag_keys <- function(con, db, measurement=NULL) {
 
   query <- ifelse(is.null(measurement),
@@ -160,7 +160,7 @@ show_tag_keys <- function(con, db, measurement=NULL) {
 #' @export
 #' @author Dominik Leutnant (\email{leutnant@@fh-muenster.de})
 #' @seealso \code{\link[influxdbr]{influx_connection}}
-#' @references \url{https://docs.influxdata.com/influxdb/v0.10/query_language/schema_exploration/}
+#' @references \url{https://docs.influxdata.com/influxdb/}
 show_tag_values <- function(con, db, measurement=NULL, key) {
 
   query <- ifelse(is.null(measurement),
@@ -201,7 +201,7 @@ show_tag_values <- function(con, db, measurement=NULL, key) {
 #' @export
 #' @author Dominik Leutnant (\email{leutnant@@fh-muenster.de})
 #' @seealso \code{\link[influxdbr]{influx_connection}}
-#' @references \url{https://docs.influxdata.com/influxdb/v0.10/query_language/schema_exploration/}
+#' @references \url{https://docs.influxdata.com/influxdb/}
 show_field_keys <- function(con, db, measurement=NULL) {
 
   query <- ifelse(is.null(measurement),
@@ -233,7 +233,7 @@ show_field_keys <- function(con, db, measurement=NULL) {
 #' @export
 #' @author Dominik Leutnant (\email{leutnant@@fh-muenster.de})
 #' @seealso \code{\link[influxdbr]{influx_connection}}
-#' @references \url{https://docs.influxdata.com/influxdb/v0.10/query_language/schema_exploration/}
+#' @references \url{https://docs.influxdata.com/influxdb/}
 show_retention_policies <- function(con, db) {
 
   result <- influx_query(con = con,

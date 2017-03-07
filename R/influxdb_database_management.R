@@ -12,7 +12,7 @@
 #' @export
 #' @author Dominik Leutnant (\email{leutnant@@fh-muenster.de})
 #' @seealso \code{\link[influxdbr]{influx_connection}}
-#' @references \url{https://docs.influxdata.com/influxdb/v0.10/query_language/database_management/}
+#' @references \url{https://docs.influxdata.com/influxdb/}
 create_database <- function(con, db) {
 
   result <- influx_query(con = con,
@@ -38,7 +38,7 @@ create_database <- function(con, db) {
 #' @export
 #' @author Dominik Leutnant (\email{leutnant@@fh-muenster.de})
 #' @seealso \code{\link[influxdbr]{influx_connection}}
-#' @references \url{https://docs.influxdata.com/influxdb/v0.10/query_language/database_management/}
+#' @references \url{https://docs.influxdata.com/influxdb/}
 drop_database <- function(con, db) {
 
   result <- influx_query(con = con,
@@ -67,7 +67,7 @@ drop_database <- function(con, db) {
 #' @export
 #' @author Dominik Leutnant (\email{leutnant@@fh-muenster.de})
 #' @seealso \code{\link[influxdbr]{influx_connection}}
-#' @references \url{https://docs.influxdata.com/influxdb/v0.10/query_language/database_management/}
+#' @references \url{https://docs.influxdata.com/influxdb/}
 drop_series <- function(con, db, id=NULL, measurement=NULL, where=NULL) {
 
   query <- "DROP SERIES"
@@ -112,7 +112,7 @@ drop_series <- function(con, db, id=NULL, measurement=NULL, where=NULL) {
 #' @export
 #' @author Dominik Leutnant (\email{leutnant@@fh-muenster.de})
 #' @seealso \code{\link[influxdbr]{influx_connection}}
-#' @references \url{https://docs.influxdata.com/influxdb/v0.10/query_language/database_management/}
+#' @references \url{https://docs.influxdata.com/influxdb/}
 drop_measurement <- function(con, db, measurement) {
 
   result <- influx_query(con = con,
@@ -142,7 +142,7 @@ drop_measurement <- function(con, db, measurement) {
 #' @export
 #' @author Dominik Leutnant (\email{leutnant@@fh-muenster.de})
 #' @seealso \code{\link[influxdbr]{influx_connection}}
-#' @references \url{https://docs.influxdata.com/influxdb/v0.10/query_language/database_management/}
+#' @references \url{https://docs.influxdata.com/influxdb/}
 create_retention_policy <- function(con,
                                     rp_name,
                                     db,
@@ -187,7 +187,7 @@ create_retention_policy <- function(con,
 #' @export
 #' @author Dominik Leutnant (\email{leutnant@@fh-muenster.de})
 #' @seealso \code{\link[influxdbr]{influx_connection}}
-#' @references \url{https://docs.influxdata.com/influxdb/v0.10/query_language/database_management/}
+#' @references \url{https://docs.influxdata.com/influxdb/}
 alter_retention_policy <- function(con,
                                    rp_name,
                                    db,
@@ -226,7 +226,7 @@ alter_retention_policy <- function(con,
 #' @export
 #' @author Dominik Leutnant (\email{leutnant@@fh-muenster.de})
 #' @seealso \code{\link[influxdbr]{influx_connection}}
-#' @references \url{https://docs.influxdata.com/influxdb/v0.10/query_language/database_management/}
+#' @references \url{https://docs.influxdata.com/influxdb/}
 drop_retention_policy <- function(con, rp_name, db) {
 
   query <- paste("DROP RETENTION POLICY", rp_name,

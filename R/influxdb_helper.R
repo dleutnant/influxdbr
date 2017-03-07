@@ -20,7 +20,7 @@
 #'
 #' @return A list of xts or data.frame objects.
 #' @export
-#' @references \url{https://docs.influxdata.com/influxdb/v0.10/query_language/data_exploration/}
+#' @references \url{https://docs.influxdata.com/influxdb/}
 influx_select <- function(con,
                           db,
                           field_keys,

@@ -118,7 +118,7 @@ influx_connection <-  function(host = NULL,
 #' @export
 #' @author Dominik Leutnant (\email{leutnant@@fh-muenster.de})
 #' @seealso \code{\link[xts]{xts}}, \code{\link[influxdbr]{influx_connection}}
-#' @references \url{https://docs.influxdata.com/influxdb/v0.10/concepts/api/}
+#' @references \url{https://docs.influxdata.com/influxdb/}
 influx_ping <- function(con) {
 
   # submit ping
@@ -150,7 +150,7 @@ influx_ping <- function(con) {
 #' @export
 #' @author Dominik Leutnant (\email{leutnant@@fh-muenster.de})
 #' @seealso \code{\link[xts]{xts}}, \code{\link[influxdbr]{influx_connection}}
-#' @references \url{https://docs.influxdata.com/influxdb/v0.10/guides/querying_data/}
+#' @references \url{https://docs.influxdata.com/influxdb/}
 influx_query <- function(con,
                          db = NULL,
                          query = "SELECT * FROM measurement",
@@ -395,7 +395,7 @@ influx_query <- function(con,
 #' @export
 #' @author Dominik Leutnant (\email{leutnant@@fh-muenster.de})
 #' @seealso \code{\link[xts]{xts}}, \code{\link[influxdbr]{influx_connection}}
-#' @references \url{https://docs.influxdata.com/influxdb/v0.10/guides/writing_data/}
+#' @references \url{https://docs.influxdata.com/influxdb/}
 influx_write <- function(con,
                          db,
                          xts,
