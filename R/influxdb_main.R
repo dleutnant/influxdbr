@@ -131,6 +131,10 @@ influx_ping <- function(con) {
 #' ("n", "u", "ms", "s", "m", "h").
 #' @param return_xts logical. Sets the return type. If set to TRUE, xts objects
 #' are returned, FALSE gives data.frames.
+#' @param chunked Either FALSE or an integer. If FALSE, series are not requested
+#' in streamed batchtes and might be partially returned only.
+#' If an integer is provided, responses will be chunked by
+#' series or by every \code{chunk} points.
 #' @param verbose logical. Provide additional details?
 #'
 #' @return A list of xts or data.frame objects.
@@ -143,6 +147,7 @@ influx_query <- function(con,
                          query = "SELECT * FROM measurement",
                          timestamp_format = c("n", "u", "ms", "s", "m", "h"),
                          return_xts = TRUE,
+                         chunked = FALSE,
                          verbose = FALSE) {
 
   if (is.null(con)) {
@@ -151,7 +156,7 @@ influx_query <- function(con,
   }
 
   # development options
-  debug <-  FALSE
+  debug <- FALSE
 
   # create query based on function parameters
   q <- list(db = db, u = con$user, p = con$pass)
@@ -159,6 +164,12 @@ influx_query <- function(con,
   # handle different timestamp formats
   timestamp_format <- match.arg(timestamp_format)
   q <- c(q, epoch = timestamp_format)
+
+  # handle chunks
+  # alternative test: is.wholenumber (s. ?base::integer)
+  if (is.numeric(chunked)) {
+    q <- c(q, chunked = "true", chunk_size = chunked)
+  }
 
   # add query
   q <- c(q, q = query)
@@ -184,7 +195,7 @@ influx_query <- function(con,
   if (verbose) print(response$url)
 
   # DEBUG OUTPUT
-  #if (debug) debug_influx_query_response_data <<- response
+  if (debug) debug_influx_query_response_data <<- response
 
   # Check for communication errors
   if (!response$status_code %in% c(200,204)) {
@@ -193,11 +204,31 @@ influx_query <- function(con,
     return(NULL)
   }
 
-  # parse response from json
-  response_data <- jsonlite::fromJSON(rawToChar(response$content),
-                                      simplifyVector = FALSE,
-                                      simplifyDataFrame = FALSE,
-                                      simplifyMatrix = FALSE)
+  # did we receive chunked results?
+  chunked <- grepl("partial", rawToChar(response$content), fixed = T)
+
+  if (chunked) {
+
+    response_data <- lapply(unlist(strsplit(rawToChar(response$content),
+                                            split = "\n")),
+                            jsonlite::fromJSON,
+                            simplifyVector = FALSE,
+                            simplifyDataFrame = FALSE,
+                            simplifyMatrix = FALSE)
+
+    response_data <- unlist(response_data, recursive = FALSE)
+
+  } else {
+
+    # parse response from json
+    response_data <- jsonlite::fromJSON(rawToChar(response$content),
+                                        simplifyVector = FALSE,
+                                        simplifyDataFrame = FALSE,
+                                        simplifyMatrix = FALSE)
+
+
+  }
+
 
   # Check for database or time series error
   if (exists(x = "error", where = response_data)) {
@@ -218,6 +249,8 @@ influx_query <- function(con,
         return(NULL)
 
       } else {
+
+        ### TODO: What about statement_id ?
 
         # check if query returned series object(s)
         if (exists(x = "series", where = resultsObj)) {
