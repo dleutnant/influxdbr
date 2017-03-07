@@ -10,7 +10,7 @@ Install using devtools:
 ``` r
 if (!require(devtools)) {
   install.packages('devtools')
-  devtools::install_github("dleutnant/influxdbr@0.11.1")
+  devtools::install_github("dleutnant/influxdbr@prepare_cran")
 }
 ```
 
