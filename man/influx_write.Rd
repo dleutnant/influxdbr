@@ -2,11 +2,11 @@
 % Please edit documentation in R/influxdb_main.R
 \name{influx_write}
 \alias{influx_write}
-\title{influx_write}
+\title{Write an xts object to an influxdb server}
 \usage{
 influx_write(con, db, xts, measurement = NULL, rp = NULL,
-  precision = c("s", "n", "u", "ms", "m", "h"), consistency = c(NULL, "one",
-  "quroum", "all", "any"), max_points = 5000, use_integers = FALSE)
+  precision = c("s", "ns", "u", "ms", "m", "h"), consistency = c(NULL,
+  "one", "quroum", "all", "any"), max_points = 5000, use_integers = FALSE)
 }
 \arguments{
 \item{con}{An influx_connection object (s. \code{influx_connection}).}
@@ -21,15 +21,15 @@ influx_write(con, db, xts, measurement = NULL, rp = NULL,
 default retention policy is used.}
 
 \item{precision}{Sets the precision of the supplied Unix time values
-("n", "u", "ms", "s", "m", "h"). If not present timestamps are assumed to be
-in nanoseconds. Currently only "s" is supported.}
+("s", "ns", "u", "ms", "m", "h"). If not present timestamps are assumed to be
+in seconds.}
 
 \item{consistency}{Set the number of nodes that must confirm the write.
 If the requirement is not met the return value will be partial write
 if some points in the batch fail, or write failure if all points in the batch
 fail.}
 
-\item{max_points}{Defines the maximum points per batch.}
+\item{max_points}{Defines the maximum points per batch (defaults to 5000).}
 
 \item{use_integers}{Should integers (instead of doubles) be written if present?}
 }
@@ -37,7 +37,10 @@ fail.}
 A list of server responses.
 }
 \description{
-Write an xts object to an influxdb server
+This function writes an xts object to an influxdb server.
+Columnnames of the xts object are used as influxdb's field keys,
+xts's coredata represent field values. Attributes are preserved and written
+as tag keys and values, respectively.
 }
 \references{
 \url{https://docs.influxdata.com/influxdb/}

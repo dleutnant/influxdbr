@@ -2,7 +2,7 @@
 % Please edit documentation in R/influxdb_main.R
 \name{influx_query}
 \alias{influx_query}
-\title{influx_query}
+\title{Query an influxdb server}
 \usage{
 influx_query(con, db = NULL, query = "SELECT * FROM measurement",
   timestamp_format = c("n", "u", "ms", "s", "m", "h"), return_xts = TRUE,
@@ -27,7 +27,7 @@ are returned, FALSE gives data.frames.}
 A list of xts or data.frame objects.
 }
 \description{
-Query an influxdb server
+This functions queries an influxdb server.
 }
 \references{
 \url{https://docs.influxdata.com/influxdb/}

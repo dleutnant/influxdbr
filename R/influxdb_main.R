@@ -1,6 +1,6 @@
-#' Create an influxdb_connection object
-#'
-#' @title influx_connection
+#' @title Create an influxdb_connection object
+#' @description Create an influxdb_connection object by specifying server
+#' connection details. Credentials can also be saved and accessed through a config file.
 #' @param scheme The scheme to use, either http or https. Defaults to http.
 #' @param host Hostname of the InfluxDB server. Defaults to localhost
 #' @param port numerical. Port number of the InfluxDB server. Defaults to 8086.
@@ -99,9 +99,8 @@ influx_connection <-  function(scheme = "http",
   invisible(influxdb_srv)
 }
 
-#' Ping an influxdb server
-#'
-#' @title influx_ping
+#' @title Ping an influxdb server
+#' @description This function pings an influxdb server (e.g. for connection testing)
 #' @param con An influx_connection object (s. \code{influx_connection}).
 #'
 #' @return A list of server information.
@@ -123,9 +122,8 @@ influx_ping <- function(con) {
 
 }
 
-#' Query an influxdb server
-#'
-#' @title influx_query
+#' @title Query an influxdb server
+#' @description This functions queries an influxdb server.
 #' @param con An influx_connection object (s. \code{influx_connection}).
 #' @param db Sets the name of the database.
 #' @param query The influxdb query to be sent.
@@ -361,10 +359,11 @@ influx_query <- function(con,
 
 }
 
-#' Write an xts object to an influxdb server
-#'
-#'
-#' @title influx_write
+#' @title Write an xts object to an influxdb server
+#' @description This function writes an xts object to an influxdb server.
+#' Columnnames of the xts object are used as influxdb's field keys,
+#' xts's coredata represent field values. Attributes are preserved and written
+#' as tag keys and values, respectively.
 #' @param con An influx_connection object (s. \code{influx_connection}).
 #' @param db Sets the target database for the write.
 #' @param xts The xts object to write to an influxdb server.
@@ -372,13 +371,13 @@ influx_query <- function(con,
 #' @param rp Sets the target retention policy for the write. If not present the
 #' default retention policy is used.
 #' @param precision Sets the precision of the supplied Unix time values
-#' ("n", "u", "ms", "s", "m", "h"). If not present timestamps are assumed to be
-#' in nanoseconds. Currently only "s" is supported.
+#' ("s", "ns", "u", "ms", "m", "h"). If not present timestamps are assumed to be
+#' in seconds.
 #' @param consistency Set the number of nodes that must confirm the write.
 #' If the requirement is not met the return value will be partial write
 #' if some points in the batch fail, or write failure if all points in the batch
 #' fail.
-#' @param max_points Defines the maximum points per batch.
+#' @param max_points Defines the maximum points per batch (defaults to 5000).
 #' @param use_integers Should integers (instead of doubles) be written if present?
 #' @return A list of server responses.
 #' @rdname influx_write
@@ -390,7 +389,7 @@ influx_write <- function(con,
                          xts,
                          measurement = NULL,
                          rp = NULL,
-                         precision = c("s", "n", "u", "ms", "m", "h"),
+                         precision = c("s", "ns", "u", "ms", "m", "h"),
                          consistency = c(NULL, "one", "quroum", "all", "any"),
                          max_points = 5000,
                          use_integers = FALSE) {
@@ -467,7 +466,9 @@ influx_write <- function(con,
 
 }
 
-# method to convert an xts-object to influxdb specific line protocol
+# method to convert an xts object to influxdb specific line protocol
+# function is not exported
+#' @keywords internal
 .xts_to_influxdb_line_protocol <- function(xts,
                                            measurement,
                                            precision = precision,
@@ -507,7 +508,7 @@ influx_write <- function(con,
 
   # create time vector
   div <- switch(precision,
-                "n" = 1e+9,
+                "ns" = 1e+9,
                 "u" = 1e+6,
                 "ms" = 1e+3,
                 "s" = 1,
@@ -584,6 +585,9 @@ influx_write <- function(con,
 }
 
 
+# method to convert the line protocol to a data.frame
+# function is not exported
+#' @keywords internal
 .influxdb_line_protocol_to_array <- function(x) {
 
   # split by ","

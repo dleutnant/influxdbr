@@ -2,7 +2,7 @@
 % Please edit documentation in R/influxdb_main.R
 \name{influx_ping}
 \alias{influx_ping}
-\title{influx_ping}
+\title{Ping an influxdb server}
 \usage{
 influx_ping(con)
 }
@@ -13,7 +13,7 @@ influx_ping(con)
 A list of server information.
 }
 \description{
-Ping an influxdb server
+This function pings an influxdb server (e.g. for connection testing)
 }
 \references{
 \url{https://docs.influxdata.com/influxdb/}

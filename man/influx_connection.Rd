@@ -2,7 +2,7 @@
 % Please edit documentation in R/influxdb_main.R
 \name{influx_connection}
 \alias{influx_connection}
-\title{influx_connection}
+\title{Create an influxdb_connection object}
 \usage{
 influx_connection(scheme = "http", host = "localhost", port = 8086,
   user = "user", pass = "pass", path = "/", group = NULL,
@@ -29,7 +29,8 @@ influx_connection(scheme = "http", host = "localhost", port = 8086,
 specified.}
 }
 \description{
-Create an influxdb_connection object
+Create an influxdb_connection object by specifying server
+connection details. Credentials can also be saved and accessed through a config file.
 }
 \references{
 \url{https://influxdb.com/}
