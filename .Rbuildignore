@@ -1,6 +1,3 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^\.travis\.yml$
-^tests/performance_tests\.R$
-^\./tests/test\.txt$
-^README\.Rmd$

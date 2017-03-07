@@ -1,34 +1,37 @@
 #' Create an influxdb_connection object
 #'
 #' @title influx_connection
-#' @param host hostname
-#' @param port numerical. port number
-#' @param user username
-#' @param pass password
-#' @param group groupname
+#' @param scheme The scheme to use, either http or https. Defaults to http.
+#' @param host Hostname of the InfluxDB server. Defaults to localhost
+#' @param port numerical. Port number of the InfluxDB server. Defaults to 8086.
+#' @param user username The username to use. Defaults to "user"
+#' @param pass password The password to use. Defaults to "pass".
+#' @param path The prefix path on which the InfluxDB is running. Can be useful in proxy situations.
+#' @param group The group to use within the config file.
 #' @param verbose logical. Provide additional details?
-#' @param config_file The configuration file to be used if \code{group} is
-#' @param timeout Set maximum request time
+#' @param config_file The configuration file to be used if \code{groupname} is
 #' specified.
 #' @rdname influx_connection
 #' @export
-#' @author Dominik Leutnant (\email{leutnant@@fh-muenster.de})
-#' @references \url{https://docs.influxdata.com/influxdb/}
-influx_connection <-  function(host = NULL,
-                               port = NULL,
+#' @references \url{https://influxdb.com/}
+influx_connection <-  function(scheme = "http",
+                               host = "localhost",
+                               port = 8086,
                                user = "user",
                                pass = "pass",
+                               path = "/",
                                group = NULL,
                                verbose = FALSE,
-                               config_file = "~/.influxdb.cnf",
-                               timeout = 5) {
+                               config_file = "~/.influxdb.cnf") {
 
   #' A group file looks like:
   #' [groupname]
+  #' scheme=http
   #' host=localhost
   #' port=8086
   #' user=username
   #' pass=password
+  #' path=/
 
   # if group name is given, get db credentials from config file
   if (!is.null(group)) {
@@ -45,53 +48,42 @@ influx_connection <-  function(host = NULL,
       grp <- grep(paste0("[",group,"]"), x = lines, fixed = T)
 
       # catch the case if group name is not found
-      if (identical(grp, integer(0))) {
+      if (identical(grp, integer(0))) stop("Group does not exist in config file.")
 
-        warning("Group does not exist in config file.")
+      # get db credentials
+      scheme <- gsub("scheme=", "", grep("scheme=", lines[(grp + 1):(grp + 6)], fixed = T, value = T))
+      host <- gsub("host=", "", grep("host=", lines[(grp + 1):(grp + 6)], fixed = T, value = T))
+      port <- as.numeric(gsub("port=", "", grep("port=", lines[(grp + 1):(grp + 6)], fixed = T, value = T)))
+      user <- gsub("user=", "", grep("user=", lines[(grp + 1):(grp + 6)], fixed = T, value = T))
+      pass <- gsub("pass=", "", grep("pass=", lines[(grp + 1):(grp + 6)], fixed = T, value = T))
+      path <- gsub("path=", "", grep("path=", lines[(grp + 1):(grp + 6)], fixed = T, value = T))
 
-      } else {
-
-        # get db credentials
-        host <- gsub("host=", "",
-                     grep("host=",
-                          lines[(grp + 1):(grp + 4)], fixed = T, value = T))
-        port <- as.numeric(gsub("port=", "",
-                                grep("port=",
-                                     lines[(grp + 1):(grp + 4)], fixed = T,
-                                     value = T)))
-        user <- gsub("user=", "",
-                     grep("user=",
-                          lines[(grp + 1):(grp + 4)], fixed = T, value = T))
-        pass <- gsub("pass=", "",
-                     grep("pass=",
-                          lines[(grp + 1):(grp + 4)], fixed = T, value = T))
-
-        # close file connection
-        close(con)
-
-      }
+      # close file connection
+      close(con)
 
     } else{
 
-      warning("Config file does not exist.")
+      stop("Config file does not exist.")
 
     }
 
   }
 
   # create list of server connection details
-  influxdb_srv <- list(host = host, port = port, user = user, pass = pass)
+  influxdb_srv <- list(scheme = match.arg(scheme, c("http", "https")),
+                       host = host,
+                       port = port,
+                       user = user,
+                       pass = pass,
+                       path = path)
 
   # submit test ping
-  response <- tryCatch(httr::GET(url = "", scheme = "http",
-                       hostname = influxdb_srv$host,
-                       port = influxdb_srv$port,
-                       path = "ping", httr::timeout(timeout)),
-                       error = function(e) {print(e); return(NULL)})
-
-  if (is.null(response)) {
-    return(NULL)
-  }
+  response <- httr::GET(url = "",
+                        scheme = influxdb_srv$scheme,
+                        hostname = influxdb_srv$host,
+                        port = influxdb_srv$port,
+                        path = paste0(path, "ping"),
+                        httr::timeout(5))
 
   # print url
   if (verbose) print(response$url)
@@ -99,8 +91,7 @@ influx_connection <-  function(host = NULL,
   # Check for communication errors
   if (response$status_code != 204) {
     if (length(response$content) > 0) warning(rawToChar(response$content))
-    warning("Influx connection failed with HTTP status code ", response$status_code)
-    return(NULL)
+    stop("Influx connection failed with HTTP status code ", response$status_code)
   }
 
   # print server response
@@ -116,17 +107,16 @@ influx_connection <-  function(host = NULL,
 #' @return A list of server information.
 #' @rdname influx_ping
 #' @export
-#' @author Dominik Leutnant (\email{leutnant@@fh-muenster.de})
 #' @seealso \code{\link[xts]{xts}}, \code{\link[influxdbr]{influx_connection}}
 #' @references \url{https://docs.influxdata.com/influxdb/}
 influx_ping <- function(con) {
 
   # submit ping
   response <- httr::GET(url = "",
-                        scheme = "http",
+                        scheme = con$scheme,
                         hostname = con$host,
                         port = con$port,
-                        path = "ping")
+                        path = paste0(con$path, "ping"))
 
 
   return(response$all_headers)
@@ -181,9 +171,10 @@ influx_query <- function(con,
   # submit query
   response <- tryCatch(httr::GET(url = "",
                                  scheme = "http",
+                                 scheme = con$scheme,
                                  hostname = con$host,
                                  port = con$port,
-                                 path = "query",
+                                 path = paste0(con$path, "query"),
                                  query = q),
                        error = function(e) {print(e); return(NULL)})
 
@@ -451,10 +442,10 @@ influx_write <- function(con,
 
     # submit post
     response <- httr::POST(url = "", httr::timeout(60),
-                           scheme = "http",
+                           scheme = con$scheme,
                            hostname = con$host,
                            port = con$port,
-                           path = "write",
+                           path = paste0(con$path, "write"),
                            query = q,
                            body = influxdb_line_protocol)
 

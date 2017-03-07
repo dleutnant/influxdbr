@@ -9,10 +9,8 @@
 # R data files from past sessions
 .Rdata
 
-# test
+# tests
 tests/
-tests/performance_tests
-tests/test
 
 # README template
-README.Rmd
+README.md
