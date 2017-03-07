@@ -519,12 +519,17 @@ influx_write <- function(con,
 
   # make sure all integers end with "i", this also sets mode to "character"
   # s. https://github.com/influxdb/influxdb/issues/3519
-  if ((use_integers == TRUE) & (all(xts == floor(xts)))) {
+  if ((use_integers == TRUE) & is.numeric(xts)) {
 
-    xts[,] <- sapply(seq_len(ncol(xts)), function(x) paste(xts[,x],
-                                                           "i",
-                                                           sep = ""))
+    if (all(xts == floor(xts))) {
+
+      xts[,] <- sapply(seq_len(ncol(xts)), function(x) paste(xts[,x],
+                                                             "i",
+                                                             sep = ""))
+    }
+
   } else {
+
     if (!is.numeric(xts)) {
       # add quotes if matrix contains no numerics i.e. -> characters
       options("useFancyQuotes" = FALSE)
@@ -532,6 +537,7 @@ influx_write <- function(con,
       # trim leading and trailing whitespaces
       xts <- gsub("^\\s+|\\s+$", "", xts)
     }
+
   }
 
   # assign columnname to each element
