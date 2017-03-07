@@ -597,6 +597,11 @@ influx_write <- function(con,
   #measurement_name <- splitted_string[1]
 
   # extract tags and tag values
+  if (identical(splitted_string[-1], character(0))) {
+    warning(paste("measurement does not have any attributes:", x))
+    return(NULL)
+  }
+
   df <- strsplit(x = splitted_string[-1], split = "=")
   df <- do.call(cbind, df)
 

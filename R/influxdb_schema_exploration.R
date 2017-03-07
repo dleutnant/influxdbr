@@ -59,12 +59,20 @@ show_measurements <- function(con, db, where=NULL) {
 #' @param db Sets the target database for the query.
 #' @param measurement Query a specific measurement.
 #' @param where Apply filter on tag key values.
+#' @param verbose logical. Occasionally, an influxdb server might be queried without
+#' specifying 'measurement' and/or 'where' which could result in a large number of
+#' individual series. Due to the function's purpose to result one single data.frame
+#' containing all series, the merging process of mulitple data.frames with unequal
+#' colnames potentially take some time. If \code{verbose} is set to \code{TRUE},
+#' the user is informed about an evtl. long running process and can interrupt the
+#' function call. The server result will be returned unpolished in this case.
+#' Defaults to TRUE.
 #'
 #' @return A list of data.frame objects.
 #' @export
 #' @seealso \code{\link[influxdbr]{influx_connection}}
 #' @references \url{https://docs.influxdata.com/influxdb/}
-show_series <- function(con, db, measurement=NULL, where=NULL) {
+show_series <- function(con, db, measurement=NULL, where=NULL, verbose = TRUE) {
 
   query <- ifelse(is.null(measurement),
                   "SHOW SERIES",
@@ -82,17 +90,24 @@ show_series <- function(con, db, measurement=NULL, where=NULL) {
   # extract keys
   result <- result[[1]][[1]][[1]]$key
 
+  # a general "show series" might result in a large number of individual series.
+  # therefore, before converting to one single data.frame, we kindly inform the user
+  # about a pontentially long runnnig conversion (which is mainly caused by REDUCE ...)
+  if ((verbose) & (length(result) > 1000)) {
+    choice <- select.list(choices = c("yes", "no"),
+                          title = paste("Merging multiple data.frames (", length(result),
+                                        ") might take a long time. Do you want to continue? Otherwise refine the query with 'measurement' or 'where'.",
+                                        sep = ""))
+    if (choice != "yes") return(result)
+  }
+
   # do the conversion
   result <- lapply(result, .influxdb_line_protocol_to_array)
 
-  # produce one data.frame
-  result <- Reduce(function(x, y) merge(x, y,
-                                        all = TRUE),
-                   x = result)
+  ## TODO: OR MAYBE RETURN A LIST INSTEAD???
 
-  # old version before influxdb 0.11.0
-  # result <- lapply(Reduce(c, result[[1]]),
-  #                  FUN = function(x) x[ ,!(colnames(x) == "_key")])
+  # produce one data.frame
+  result <- Reduce(function(x, y) merge(x, y, all = TRUE), x = result)
 
   return(result)
 }
