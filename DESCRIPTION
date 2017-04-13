@@ -1,17 +1,24 @@
 Package: influxdbr
 Type: Package
 Title: R library to influxdb
-Version: 0.11.4
-Date: 2017-03-07
+Version: 0.11.8
+Date: 2017-04-13
 Authors@R: person("Dominik", "Leutnant", email = "leutnant@fh-muenster.de", role = c("aut", "cre"))
-Description: This package provides R functions for the influxdb api (>=0.11.1).
+Description: This package provides R functions for the influxdb api (>=1.2.2).
 License: GPL-3
 ByteCompile: TRUE
 URL: https://github.com/dleutnant/influxdbr
 BugReports: http://github.com/dleutnant/influxdbr/issues
 Imports:
+    dplyr,
     jsonlite,
     httr,
+    magrittr,
+    purrr,
+    tibble,
+    tidyr,
     xts,
     zoo
 RoxygenNote: 6.0.1
+Roxygen: list(markdown = TRUE, roclets = c("rd", "namespace", "collate"))
+Suggests: testthat

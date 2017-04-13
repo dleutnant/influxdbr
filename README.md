@@ -3,7 +3,7 @@ influxdbr
 
 [![Build Status](https://travis-ci.org/dleutnant/influxdbr.svg?branch=prepare_cran)](https://travis-ci.org/dleutnant/influxdbr)
 
-R interface to InfluxDB (&gt;=0.11.1)
+R interface to InfluxDB (V1.2)
 
 Install using devtools:
 
@@ -17,6 +17,7 @@ if (!require(devtools)) {
     ## Loading required package: devtools
 
 Example use:
+------------
 
 ``` r
 # load libs
@@ -24,6 +25,8 @@ library(xts)
 ```
 
     ## Loading required package: zoo
+
+    ## Warning: package 'zoo' was built under R version 3.3.2
 
     ## 
     ## Attaching package: 'zoo'
@@ -64,24 +67,39 @@ str(xts_data)
     ##  $ n          : num 180
 
 ``` r
-# con <- influxdbr::influx_connection(host = "localhost",
-#                                     port = 8086,
-#                                     user = "root",
-#                                     pass = "root")
+# create connection object (here: based on a config file with (s. package documentation))
 con <- influxdbr::influx_connection(group = "admin")
 ```
 
     ## Success: (204) No Content
 
 ``` r
+# create new database
 influxdbr::create_database(con = con, db = "mydb")
 
+# list all databases
 influxdbr::show_databases(con = con)
 ```
 
-    ## [1] "_internal" "wasig"     "mydb"      "stbmod"
+    ## # A tibble: 11 × 1
+    ##         name
+    ##        <chr>
+    ## 1  _internal
+    ## 2     stbmod
+    ## 3      wasig
+    ## 4   wasig-fr
+    ## 5    wasig-h
+    ## 6       tmp2
+    ## 7       tmp3
+    ## 8        tmp
+    ## 9       test
+    ## 10    new_db
+    ## 11      mydb
 
 ``` r
+# write example xts-object to database
+# attributes of the xts object are interpreted as InfluxDB tags (keys and values)
+# colnames of the xts object are interpreted as InfluxDB fields (keys and values)
 influxdbr::influx_write(con = con, 
                         db = "mydb",
                         xts = xts_data, 
@@ -89,58 +107,135 @@ influxdbr::influx_write(con = con,
 ```
 
 ``` r
+# check if measurement was succefully written
 influxdbr::show_measurements(con = con, db = "mydb")
 ```
 
-    ## [1] "sampledata"
+    ## # A tibble: 2 × 1
+    ##          name
+    ##         <chr>
+    ## 1  sampledata
+    ## 2 sampledata2
+
+request series as tibbles
+-------------------------
 
 ``` r
+# return tibble
+# fetch time series data by using the helper function `influx_select`
 result <- influx_select(con = con, 
                         db = "mydb", 
                         field_keys = "Open, High", 
                         measurement = "sampledata",
+                        group_by = "*",
                         limit = 10, 
-                        order_desc = TRUE)
+                        order_desc = TRUE, 
+                        return_xts = FALSE)
 
-print(result)
+result
 ```
 
     ## [[1]]
-    ## [[1]]$sampledata
-    ##                Open
-    ## 2007-06-21 47.71012
-    ## 2007-06-22 47.56849
-    ## 2007-06-23 47.22873
-    ## 2007-06-24 47.23996
-    ## 2007-06-25 47.20471
-    ## 2007-06-26 47.44300
-    ## 2007-06-27 47.62323
-    ## 2007-06-28 47.67604
-    ## 2007-06-29 47.63629
-    ## 2007-06-30 47.67468
-    ## 
-    ## [[1]]$sampledata
-    ##                High
-    ## 2007-06-21 47.71012
-    ## 2007-06-22 47.59266
-    ## 2007-06-23 47.24771
-    ## 2007-06-24 47.30287
-    ## 2007-06-25 47.42772
-    ## 2007-06-26 47.61611
-    ## 2007-06-27 47.71673
-    ## 2007-06-28 47.70460
-    ## 2007-06-29 47.77563
-    ## 2007-06-30 47.94127
+    ## # A tibble: 10 × 9
+    ##    statement_id series_names series_partial UnitTesting             info
+    ## *         <int>        <chr>          <lgl>       <chr>            <chr>
+    ## 1             0   sampledata          FALSE        TRUE SampleDataMatrix
+    ## 2             0   sampledata          FALSE        TRUE SampleDataMatrix
+    ## 3             0   sampledata          FALSE        TRUE SampleDataMatrix
+    ## 4             0   sampledata          FALSE        TRUE SampleDataMatrix
+    ## 5             0   sampledata          FALSE        TRUE SampleDataMatrix
+    ## 6             0   sampledata          FALSE        TRUE SampleDataMatrix
+    ## 7             0   sampledata          FALSE        TRUE SampleDataMatrix
+    ## 8             0   sampledata          FALSE        TRUE SampleDataMatrix
+    ## 9             0   sampledata          FALSE        TRUE SampleDataMatrix
+    ## 10            0   sampledata          FALSE        TRUE SampleDataMatrix
+    ## # ... with 4 more variables: n <chr>, time <dttm>, Open <dbl>, High <dbl>
+
+request series as xts
+---------------------
 
 ``` r
-show_tag_keys(con = con, db = "mydb")
+# return xts object
+# fetch time series data by using the helper function `influx_select`
+result <- influx_select(con = con, 
+                        db = "mydb", 
+                        field_keys = "Open, High", 
+                        measurement = "sampledata",
+                        group_by =  "*",
+                        limit = 10, 
+                        order_desc = TRUE, 
+                        return_xts = TRUE)
+
+# InfluxDB tags are now xts attributes.
+# Because xts objects are basically matrices (which can store one data type only), 
+# a single xts object is created for each InfluxDB field. 
+# This ensures a correct representation of the field values data type (instead of getting all into a "character" matrix).
+str(result)
 ```
 
-    ## $sampledata
-    ## [1] "UnitTesting" "info"        "n"
+    ## List of 1
+    ##  $ :List of 2
+    ##   ..$ sampledata:An 'xts' object on 2007-06-20 22:00:00/2007-06-29 22:00:00 containing:
+    ##   Data: num [1:10, 1] 47.7 47.6 47.2 47.2 47.2 ...
+    ##  - attr(*, "dimnames")=List of 2
+    ##   ..$ : NULL
+    ##   ..$ : chr "Open"
+    ##   Indexed by objects of class: [POSIXct,POSIXt] TZ: GMT
+    ##   xts Attributes:  
+    ## List of 6
+    ##   .. ..$ statement_id  : int 0
+    ##   .. ..$ series_names  : chr "sampledata"
+    ##   .. ..$ series_partial: logi FALSE
+    ##   .. ..$ UnitTesting   : chr "TRUE"
+    ##   .. ..$ info          : chr "SampleDataMatrix"
+    ##   .. ..$ n             : chr "180"
+    ##   ..$ NA        :An 'xts' object on 2007-06-20 22:00:00/2007-06-29 22:00:00 containing:
+    ##   Data: num [1:10, 1] 47.7 47.6 47.2 47.3 47.4 ...
+    ##  - attr(*, "dimnames")=List of 2
+    ##   ..$ : NULL
+    ##   ..$ : chr "High"
+    ##   Indexed by objects of class: [POSIXct,POSIXt] TZ: GMT
+    ##   xts Attributes:  
+    ## List of 6
+    ##   .. ..$ statement_id  : int 0
+    ##   .. ..$ series_names  : chr "sampledata"
+    ##   .. ..$ series_partial: logi FALSE
+    ##   .. ..$ UnitTesting   : chr "TRUE"
+    ##   .. ..$ info          : chr "SampleDataMatrix"
+    ##   .. ..$ n             : chr "180"
+
+simplify InfluxDB response
+--------------------------
 
 ``` r
-show_tag_values(con = con, db = "mydb", measurement = NULL, key = "UnitTesting")
+# In case the InfluxDB response is expected to be a single series only, 
+# we can flatten the list ('simplifyList = TRUE') to directly get to the data.
+# This enhances a pipeable work flow.
+# fetch time series data by using the helper function `influx_select`
+result <- influx_select(con = con, 
+                        db = "mydb", 
+                        field_keys = "Open", 
+                        measurement = "sampledata",
+                        group_by =  "*",
+                        limit = 10, 
+                        order_desc = TRUE, 
+                        return_xts = TRUE, 
+                        simplifyList = TRUE)
+
+str(result)
 ```
 
-    ## [1] TRUE
+    ## An 'xts' object on 2007-06-20 22:00:00/2007-06-29 22:00:00 containing:
+    ##   Data: num [1:10, 1] 47.7 47.6 47.2 47.2 47.2 ...
+    ##  - attr(*, "dimnames")=List of 2
+    ##   ..$ : NULL
+    ##   ..$ : chr "Open"
+    ##   Indexed by objects of class: [POSIXct,POSIXt] TZ: GMT
+    ##   xts Attributes:  
+    ## List of 6
+    ##  $ statement_id  : int 0
+    ##  $ series_names  : chr "sampledata"
+    ##  $ series_partial: logi FALSE
+    ##  $ UnitTesting   : chr "TRUE"
+    ##  $ info          : chr "SampleDataMatrix"
+    ##  $ n             : chr "180"

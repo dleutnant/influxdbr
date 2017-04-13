@@ -7,15 +7,19 @@
 show_stats(con)
 }
 \arguments{
-\item{con}{An influx_connection object (s. \code{influx_connection}).}
+\item{con}{An \code{influx_connection} object (s. \code{\link{influx_connection}}).}
 }
 \value{
-A list of data.frame objects.
+A tibble.
 }
 \description{
-This function is a convenient wrapper for showing stats
-by calling \code{influx_query} with the corresponding query.
+This function is calls \code{influx_query} to receive some stats.
 }
+\section{Warning}{
+
+InfluxDB response might take some time.
+}
+
 \seealso{
 \code{\link[influxdbr]{influx_connection}}
 }

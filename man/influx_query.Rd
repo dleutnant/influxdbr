@@ -2,32 +2,38 @@
 % Please edit documentation in R/influxdb_main.R
 \name{influx_query}
 \alias{influx_query}
-\title{Query an influxdb server}
+\title{Query an InfluxDB server}
 \usage{
 influx_query(con, db = NULL, query = "SELECT * FROM measurement",
   timestamp_format = c("n", "u", "ms", "s", "m", "h"), return_xts = TRUE,
-  verbose = FALSE)
+  chunked = FALSE, simplifyList = FALSE)
 }
 \arguments{
-\item{con}{An influx_connection object (s. \code{influx_connection}).}
+\item{con}{An \code{influx_connection} object (s. \code{\link{influx_connection}}).}
 
-\item{db}{Sets the name of the database.}
+\item{db}{Sets the target database for the query.}
 
-\item{query}{The influxdb query to be sent.}
+\item{query}{The InfluxDB query to be sent.}
 
 \item{timestamp_format}{Sets the timestamp format
 ("n", "u", "ms", "s", "m", "h").}
 
 \item{return_xts}{logical. Sets the return type. If set to TRUE, xts objects
-are returned, FALSE gives data.frames.}
+are returned, FALSE gives tibbles.}
 
-\item{verbose}{logical. Provide additional details?}
+\item{chunked}{Either FALSE or an integer. If FALSE, series are not requested
+in streamed batches. If an integer is provided, responses will be chunked by
+series or by every \code{chunked} points. Chunks are merged internally.}
+
+\item{simplifyList}{logical. If only one series is returned, the result can be
+flatten to directly get either a tibble or an xts object (instead of a list)
+(default is FALSE).}
 }
 \value{
-A list of xts or data.frame objects.
+A list of tibble or xts objects.
 }
 \description{
-This functions queries an influxdb server.
+This functions queries an InfluxDB server.
 }
 \references{
 \url{https://docs.influxdata.com/influxdb/}

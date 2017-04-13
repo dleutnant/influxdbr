@@ -1,0 +1,133 @@
+---
+title: "influxdbr"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+[![Build Status](https://travis-ci.org/dleutnant/influxdbr.svg?branch=prepare_cran)](https://travis-ci.org/dleutnant/influxdbr)
+
+R interface to InfluxDB (V1.2)
+
+Install using devtools:
+
+```{r}
+if (!require(devtools)) {
+  install.packages('devtools')
+  devtools::install_github("dleutnant/influxdbr@prepare_cran")
+}
+```
+
+## Example use:
+
+```{r}
+# load libs
+library(xts)
+library(influxdbr)
+```
+
+
+```{r}
+# attach data "sample_matrix"
+data("sample_matrix")
+
+# create xts object
+xts_data <- xts::as.xts(x = sample_matrix)
+
+# assign some attributes
+xts::xtsAttributes(xts_data) <- list(info = "SampleDataMatrix",
+                                     UnitTesting = TRUE, 
+                                     n = 180)
+                                     
+str(xts_data)
+```
+
+
+```{r}
+# create connection object 
+# (here: based on a config file with (s. package documentation))
+con <- influxdbr::influx_connection(group = "admin")
+```
+
+
+```{r}
+# create new database
+influxdbr::create_database(con = con, db = "mydb")
+
+# list all databases
+influxdbr::show_databases(con = con)
+```
+
+```{r}
+# write example xts-object to database
+# attributes of the xts object are interpreted as InfluxDB tags (keys and values)
+# colnames of the xts object are interpreted as InfluxDB fields (keys and values)
+influxdbr::influx_write(con = con, 
+                        db = "mydb",
+                        xts = xts_data, 
+                        measurement = "sampledata")
+```
+
+```{r}
+# check if measurement was succefully written
+influxdbr::show_measurements(con = con, db = "mydb")
+```
+## request series as tibbles
+
+```{r}
+# return tibble
+# fetch time series data by using the helper function `influx_select`
+result <- influx_select(con = con, 
+                        db = "mydb", 
+                        field_keys = "Open, High", 
+                        measurement = "sampledata",
+                        group_by = "*",
+                        limit = 10, 
+                        order_desc = TRUE, 
+                        return_xts = FALSE)
+
+result
+```
+
+## request series as xts
+
+```{r}
+# return xts object
+# fetch time series data by using the helper function `influx_select`
+result <- influx_select(con = con, 
+                        db = "mydb", 
+                        field_keys = "Open, High", 
+                        measurement = "sampledata",
+                        group_by =  "*",
+                        limit = 10, 
+                        order_desc = TRUE, 
+                        return_xts = TRUE)
+
+# InfluxDB tags are now xts attributes.
+# Because xts objects are basically matrices (which can store one data type only), 
+# a single xts object is created for each InfluxDB field. 
+# This ensures a correct representation of the field values data type (instead of getting all into a "character" matrix).
+str(result)
+```
+
+## simplify InfluxDB response
+
+```{r}
+# In case the InfluxDB response is expected to be a single series only, 
+# we can flatten the list ('simplifyList = TRUE') to directly get to the data.
+# This enhances a pipeable work flow.
+# fetch time series data by using the helper function `influx_select`
+result <- influx_select(con = con, 
+                        db = "mydb", 
+                        field_keys = "Open", 
+                        measurement = "sampledata",
+                        group_by =  "*",
+                        limit = 10, 
+                        order_desc = TRUE, 
+                        return_xts = TRUE, 
+                        simplifyList = TRUE)
+
+str(result)
+```

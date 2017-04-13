@@ -2,18 +2,18 @@
 % Please edit documentation in R/influxdb_main.R
 \name{influx_write}
 \alias{influx_write}
-\title{Write an xts object to an influxdb server}
+\title{Write an xts object to an InfluxDB server}
 \usage{
 influx_write(con, db, xts, measurement = NULL, rp = NULL,
   precision = c("s", "ns", "u", "ms", "m", "h"), consistency = c(NULL,
   "one", "quroum", "all", "any"), max_points = 5000, use_integers = FALSE)
 }
 \arguments{
-\item{con}{An influx_connection object (s. \code{influx_connection}).}
+\item{con}{An \code{influx_connection} object (s. \code{\link{influx_connection}}).}
 
-\item{db}{Sets the target database for the write.}
+\item{db}{Sets the target database for the query.}
 
-\item{xts}{The xts object to write to an influxdb server.}
+\item{xts}{The xts object to write to an InfluxDB server.}
 
 \item{measurement}{Sets the name of the measurement.}
 
@@ -37,8 +37,8 @@ fail.}
 A list of server responses.
 }
 \description{
-This function writes an xts object to an influxdb server.
-Columnnames of the xts object are used as influxdb's field keys,
+This function writes an xts object to an InfluxDB server.
+Columnnames of the xts object are used as InfluxDB's field keys,
 xts's coredata represent field values. Attributes are preserved and written
 as tag keys and values, respectively.
 }

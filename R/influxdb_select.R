@@ -1,8 +1,7 @@
-#' @title Perform SELECT query
+#' @title influx select helper
 #' @description This function is a convenient wrapper for selecting data from a measurement
 #' by calling \code{influx_query} with the corresponding query.
-#' @param con An influx_connection object (s. \code{influx_connection}).
-#' @param db Sets the name of the database.
+#' @inheritParams influx_query
 #' @param field_keys Specifies the fields to be selected.
 #' @param rp The name of the retention policy.
 #' @param measurement Sets the name of the measurement.
@@ -13,10 +12,10 @@
 #' @param slimit logical. Sets limiting procedure (slimit vs. limit).
 #' @param offset Offsets the returned points by the value provided.
 #' @param order_desc logical. Change sort order to descending.
-#' @param return_xts logical. Sets the return type. If set to TRUE, xts objects
-#' are returned, FALSE gives data.frames.
+#' @param return_xts logical. Sets the return type. If set to TRUE, a list of xts objects
+#' is returned, FALSE gives list of tibbbles.
 #'
-#' @return A list of xts or data.frame objects.
+#' @return A list of xts or tibbles.
 #' @export
 #' @references \url{https://docs.influxdata.com/influxdb/}
 influx_select <- function(con,
@@ -30,46 +29,46 @@ influx_select <- function(con,
                           slimit = FALSE,
                           offset = NULL,
                           order_desc = FALSE,
-                          return_xts = TRUE) {
-
+                          return_xts = TRUE, 
+                          simplifyList = FALSE) {
   if (!is.null(rp)) {
     options("useFancyQuotes" = FALSE)
     measurement <- paste(base::dQuote(rp), measurement, sep = ".")
   }
-
+  
   query <- paste("SELECT", field_keys, "FROM", measurement)
-
+  
   query <- ifelse(is.null(where),
                   query,
                   paste(query, "WHERE", where))
-
+  
   query <- ifelse(is.null(group_by),
                   query,
                   paste(query, "GROUP BY", group_by))
-
+  
   query <- ifelse(!order_desc,
                   query,
                   paste(query, "ORDER BY time DESC"))
-
+  
   query <- ifelse(is.null(limit),
                   query,
                   paste(query, ifelse(slimit, "SLIMIT", "LIMIT"), limit))
-
+  
   query <- ifelse(is.null(offset),
                   query,
                   paste(query, "OFFSET", offset))
-
-  result <- influx_query(con = con,
-                         db = db,
-                         query = query,
-                         return_xts = return_xts,
-                         verbose = FALSE)
-
-  if (is.null(result)) return(NULL)
-
-  # concatenate list to get a more intuitive list
-  result <- do.call(c, result)
-
+  
+  result <- influx_query(
+    con = con,
+    db = db,
+    query = query,
+    return_xts = return_xts, 
+    simplifyList = simplifyList
+  )
+  
+  if (is.null(result))
+    return(NULL)
+  
   invisible(result)
-
+  
 }

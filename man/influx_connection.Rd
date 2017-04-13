@@ -4,8 +4,8 @@
 \alias{influx_connection}
 \title{Create an influxdb_connection object}
 \usage{
-influx_connection(scheme = "http", host = "localhost", port = 8086,
-  user = "user", pass = "pass", path = "/", group = NULL,
+influx_connection(scheme = c("http", "https"), host = "localhost",
+  port = 8086, user = "user", pass = "pass", path = "/", group = NULL,
   verbose = FALSE, config_file = "~/.influxdb.cnf")
 }
 \arguments{
@@ -25,21 +25,26 @@ influx_connection(scheme = "http", host = "localhost", port = 8086,
 
 \item{verbose}{logical. Provide additional details?}
 
-\item{config_file}{The configuration file to be used if \code{groupname} is
+\item{config_file}{The configuration file to be used if \code{group} is
 specified.}
 }
 \description{
 Create an influxdb_connection object by specifying server
 connection details. Credentials can also be saved and accessed through a config file.
 }
-\references{
-\url{https://influxdb.com/}
-A group file looks like:
-[groupname]
+\section{structure of configuration file}{
+
+A configuration file may contain several connection settings. Each setting has
+the following structure:\cr\preformatted{[group]
 scheme=http
-host=localhost
+host=localhost  
 port=8086
 user=username
-pass=password
+pass=password  
 path=/
+}
+}
+
+\references{
+\url{https://influxdb.com/}
 }

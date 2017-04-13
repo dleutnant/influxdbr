@@ -7,7 +7,7 @@
 influx_ping(con)
 }
 \arguments{
-\item{con}{An influx_connection object (s. \code{influx_connection}).}
+\item{con}{An \code{influx_connection} object (s. \code{\link{influx_connection}}).}
 }
 \value{
 A list of server information.

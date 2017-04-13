@@ -7,14 +7,13 @@
 show_diagnostics(con)
 }
 \arguments{
-\item{con}{An influx_connection object (s. \code{influx_connection}).}
+\item{con}{An \code{influx_connection} object (s. \code{\link{influx_connection}}).}
 }
 \value{
-A list with diagnostics.
+A tibble with diagnostics.
 }
 \description{
-This function is a convenient wrapper for showing diagnostics
-by calling \code{influx_query} with the corresponding query.
+This function is calls \code{influx_query} to receive some diagnostics.
 }
 \seealso{
 \code{\link[influxdbr]{influx_connection}}
