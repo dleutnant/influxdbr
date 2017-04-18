@@ -56,15 +56,13 @@ query_list_to_tibble <- function(x, timestamp_format) {
         purrr::map(unlist)
         
       # extract values
-      series_values <- series_ele$series %>%
-        purrr::map("values") %>%
-        purrr::map( ~ purrr::map(., rbind)) %>%
-        purrr::map( ~ do.call(rbind, .)) %>%
-        purrr::map(tibble::as_tibble) %>%
-        purrr::map2(.x = .,
+      series_values <- series_ele$series %>% 
+        purrr::map("values") %>% 
+        purrr::map2(.x = ., 
                     .y = series_columns,
-                    ~ magrittr::set_colnames(.x, .y)) %>%
-        purrr::map(tidyr::unnest) %>%
+                    ~ tibble::as_tibble(t(matrix(unlist(.x), 
+                                                 nrow = length(.y)))) %>% 
+                      magrittr::set_colnames(., .y)) %>%
         # influxdb ALWAYS stores data in GMT!!
         purrr::map( ~ purrr::map_at(., .at = "time",
                                     ~ as.POSIXct(
