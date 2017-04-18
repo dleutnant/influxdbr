@@ -15,11 +15,11 @@ query_list_to_tibble <- function(x, timestamp_format) {
   
   # remove hierarchies to get direct access results level
   while (!("results" %in% names(x))) {
-    x <- x %>% purrr::flatten(.)
+    x <- purrr::flatten(x)
   }
   
   # flatten once again to get directly to "statement_id" and "series"
-  x <- x %>% purrr::flatten(.)
+  x <- purrr::flatten(x)
   
   # iterate over result array
   list_of_result <- purrr::map(x, .f = function(series_ele) {
@@ -40,24 +40,20 @@ query_list_to_tibble <- function(x, timestamp_format) {
       
     if (!is.null(series_ele$series)) {
       # extract "measurement names"
-      series_names <- series_ele$series %>%
-        purrr::map("name") %>%
+      series_names <- purrr::map(series_ele$series, "name") %>%
         unlist() %>%
         `if`(is.null(.), NA, .)
         
       # extract "tags"
-      series_tags <- series_ele$series %>%
-        purrr::map("tags") %>%
+      series_tags <- purrr::map(series_ele$series, "tags") %>%
         purrr::map(tibble::as_tibble)
         
       # extract "columns"
-      series_columns <- series_ele$series %>%
-        purrr::map("columns") %>%
+      series_columns <- purrr::map(series_ele$series, "columns") %>%
         purrr::map(unlist)
         
       # extract values
-      series_values <- series_ele$series %>% 
-        purrr::map("values") %>% 
+      series_values <- purrr::map(series_ele$series, "values") %>% 
         purrr::map2(.x = ., 
                     .y = series_columns,
                     ~ tibble::as_tibble(t(matrix(unlist(.x), 
@@ -82,12 +78,12 @@ query_list_to_tibble <- function(x, timestamp_format) {
                                series_partial)
         
       # unnest list-columns if content is present (here: tags)
-      if (all(result$series_tags %>% purrr::map_int(nrow)) != 0) {
+      if (all(purrr::map_int(result$series_tags, nrow)) != 0) {
         result <- tidyr::unnest(result, series_tags, .drop = FALSE)
       }
         
       # unnest list-columns if content is present (here: values)
-      if (all(result$series_values %>% purrr::map_int(nrow)) != 0) {
+      if (all(purrr::map_int(result$series_values, nrow)) != 0) {
         result <- tidyr::unnest(result, series_values, .drop = FALSE)
       }
         
@@ -152,13 +148,11 @@ response_to_list <- function(x) {
   }
   
   # transform json to R's list data type
-  response_data <- x %>%
-    purrr::map(
-      jsonlite::fromJSON,
-      simplifyVector = FALSE,
-      simplifyDataFrame = FALSE,
-      simplifyMatrix = FALSE
-    )
+  response_data <- purrr::map(x, 
+                              jsonlite::fromJSON,      
+                              simplifyVector = FALSE,
+                              simplifyDataFrame = FALSE,
+                              simplifyMatrix = FALSE)
   
   # return transformed data as R list
   return(response_data)
@@ -212,31 +206,32 @@ tibble_to_xts <- function(x) {
   # extract unique tag sets
   list_of_tags <- list_of_tibble %>%
     purrr::map( ~ dplyr::select(., statement_id:time, -time) %>%
-                  dplyr::distinct() %>% as.list)
+                  dplyr::distinct() %>% 
+                  as.list)
   
   # create list_of_values from each "field" column
   # hint: We create an xts object for each column to preserve the column type.
   # An xts object is based on a matrix and thus can store one type only.
   list_of_values <- list_of_tibble %>%
-    purrr::map( ~ dplyr::select(.,-(statement_id:time)) %>% as.list)
+    purrr::map( ~ dplyr::select(.,-(statement_id:time)) %>% 
+                  as.list)
   
   # create list_of_times
   list_of_times <- list_of_tibble %>%
-    purrr::map( ~ dplyr::select(., time) %>% as.list)
+    purrr::map( ~ dplyr::select(., time) %>% 
+                  as.list)
   
   # create list of xts
-  list_of_xts <-
-    list(list_of_values, list_of_times, list_of_tags) %>%
+  list_of_xts <- list(list_of_values, list_of_times, list_of_tags) %>%
     purrr::pmap(function(x, y, z) {
       purrr::map2(.x = x, .y = names(x), function(a, b) {
-        ts <-
-          xts::xts(a, order.by = y[[1]], tzone = "GMT") # influx always returns GMT
+        ts <- xts::xts(a, order.by = y[[1]], tzone = "GMT") # influx always returns GMT
         colnames(ts) <- b # rename column according to field value
-        ts
-      }) %>%
+        return(ts) 
+        }) %>%
         purrr::map(., function(c) {
           xts::xtsAttributes(c) <- purrr::flatten(z)
-          c
+          return(c)
         })
     }) %>%
     purrr::flatten(.)
