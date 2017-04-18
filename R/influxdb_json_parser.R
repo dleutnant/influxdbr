@@ -1,6 +1,17 @@
 #' @keywords internal
 query_list_to_tibble <- function(x, timestamp_format) {
+  
   #x <- debug_data %>% purrr::map(response_to_list)
+  
+  # create divisor for different timestamp format
+  div <- switch(timestamp_format,
+                "n" = 1e+9,
+                "u" = 1e+6,
+                "ms" = 1e+3,
+                "s" = 1,
+                "m" = 1 / 60,
+                "h" = 1 / (60 * 60)
+  )
   
   # remove hierarchies to get direct access results level
   while (!("results" %in% names(x))) {
@@ -11,103 +22,91 @@ query_list_to_tibble <- function(x, timestamp_format) {
   x <- x %>% purrr::flatten(.)
   
   # iterate over result array
-  list_of_result <- purrr::map(
-    x,
-    .f = function(series_ele) {
-      # set default values
-      statement_id <- series_names <- series_tags <- NA
-      series_columns <- series_values <- series_partial <- NA
+  list_of_result <- purrr::map(x, .f = function(series_ele) {
+    
+    # set default values
+    statement_id <- series_names <- series_tags <- NA
+    series_columns <- series_values <- series_partial <- NA
+    result <- tibble::tibble(statement_id,
+                             series_names,
+                             series_tags,
+                             series_values,
+                             series_partial)
+      
+    if (!is.null(series_ele$statement_id)) {
+      # extract "statement_id"
+      statement_id <- series_ele$statement_id
+    }
+      
+    if (!is.null(series_ele$series)) {
+      # extract "measurement names"
+      series_names <- series_ele$series %>%
+        purrr::map("name") %>%
+        unlist() %>%
+        `if`(is.null(.), NA, .)
+        
+      # extract "tags"
+      series_tags <- series_ele$series %>%
+        purrr::map("tags") %>%
+        purrr::map(tibble::as_tibble)
+        
+      # extract "columns"
+      series_columns <- series_ele$series %>%
+        purrr::map("columns") %>%
+        purrr::map(unlist)
+        
+      # extract values
+      series_values <- series_ele$series %>%
+        purrr::map("values") %>%
+        purrr::map( ~ purrr::map(., rbind)) %>%
+        purrr::map( ~ do.call(rbind, .)) %>%
+        purrr::map(tibble::as_tibble) %>%
+        purrr::map2(.x = .,
+                    .y = series_columns,
+                    ~ magrittr::set_colnames(.x, .y)) %>%
+        purrr::map(tidyr::unnest) %>%
+        # influxdb ALWAYS stores data in GMT!!
+        purrr::map( ~ purrr::map_at(., .at = "time",
+                                    ~ as.POSIXct(
+                                      . / div, origin = "1970-1-1", tz = "GMT"
+                                    )) %>%
+                      tibble::as_tibble(.))
+        
+      # is partial?
+      series_partial <-
+        ifelse(is.null(series_ele$partial), FALSE, TRUE)
+        
+      # RETURN AGGREGATED TIBBLE WITH LIST COLUMNS!
       result <- tibble::tibble(statement_id,
                                series_names,
                                series_tags,
                                series_values,
                                series_partial)
-      
-      if (!is.null(series_ele$statement_id)) {
-        # extract "statement_id"
-        statement_id <- series_ele$statement_id
+        
+      # unnest list-columns if content is present (here: tags)
+      if (all(result$series_tags %>% purrr::map_int(nrow)) != 0) {
+        result <- tidyr::unnest(result, series_tags, .drop = FALSE)
       }
-      
-      if (!is.null(series_ele$series)) {
-        # extract "measurement names"
-        series_names <- series_ele$series %>%
-          purrr::map("name") %>%
-          unlist() %>%
-          `if`(is.null(.), NA, .)
         
-        # extract "tags"
-        series_tags <- series_ele$series %>%
-          purrr::map("tags") %>%
-          purrr::map(tibble::as_tibble)
-        
-        # extract "columns"
-        series_columns <- series_ele$series %>%
-          purrr::map("columns") %>%
-          purrr::map(unlist)
-        
-        # create divisor for different timestamp format
-        div <- switch(
-          timestamp_format,
-          "n" = 1e+9,
-          "u" = 1e+6,
-          "ms" = 1e+3,
-          "s" = 1,
-          "m" = 1 / 60,
-          "h" = 1 / (60 * 60)
-        )
-        
-        # extract values
-        series_values <- series_ele$series %>%
-          purrr::map("values") %>%
-          purrr::map( ~ purrr::map(., rbind)) %>%
-          purrr::map( ~ do.call(rbind, .)) %>%
-          purrr::map(tibble::as_tibble) %>%
-          purrr::map2(.x = .,
-                      .y = series_columns,
-                      ~ magrittr::set_colnames(.x, .y)) %>%
-          purrr::map(tidyr::unnest) %>%
-          # influxdb ALWAYS stores data in GMT!!
-          purrr::map( ~ purrr::map_at(., .at = "time",
-                                      ~ as.POSIXct(
-                                        . / div, origin = "1970-1-1", tz = "GMT"
-                                      )) %>%
-                        tibble::as_tibble(.))
-        
-        # is partial?
-        series_partial <-
-          ifelse(is.null(series_ele$partial), FALSE, TRUE)
-        
-        # RETURN AGGREGATED TIBBLE WITH LIST COLUMNS!
-        result <- tibble::tibble(statement_id,
-                                 series_names,
-                                 series_tags,
-                                 series_values,
-                                 series_partial)
-        
-        # unnest list-columns if content is present (here: tags)
-        if (all(result$series_tags %>% purrr::map_int(nrow)) != 0) {
-          result <- tidyr::unnest(result, series_tags, .drop = FALSE)
-        }
-        
-        # unnest list-columns if content is present (here: values)
-        if (all(result$series_values %>% purrr::map_int(nrow)) != 0) {
-          result <- tidyr::unnest(result, series_values, .drop = FALSE)
-        }
-        
-      } else {
-        # in case of an error...
-        if (!is.null(series_ele$error)) {
-          stop(series_ele$error, call. = FALSE)
-        }
-        
-        warning("no series returned")
-        
+      # unnest list-columns if content is present (here: values)
+      if (all(result$series_values %>% purrr::map_int(nrow)) != 0) {
+        result <- tidyr::unnest(result, series_values, .drop = FALSE)
       }
-      
-      return(result)
+        
+    } else {
+      # in case of an error...
+      if (!is.null(series_ele$error)) {
+        stop(series_ele$error, call. = FALSE)
+      }
+    
+      warning("no series returned")
       
     }
-  )
+      
+    return(result)
+      
+  }
+)
   
   ### in case of CHUNKED responses, concatenate tables with same statement_id
   list_of_result <- list_of_result %>% # take the list of results

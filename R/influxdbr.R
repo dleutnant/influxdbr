@@ -3,7 +3,7 @@
 #' R library to influxdb
 #'
 #' @docType package
-#' @name influxedbr
+#' @name influxdbr
 #' @importFrom magrittr %>%
 #' @importFrom purrr %||%
 NULL
