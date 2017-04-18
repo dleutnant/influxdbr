@@ -259,7 +259,7 @@ influx_query <- function(con,
                                  port = con$port,
                                  path = paste0(con$path, "query"),
                                  query = q),
-                       error = function(e) {print(e) return(NULL)})
+                       error = function(e) {print(e); return(NULL)})
   
   # if curl fails return NULL
   if (is.null(response)) {

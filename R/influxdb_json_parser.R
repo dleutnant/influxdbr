@@ -62,9 +62,9 @@ query_list_to_tibble <- function(x, timestamp_format) {
                       magrittr::set_colnames(., .y)) %>%
         # influxdb ALWAYS stores data in GMT!!
         purrr::map( ~ purrr::map_at(., .at = "time",
-                                    ~ as.POSIXct(
-                                      . / div, origin = "1970-1-1", tz = "GMT"
-                                    )) %>%
+                                    ~ as.POSIXct(. / div, 
+                                                 origin = "1970-1-1",
+                                                 tz = "GMT")) %>%
                       tibble::as_tibble(.))
         
       # is partial?
