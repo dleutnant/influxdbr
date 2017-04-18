@@ -13,6 +13,13 @@ query_list_to_tibble <- function(x, timestamp_format) {
                 "h" = 1 / (60 * 60)
   )
   
+  # set default result
+  result_na <- tibble::tibble(statement_id = NA,
+                              series_names = NA,
+                              series_tags = NA,
+                              series_values = NA,
+                              series_partial = NA)
+  
   # remove hierarchies to get direct access results level
   while (!("results" %in% names(x))) {
     x <- purrr::flatten(x)
@@ -24,15 +31,9 @@ query_list_to_tibble <- function(x, timestamp_format) {
   # iterate over result array
   list_of_result <- purrr::map(x, .f = function(series_ele) {
     
-    # set default values
-    statement_id <- series_names <- series_tags <- NA
-    series_columns <- series_values <- series_partial <- NA
-    result <- tibble::tibble(statement_id,
-                             series_names,
-                             series_tags,
-                             series_values,
-                             series_partial)
-      
+    # set dummy result
+    result <- result_na
+    
     if (!is.null(series_ele$statement_id)) {
       # extract "statement_id"
       statement_id <- series_ele$statement_id
@@ -99,8 +100,7 @@ query_list_to_tibble <- function(x, timestamp_format) {
       
     return(result)
       
-  }
-)
+  })
   
   ### in case of CHUNKED responses, concatenate tables with same statement_id
   list_of_result <- list_of_result %>% # take the list of results
@@ -108,9 +108,9 @@ query_list_to_tibble <- function(x, timestamp_format) {
     purrr::map_int(unique) %>% # create a vector with unique "statement_id"
     rle %>% # perform run length encoding to get the length of each "statement_id"
     rle_seq_to_list %>% # own function to make a list of sequences from rle
-    purrr::map(., ~ do.call(rbind, list_of_result[.])) # rbind results
-  
-  # # return list of tibbles
+    purrr::map( ~ dplyr::bind_rows(list_of_result[.])) # rbind results
+    
+  # return list of tibbles
   return(list_of_result)
   
 }

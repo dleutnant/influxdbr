@@ -253,21 +253,13 @@ influx_query <- function(con,
   q <- c(q, q = query)
   
   # submit query
-  response <- tryCatch(
-    httr::GET(
-      url = "",
-      scheme = "http",
-      scheme = con$scheme,
-      hostname = con$host,
-      port = con$port,
-      path = paste0(con$path, "query"),
-      query = q
-    ),
-    error = function(e) {
-      print(e)
-      return(NULL)
-    }
-  )
+  response <- tryCatch(httr::GET(url = "",
+                                 scheme = con$scheme,
+                                 hostname = con$host,
+                                 port = con$port,
+                                 path = paste0(con$path, "query"),
+                                 query = q),
+                       error = function(e) {print(e) return(NULL)})
   
   # if curl fails return NULL
   if (is.null(response)) {
@@ -280,15 +272,15 @@ influx_query <- function(con,
     warning(paste("http:", response_data$error), call. = FALSE)
     return(NULL)
   }
-  
+
   # initiate data conversion which result in a tibble with list-columns
   list_of_result <-
     rawToChar(response$content) %>%  # convert to chars
     purrr::map(response_to_list) %>% # from json to list
-    purrr::map(query_list_to_tibble,
-               timestamp_format = timestamp_format) %>% # from list to tibble
+    purrr::map(query_list_to_tibble, # from list to tibble
+               timestamp_format = timestamp_format) %>% 
     purrr::flatten(.)
-  
+
   # xts object required?
   if (return_xts)
     list_of_result <- list_of_result %>%
