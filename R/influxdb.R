@@ -461,7 +461,8 @@ influx_write <- function(con,
     # convert xts to line protocol
     influxdb_line_protocol <- .xts_to_influxdb_line_protocol(xts = x,
                                                              use_integers = use_integers,
-                                                             measurement = measurement)
+                                                             measurement = measurement,
+                                                             precision = precision)
 
     # submit post
     response <- httr::POST(url = "", httr::timeout(60),
@@ -596,6 +597,7 @@ create_database <- function(con, db) {
 # method to convert an xts-object to influxdb specific line protocol
 .xts_to_influxdb_line_protocol <- function(xts,
                                            measurement,
+                                           precision,
                                            use_integers = FALSE){
 
   # development options
@@ -628,7 +630,14 @@ create_database <- function(con, db) {
   tag_key_value <- paste(tag_keys, tag_values, sep = "=", collapse = ",")
 
   # create time vector
-  time <- format(as.numeric(zoo::index(xts)), scientific = FALSE)
+  pscale <- switch(precision,
+         "n" = 1e+9,
+         "u" = 1e+6,
+         "ms" = 1e+3,
+         "s" = 1,
+         "m" = 1/60,
+           "h" = 1/(60*60))
+  time <- format(as.integer(as.numeric(zoo::index(xts)) * pscale), scientific = FALSE)
 
   # make sure all integers end with "i", this also sets mode to "character"
   # s. https://github.com/influxdb/influxdb/issues/3519
