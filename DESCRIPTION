@@ -19,3 +19,4 @@ Collate:
     'influxdb_explore_schema.R'
     'influxdb_drop_data.R'
     'influxdb_diagnostics.R'
+RoxygenNote: 5.0.1
