@@ -451,10 +451,9 @@ influx_write <- function(con,
   tag_values <- xts::xtsAttributes(xts)[valid_attr]
   
   # handle commas and spaces in values
-  tag_values <-
-    gsub(pattern = ",| ",
-         replacement = "_",
-         x = tag_values)
+  tag_values <- gsub(pattern = "[ ]", replacement = "\\\\ ", x = tag_values)
+  tag_values <- gsub(pattern = "[,]", replacement = "\\\\,", x = tag_values)
+  tag_values <- gsub(pattern = "[|]", replacement = "\\\\|", x = tag_values)
   
   # handle empty values in keys
   tag_values <- gsub(pattern = "numeric\\(0\\)|character\\(0\\)",
