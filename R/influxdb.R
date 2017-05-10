@@ -618,8 +618,10 @@ create_database <- function(con, db) {
   tag_values <- xts::xtsAttributes(xts)
 
   # handle commas and spaces in values
-  tag_values <- gsub(pattern = ",| ", replacement = "_", x = tag_values)
-
+  tag_values <- gsub(pattern = "[ ]", replacement = "\\\\ ", x = tag_values)
+  tag_values <- gsub(pattern = "[,]", replacement = "\\\\,", x = tag_values)
+  tag_values <- gsub(pattern = "[|]", replacement = "\\\\|", x = tag_values)
+  
   # handle empty values in keys
   tag_values <- gsub(pattern = "numeric\\(0\\)|character\\(0\\)",
                      replacement = "NA", x = tag_values)
