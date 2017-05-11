@@ -141,7 +141,6 @@ influx_ping <- function(con) {
 #' @description This sends POST to an InfluxDB server. It is not exported and only
 #' used for some helper functions within this package.
 #' @inheritParams influx_query
-#' @param query The InfluxDB post to be sent.
 #' @return A tibble or NULL
 #' @references \url{https://influxdb.com/}
 #' @keywords internal
@@ -162,7 +161,6 @@ influx_post <- function(con,
   response <- tryCatch(
     httr::POST(
       url = "",
-      scheme = "http",
       scheme = con$scheme,
       hostname = con$host,
       port = con$port,
