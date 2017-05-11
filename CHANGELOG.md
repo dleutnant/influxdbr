@@ -3,8 +3,11 @@
 ### Release Notes
 
 - harmonizing function result to tibbles 
-- [#14](https://github.com/dleutnant/influxdbr/pull/14) commas, equal signs and spaces are now correctly escaped for tag keys (influx_write) (thanks to @JonasGutermuth)
 - tests are skipped on travis
+
+### Bugfixes
+
+- [#14](https://github.com/dleutnant/influxdbr/pull/14) commas, equal signs and spaces are now correctly escaped for tag keys (influx_write) (thanks to @JonasGutermuth)
 
 ## 0.11.9
 
