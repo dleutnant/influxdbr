@@ -127,7 +127,13 @@ influx_ping <- function(con) {
   )
   
   
-  return(response$all_headers)
+  res <- response$all_headers %>%
+    purrr::flatten() %>%
+    purrr::map_at("headers", tibble::as_tibble) %>%
+    as.data.frame() %>%
+    tibble::as_tibble()
+  
+  return(res)
   
 }
 
