@@ -10,7 +10,7 @@ influx_ping(con)
 \item{con}{An \code{influx_connection} object (s. \code{\link{influx_connection}}).}
 }
 \value{
-A list of server information.
+A tibble with server information.
 }
 \description{
 This function pings an influxdb server (e.g. for connection testing)

@@ -111,7 +111,7 @@ influx_connection <-  function(scheme = c("http", "https"),
 #' @description This function pings an influxdb server (e.g. for connection testing)
 #' @inheritParams influx_query
 #'
-#' @return A list of server information.
+#' @return A tibble with server information.
 #' @rdname influx_ping
 #' @export
 #' @seealso \code{\link[xts]{xts}}, \code{\link[influxdbr]{influx_connection}}
