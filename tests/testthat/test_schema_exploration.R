@@ -6,6 +6,7 @@ testthat::test_that("connection", {
   
   # only local tests
   testthat::skip_on_cran()
+  testthat::skip_on_travis()
 
   # setup influx connection  
   con <<- influx_connection(group = "admin")
@@ -19,6 +20,7 @@ testthat::test_that("show commands", {
   
   # only local tests
   testthat::skip_on_cran()
+  testthat::skip_on_travis()
   
   testthat::expect_is(show_databases(con), class = "tbl_df")
   

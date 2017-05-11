@@ -7,6 +7,7 @@ testthat::test_that("connection", {
   
   # only local tests
   testthat::skip_on_cran()
+  testthat::skip_on_travis()
   
   con <<- influx_connection(group = "admin")
   
@@ -18,6 +19,7 @@ testthat::test_that("single query no chunking", {
   
   # only local tests
   testthat::skip_on_cran()
+  testthat::skip_on_travis()
   
   data1a <- influx_query(con = con,
                          chunked = FALSE,
@@ -58,6 +60,7 @@ testthat::test_that("multiple query no chunking", {
   
   # only local tests
   testthat::skip_on_cran()
+  testthat::skip_on_travis()
   
   data2 <- influx_query(con = con,
                         chunked = FALSE,
@@ -76,6 +79,7 @@ testthat::test_that("single query with chunking", {
   
   # only local tests
   testthat::skip_on_cran()
+  testthat::skip_on_travis()
   
   data3 <- influx_query(con = con,
                         chunked = 10,
@@ -92,6 +96,7 @@ testthat::test_that("multiple query with chunking", {
   
   # only local tests
   testthat::skip_on_cran()
+  testthat::skip_on_travis()
   
   data4 <- influx_query(con = con,
                         chunked = 10,
@@ -108,6 +113,7 @@ testthat::test_that("multiple query with chunking", {
   
   # only local tests
   testthat::skip_on_cran()
+  testthat::skip_on_travis()
   
   data5 <- influx_query(con = con,
                         chunked = 10,
