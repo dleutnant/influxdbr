@@ -16,11 +16,8 @@ if (!require(devtools)) {
     ## Loading required package: devtools
 
 ``` r
-devtools::install_github("dleutnant/influxdbr@prepare_cran")
+devtools::install_github("dleutnant/influxdbr@prepare_cran", quiet = TRUE)
 ```
-
-    ## Skipping install of 'influxdbr' from a github remote, the SHA1 (899943f4) has not changed since last install.
-    ##   Use `force = TRUE` to force installation
 
 Example use:
 ------------
@@ -168,7 +165,7 @@ result <- influx_select(con = con,
                         group_by =  "*",
                         limit = 10, 
                         order_desc = TRUE, 
-                        return_xts = FALSE)
+                        return_xts = TRUE)
 
 # InfluxDB tags are now xts attributes.
 # Because xts objects are basically matrices (which can store one data type only), 
@@ -178,16 +175,35 @@ str(result)
 ```
 
     ## List of 1
-    ##  $ :Classes 'tbl_df', 'tbl' and 'data.frame':    10 obs. of  9 variables:
-    ##   ..$ statement_id  : int [1:10] 0 0 0 0 0 0 0 0 0 0
-    ##   ..$ series_names  : chr [1:10] "sampledata" "sampledata" "sampledata" "sampledata" ...
-    ##   ..$ series_partial: logi [1:10] FALSE FALSE FALSE FALSE FALSE FALSE ...
-    ##   ..$ UnitTesting   : chr [1:10] "TRUE" "TRUE" "TRUE" "TRUE" ...
-    ##   ..$ info          : chr [1:10] "SampleDataMatrix" "SampleDataMatrix" "SampleDataMatrix" "SampleDataMatrix" ...
-    ##   ..$ n             : chr [1:10] "180" "180" "180" "180" ...
-    ##   ..$ time          : POSIXct[1:10], format: "2007-06-29 22:00:00" ...
-    ##   ..$ Open          : num [1:10] 47.7 47.6 47.7 47.6 47.4 ...
-    ##   ..$ High          : num [1:10] 47.9 47.8 47.7 47.7 47.6 ...
+    ##  $ :List of 2
+    ##   ..$ sampledata:An 'xts' object on 2007-06-20 22:00:00/2007-06-29 22:00:00 containing:
+    ##   Data: num [1:10, 1] 47.7 47.6 47.2 47.2 47.2 ...
+    ##  - attr(*, "dimnames")=List of 2
+    ##   ..$ : NULL
+    ##   ..$ : chr "Open"
+    ##   Indexed by objects of class: [POSIXct,POSIXt] TZ: GMT
+    ##   xts Attributes:  
+    ## List of 6
+    ##   .. ..$ statement_id  : int 0
+    ##   .. ..$ series_names  : chr "sampledata"
+    ##   .. ..$ series_partial: logi FALSE
+    ##   .. ..$ UnitTesting   : chr "TRUE"
+    ##   .. ..$ info          : chr "SampleDataMatrix"
+    ##   .. ..$ n             : chr "180"
+    ##   ..$ sampledata:An 'xts' object on 2007-06-20 22:00:00/2007-06-29 22:00:00 containing:
+    ##   Data: num [1:10, 1] 47.7 47.6 47.2 47.3 47.4 ...
+    ##  - attr(*, "dimnames")=List of 2
+    ##   ..$ : NULL
+    ##   ..$ : chr "High"
+    ##   Indexed by objects of class: [POSIXct,POSIXt] TZ: GMT
+    ##   xts Attributes:  
+    ## List of 6
+    ##   .. ..$ statement_id  : int 0
+    ##   .. ..$ series_names  : chr "sampledata"
+    ##   .. ..$ series_partial: logi FALSE
+    ##   .. ..$ UnitTesting   : chr "TRUE"
+    ##   .. ..$ info          : chr "SampleDataMatrix"
+    ##   .. ..$ n             : chr "180"
 
 simplify InfluxDB response
 --------------------------
