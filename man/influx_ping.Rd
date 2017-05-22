@@ -13,7 +13,8 @@ influx_ping(con)
 A tibble with server information.
 }
 \description{
-This function pings an influxdb server (e.g. for connection testing)
+This function pings an influxdb server
+(e.g. for connection testing)
 }
 \references{
 \url{https://docs.influxdata.com/influxdb/}

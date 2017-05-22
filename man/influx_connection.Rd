@@ -19,7 +19,8 @@ influx_connection(scheme = c("http", "https"), host = "localhost",
 
 \item{pass}{password The password to use. Defaults to "pass".}
 
-\item{path}{The prefix path on which the InfluxDB is running. Can be useful in proxy situations.}
+\item{path}{The prefix path on which the InfluxDB is running. Can be useful
+in proxy situations.}
 
 \item{group}{The group to use within the config file.}
 
@@ -30,12 +31,13 @@ specified.}
 }
 \description{
 Create an influxdb_connection object by specifying server
-connection details. Credentials can also be saved and accessed through a config file.
+connection details. Credentials can also be saved and accessed through a
+config file.
 }
 \section{structure of configuration file}{
 
-A configuration file may contain several connection settings. Each setting has
-the following structure:\cr\preformatted{[group]
+A configuration file may contain several connection settings. Each setting
+has the following structure:\cr\preformatted{[group]
 scheme=http
 host=localhost  
 port=8086

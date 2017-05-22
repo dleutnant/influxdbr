@@ -1,12 +1,14 @@
 #' @title Create an influxdb_connection object
 #' @description Create an influxdb_connection object by specifying server
-#' connection details. Credentials can also be saved and accessed through a config file.
+#' connection details. Credentials can also be saved and accessed through a 
+#' config file.
 #' @param scheme The scheme to use, either http or https. Defaults to http.
 #' @param host Hostname of the InfluxDB server. Defaults to localhost
 #' @param port numerical. Port number of the InfluxDB server. Defaults to 8086.
 #' @param user username The username to use. Defaults to "user"
 #' @param pass password The password to use. Defaults to "pass".
-#' @param path The prefix path on which the InfluxDB is running. Can be useful in proxy situations.
+#' @param path The prefix path on which the InfluxDB is running. Can be useful 
+#' in proxy situations.
 #' @param group The group to use within the config file.
 #' @param verbose logical. Provide additional details?
 #' @param config_file The configuration file to be used if `group` is
@@ -15,8 +17,8 @@
 #' @export
 #' @references \url{https://influxdb.com/}
 #' @section structure of configuration file:
-#' A configuration file may contain several connection settings. Each setting has 
-#' the following structure:\cr
+#' A configuration file may contain several connection settings. Each setting 
+#' has the following structure:\cr
 #' ```
 #' [group]
 #' scheme=http
@@ -108,7 +110,8 @@ influx_connection <-  function(scheme = c("http", "https"),
 }
 
 #' @title Ping an influxdb server
-#' @description This function pings an influxdb server (e.g. for connection testing)
+#' @description This function pings an influxdb server 
+#' (e.g. for connection testing)
 #' @inheritParams influx_query
 #'
 #' @return A tibble with server information.
@@ -138,8 +141,8 @@ influx_ping <- function(con) {
 }
 
 #' @title send POST to an InfluxDB server
-#' @description This sends POST to an InfluxDB server. It is not exported and only
-#' used for some helper functions within this package.
+#' @description This function sends POST to an InfluxDB server. It is not 
+#' exported and only used for some helper functions within this package.
 #' @inheritParams influx_query
 #' @return A tibble or NULL
 #' @references \url{https://influxdb.com/}
@@ -213,8 +216,8 @@ influx_post <- function(con,
 #' @param chunked Either FALSE or an integer. If FALSE, series are not requested
 #' in streamed batches. If an integer is provided, responses will be chunked by
 #' series or by every \code{chunked} points. Chunks are merged internally.
-#' @param simplifyList logical. If only one series is returned, the result can be
-#' flatten to directly get either a tibble or an xts object (instead of a list)
+#' @param simplifyList logical. If only one series is returned, the result can 
+#' be flatten to directly get either a tibble or an xts object (instead of a list)
 #' (default is FALSE).
 #'
 #' @return A list of tibble or xts objects.

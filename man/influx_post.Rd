@@ -9,14 +9,14 @@ influx_post(con, query = "")
 \arguments{
 \item{con}{An \code{influx_connection} object (s. \code{\link{influx_connection}}).}
 
-\item{query}{The InfluxDB post to be sent.}
+\item{query}{The InfluxDB query to be sent.}
 }
 \value{
 A tibble or NULL
 }
 \description{
-This sends POST to an InfluxDB server. It is not exported and only
-used for some helper functions within this package.
+This function sends POST to an InfluxDB server. It is not
+exported and only used for some helper functions within this package.
 }
 \references{
 \url{https://influxdb.com/}

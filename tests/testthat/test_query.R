@@ -109,7 +109,7 @@ testthat::test_that("multiple query with chunking", {
   
 })
 
-testthat::test_that("multiple query with chunking", { 
+testthat::test_that("multiple query with chunking and xts result", { 
   
   # only local tests
   testthat::skip_on_cran()

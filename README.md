@@ -10,11 +10,17 @@ Install using devtools:
 ``` r
 if (!require(devtools)) {
   install.packages('devtools')
-  devtools::install_github("dleutnant/influxdbr@prepare_cran")
 }
 ```
 
     ## Loading required package: devtools
+
+``` r
+devtools::install_github("dleutnant/influxdbr@prepare_cran")
+```
+
+    ## Skipping install of 'influxdbr' from a github remote, the SHA1 (899943f4) has not changed since last install.
+    ##   Use `force = TRUE` to force installation
 
 Example use:
 ------------
@@ -25,8 +31,6 @@ library(xts)
 ```
 
     ## Loading required package: zoo
-
-    ## Warning: package 'zoo' was built under R version 3.3.2
 
     ## 
     ## Attaching package: 'zoo'
@@ -67,7 +71,8 @@ str(xts_data)
     ##  $ n          : num 180
 
 ``` r
-# create connection object (here: based on a config file with (s. package documentation))
+# create connection object 
+# (here: based on a config file with (s. package documentation))
 con <- influxdbr::influx_connection(group = "admin")
 ```
 
@@ -81,18 +86,18 @@ influxdbr::create_database(con = con, db = "mydb")
 influxdbr::show_databases(con = con)
 ```
 
-    ## # A tibble: 11 × 1
+    ## # A tibble: 11 x 1
     ##         name
     ##        <chr>
-    ## 1  _internal
-    ## 2     stbmod
-    ## 3      wasig
-    ## 4   wasig-fr
-    ## 5    wasig-h
-    ## 6       tmp2
-    ## 7       tmp3
-    ## 8        tmp
-    ## 9       test
+    ##  1 _internal
+    ##  2    stbmod
+    ##  3     wasig
+    ##  4  wasig-fr
+    ##  5   wasig-h
+    ##  6      tmp2
+    ##  7      tmp3
+    ##  8       tmp
+    ##  9      test
     ## 10    new_db
     ## 11      mydb
 
@@ -111,11 +116,10 @@ influxdbr::influx_write(con = con,
 influxdbr::show_measurements(con = con, db = "mydb")
 ```
 
-    ## # A tibble: 2 × 1
-    ##          name
-    ##         <chr>
-    ## 1  sampledata
-    ## 2 sampledata2
+    ## # A tibble: 1 x 1
+    ##         name
+    ##        <chr>
+    ## 1 sampledata
 
 request series as tibbles
 -------------------------
@@ -136,18 +140,18 @@ result
 ```
 
     ## [[1]]
-    ## # A tibble: 10 × 9
+    ## # A tibble: 10 x 9
     ##    statement_id series_names series_partial UnitTesting             info
-    ## *         <int>        <chr>          <lgl>       <chr>            <chr>
-    ## 1             0   sampledata          FALSE        TRUE SampleDataMatrix
-    ## 2             0   sampledata          FALSE        TRUE SampleDataMatrix
-    ## 3             0   sampledata          FALSE        TRUE SampleDataMatrix
-    ## 4             0   sampledata          FALSE        TRUE SampleDataMatrix
-    ## 5             0   sampledata          FALSE        TRUE SampleDataMatrix
-    ## 6             0   sampledata          FALSE        TRUE SampleDataMatrix
-    ## 7             0   sampledata          FALSE        TRUE SampleDataMatrix
-    ## 8             0   sampledata          FALSE        TRUE SampleDataMatrix
-    ## 9             0   sampledata          FALSE        TRUE SampleDataMatrix
+    ##           <int>        <chr>          <lgl>       <chr>            <chr>
+    ##  1            0   sampledata          FALSE        TRUE SampleDataMatrix
+    ##  2            0   sampledata          FALSE        TRUE SampleDataMatrix
+    ##  3            0   sampledata          FALSE        TRUE SampleDataMatrix
+    ##  4            0   sampledata          FALSE        TRUE SampleDataMatrix
+    ##  5            0   sampledata          FALSE        TRUE SampleDataMatrix
+    ##  6            0   sampledata          FALSE        TRUE SampleDataMatrix
+    ##  7            0   sampledata          FALSE        TRUE SampleDataMatrix
+    ##  8            0   sampledata          FALSE        TRUE SampleDataMatrix
+    ##  9            0   sampledata          FALSE        TRUE SampleDataMatrix
     ## 10            0   sampledata          FALSE        TRUE SampleDataMatrix
     ## # ... with 4 more variables: n <chr>, time <dttm>, Open <dbl>, High <dbl>
 
@@ -164,7 +168,7 @@ result <- influx_select(con = con,
                         group_by =  "*",
                         limit = 10, 
                         order_desc = TRUE, 
-                        return_xts = TRUE)
+                        return_xts = FALSE)
 
 # InfluxDB tags are now xts attributes.
 # Because xts objects are basically matrices (which can store one data type only), 
@@ -174,35 +178,16 @@ str(result)
 ```
 
     ## List of 1
-    ##  $ :List of 2
-    ##   ..$ sampledata:An 'xts' object on 2007-06-20 22:00:00/2007-06-29 22:00:00 containing:
-    ##   Data: num [1:10, 1] 47.7 47.6 47.2 47.2 47.2 ...
-    ##  - attr(*, "dimnames")=List of 2
-    ##   ..$ : NULL
-    ##   ..$ : chr "Open"
-    ##   Indexed by objects of class: [POSIXct,POSIXt] TZ: GMT
-    ##   xts Attributes:  
-    ## List of 6
-    ##   .. ..$ statement_id  : int 0
-    ##   .. ..$ series_names  : chr "sampledata"
-    ##   .. ..$ series_partial: logi FALSE
-    ##   .. ..$ UnitTesting   : chr "TRUE"
-    ##   .. ..$ info          : chr "SampleDataMatrix"
-    ##   .. ..$ n             : chr "180"
-    ##   ..$ NA        :An 'xts' object on 2007-06-20 22:00:00/2007-06-29 22:00:00 containing:
-    ##   Data: num [1:10, 1] 47.7 47.6 47.2 47.3 47.4 ...
-    ##  - attr(*, "dimnames")=List of 2
-    ##   ..$ : NULL
-    ##   ..$ : chr "High"
-    ##   Indexed by objects of class: [POSIXct,POSIXt] TZ: GMT
-    ##   xts Attributes:  
-    ## List of 6
-    ##   .. ..$ statement_id  : int 0
-    ##   .. ..$ series_names  : chr "sampledata"
-    ##   .. ..$ series_partial: logi FALSE
-    ##   .. ..$ UnitTesting   : chr "TRUE"
-    ##   .. ..$ info          : chr "SampleDataMatrix"
-    ##   .. ..$ n             : chr "180"
+    ##  $ :Classes 'tbl_df', 'tbl' and 'data.frame':    10 obs. of  9 variables:
+    ##   ..$ statement_id  : int [1:10] 0 0 0 0 0 0 0 0 0 0
+    ##   ..$ series_names  : chr [1:10] "sampledata" "sampledata" "sampledata" "sampledata" ...
+    ##   ..$ series_partial: logi [1:10] FALSE FALSE FALSE FALSE FALSE FALSE ...
+    ##   ..$ UnitTesting   : chr [1:10] "TRUE" "TRUE" "TRUE" "TRUE" ...
+    ##   ..$ info          : chr [1:10] "SampleDataMatrix" "SampleDataMatrix" "SampleDataMatrix" "SampleDataMatrix" ...
+    ##   ..$ n             : chr [1:10] "180" "180" "180" "180" ...
+    ##   ..$ time          : POSIXct[1:10], format: "2007-06-29 22:00:00" ...
+    ##   ..$ Open          : num [1:10] 47.7 47.6 47.7 47.6 47.4 ...
+    ##   ..$ High          : num [1:10] 47.9 47.8 47.7 47.7 47.6 ...
 
 simplify InfluxDB response
 --------------------------

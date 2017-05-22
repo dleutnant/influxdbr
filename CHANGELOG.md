@@ -1,3 +1,9 @@
+## 0.11.12
+
+### Bugfixes
+
+- names of xts series are correctly assigned
+
 ## 0.11.11
 
 ### Release Notes

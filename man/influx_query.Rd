@@ -25,8 +25,8 @@ are returned, FALSE gives tibbles.}
 in streamed batches. If an integer is provided, responses will be chunked by
 series or by every \code{chunked} points. Chunks are merged internally.}
 
-\item{simplifyList}{logical. If only one series is returned, the result can be
-flatten to directly get either a tibble or an xts object (instead of a list)
+\item{simplifyList}{logical. If only one series is returned, the result can
+be flatten to directly get either a tibble or an xts object (instead of a list)
 (default is FALSE).}
 }
 \value{

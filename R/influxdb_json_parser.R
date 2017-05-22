@@ -240,8 +240,9 @@ tibble_to_xts <- function(x) {
   names(list_of_xts) <-
     list_of_tags %>% 
     purrr::map_chr("series_names") %>% 
-    purrr::map2_chr(., .y = purrr::map_int(list_of_values, length), 
-                    ~ rep(.x, each = .y))
+    purrr::map2(., .y = purrr::map_int(list_of_values, length), 
+                    ~ rep(.x, each = .y)) %>% 
+    purrr::flatten_chr(.)
   
   return(list_of_xts)
   
