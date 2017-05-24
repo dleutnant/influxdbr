@@ -60,6 +60,9 @@ query_list_to_tibble <- function(x, timestamp_format) {
                     ~ tibble::as_tibble(t(matrix(unlist(.x), 
                                                  nrow = length(.y)))) %>% 
                       magrittr::set_colnames(., .y)) %>%
+        # TODO: CONSUMES A LOT OF TIME OF FUN CALL!!! ALTERNATIVES ?
+        purrr::map(function(x) {x[] <- lapply(x, as.character);x}) %>% 
+        purrr::map(function(x) {x[] <- lapply(x, utils::type.convert);x}) %>% 
         # influxdb ALWAYS stores data in GMT!!
         purrr::map( ~ purrr::map_at(., .at = "time",
                                     ~ as.POSIXct(. / div, 

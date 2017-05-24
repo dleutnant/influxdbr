@@ -280,6 +280,8 @@ influx_query <- function(con,
     return(NULL)
   }
 
+  # debug_data <<- rawToChar(response$content)
+  
   # initiate data conversion which result in a tibble with list-columns
   list_of_result <-
     rawToChar(response$content) %>%  # convert to chars

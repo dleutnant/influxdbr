@@ -1,3 +1,9 @@
+## 0.11.13
+
+### Bugfixes
+
+- [#15](https://github.com/dleutnant/influxdbr/issues/15) columns are now utils::type.converted to correctly parse timestamps
+
 ## 0.11.12
 
 ### Bugfixes
