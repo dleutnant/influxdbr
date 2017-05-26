@@ -2,6 +2,7 @@
 query_list_to_tibble <- function(x, timestamp_format) {
   
   #x <- debug_data %>% purrr::map(response_to_list)
+  # stop()
   
   # create divisor for different timestamp format
   div <- switch(timestamp_format,
@@ -54,22 +55,23 @@ query_list_to_tibble <- function(x, timestamp_format) {
         purrr::map(unlist)
         
       # extract values
-      series_values <- purrr::map(series_ele$series, "values") %>% 
-        purrr::map2(.x = ., 
-                    .y = series_columns,
-                    ~ tibble::as_tibble(t(matrix(unlist(.x), 
-                                                 nrow = length(.y)))) %>% 
-                      magrittr::set_colnames(., .y)) %>%
-        # TODO: CONSUMES A LOT OF TIME OF FUN CALL!!! ALTERNATIVES ?
-        purrr::map(function(x) {x[] <- lapply(x, as.character);x}) %>% 
-        purrr::map(function(x) {x[] <- lapply(x, utils::type.convert);x}) %>% 
+      # edit 26/05/2017: code is less efficient but more stable
+      series_values <- purrr::map(series_ele$series, "values") %>%
+        # set names 
+        purrr::map2(., .y  = series_columns, ~ purrr::map(., 
+                                                          purrr::set_names, 
+                                                          nm = .y)) %>%
+        # convert to tibble (time consuming! alternative?!)
+        purrr::map( ~ purrr::map_df(., tibble::as.tibble)) %>% 
+        # convert int to dbl (reuqired for unnesting)
+        purrr::map( ~ purrr::map_if(., is.integer, as.double)) %>% 
         # influxdb ALWAYS stores data in GMT!!
         purrr::map( ~ purrr::map_at(., .at = "time",
                                     ~ as.POSIXct(. / div, 
                                                  origin = "1970-1-1",
                                                  tz = "GMT")) %>%
                       tibble::as_tibble(.))
-        
+
       # is partial?
       series_partial <-
         ifelse(is.null(series_ele$partial), FALSE, TRUE)
@@ -82,15 +84,19 @@ query_list_to_tibble <- function(x, timestamp_format) {
                                series_partial)
         
       # unnest list-columns if content is present (here: tags)
-      if (all(purrr::map_int(result$series_tags, nrow)) != 0) {
+      series_tags_rows <- purrr::map_int(result$series_tags, nrow)
+      
+      if (all(series_tags_rows != 0)) {
         result <- tidyr::unnest(result, series_tags, .drop = FALSE)
       }
-        
+      
       # unnest list-columns if content is present (here: values)
-      if (all(purrr::map_int(result$series_values, nrow)) != 0) {
+      series_values_rows <- purrr::map_int(result$series_values, nrow)
+
+      if (all(series_values_rows != 0))  {
         result <- tidyr::unnest(result, series_values, .drop = FALSE)
       }
-        
+      
     } else {
       # in case of an error...
       if (!is.null(series_ele$error)) {
@@ -182,7 +188,7 @@ rle_seq_to_list <- function(x) {
 
 #' @keywords internal
 tibble_to_xts <- function(x) {
-  #x <- debug_data[[1]]
+  # x <- list_of_result[[1]]
   #
   # a tibble header looks like:
   # # A tibble: 60,804 × 29
