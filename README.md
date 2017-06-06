@@ -16,7 +16,7 @@ if (!require(devtools)) {
     ## Loading required package: devtools
 
 ``` r
-devtools::install_github("dleutnant/influxdbr@prepare_cran", quiet = TRUE)
+devtools::install_github("dleutnant/influxdbr@dev", quiet = TRUE)
 ```
 
 Example use:
