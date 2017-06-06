@@ -1,3 +1,10 @@
+## 0.11.15
+
+### Bugfixes
+
+- [#17](https://github.com/dleutnant/influxdbr/issues/17) NULL values from InfluxDB are interpreted as NA's
+- [#18](https://github.com/dleutnant/influxdbr/issues/18) NA values in xts are also correctly removed, if underlying datatype is of `character` or `integer`
+
 ## 0.11.13
 
 ### Bugfixes
