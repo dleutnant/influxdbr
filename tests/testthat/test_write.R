@@ -23,7 +23,7 @@ testthat::test_that("write xts with NA", {
   
   # prepare tmp xts object
   tmp <- xts::xts(x = runif(10),
-                  order.by = seq(Sys.time()-3600, by = "secs", length.out = 10))
+                  order.by = seq(as.POSIXct("1970-1-1"), by = "hours", length.out = 10))
   # add second column
   tmp <- cbind(tmp, tmp)
   colnames(tmp) <- c("one", "two")
