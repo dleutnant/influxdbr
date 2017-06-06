@@ -487,14 +487,20 @@ influx_write <- function(con,
   time <- format(as.integer(as.numeric(zoo::index(xts)) * div), 
                  scientific = FALSE)
   
+  
+  # default NA string 
+  na_string <- "NA"
+  
   # make sure all integers end with "i", this also sets mode to "character"
   # s. https://github.com/influxdb/influxdb/issues/3519
   if ((use_integers == TRUE) & is.numeric(xts)) {
-    if (all(xts == floor(xts))) {
+    if (all(xts == floor(xts), na.rm = TRUE)) {
       xts[, ] <- sapply(seq_len(ncol(xts)), function(x)
         paste(xts[, x],
               "i",
               sep = ""))
+      # define na_string to substitute later
+      na_string <- "NAi"
     }
     
   } else {
@@ -506,8 +512,10 @@ influx_write <- function(con,
           base::dQuote(xts[, x]))
       # trim leading and trailing whitespaces
       xts <- gsub("^\\s+|\\s+$", "", xts)
+      # define na_string to substitute later
+      na_string <- paste0("\"", "NA", sep = "\"")
     }
-    
+  
   }
   
   # assign columnname to each element
@@ -520,7 +528,7 @@ influx_write <- function(con,
   # set R's NA values to a dummy string which can be removed easily
   # -> influxdb doesn't handle NA values
   # TODO: What if columnname contains "NA" ?
-  values[grepl(paste0("\"", "NA", sep = "\""), values, fixed = TRUE)] <- "NA_to_remove"
+  values[grepl(na_string, values, fixed = TRUE)] <- "NA_to_remove"
   
   # If values have only one row, 'apply' will result in a dim error.
   # This occurs if the previous 'sapply' result a character vector.
