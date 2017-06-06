@@ -520,7 +520,7 @@ influx_write <- function(con,
   # set R's NA values to a dummy string which can be removed easily
   # -> influxdb doesn't handle NA values
   # TODO: What if columnname contains "NA" ?
-  values[grepl("NA", values)] <- "NA_to_remove"
+  values[grepl(paste0("\"", "NA", sep = "\""), values, fixed = TRUE)] <- "NA_to_remove"
   
   # If values have only one row, 'apply' will result in a dim error.
   # This occurs if the previous 'sapply' result a character vector.
