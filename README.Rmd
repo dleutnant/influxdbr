@@ -17,7 +17,7 @@ Install using devtools:
 if (!require(devtools)) {
   install.packages('devtools')
 }
-devtools::install_github("dleutnant/influxdbr@prepare_cran", quiet = TRUE)
+devtools::install_github("dleutnant/influxdbr@dev", quiet = TRUE)
 ```
 
 ## Example use:
