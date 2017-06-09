@@ -2,7 +2,10 @@
 query_list_to_tibble <- function(x, timestamp_format) {
   
   #x <- debug_data %>% purrr::map(response_to_list)
-  # stop()
+  #x <<- x
+  #stop()
+  #timestamp_format <- "n"
+  
   
   # create divisor for different timestamp format
   div <- switch(timestamp_format,
@@ -64,7 +67,7 @@ query_list_to_tibble <- function(x, timestamp_format) {
         # convert influxdb NULL to NA
         purrr::map( ~ purrr::map(., ~ purrr::map(., ~ . %||% NA))) %>% 
         # convert to tibble (time consuming! alternative?!)
-        purrr::map( ~ purrr::map_df(., tibble::as.tibble, validate = FALSE)) %>% 
+        purrr::map( ~ do.call(dplyr::bind_rows, .)) %>% 
         # convert int to dbl (reuqired for unnesting)
         purrr::map( ~ purrr::map_if(., is.integer, as.double)) %>% 
         # influxdb ALWAYS stores data in GMT!!
@@ -72,7 +75,7 @@ query_list_to_tibble <- function(x, timestamp_format) {
                                     ~ as.POSIXct(. / div, 
                                                  origin = "1970-1-1",
                                                  tz = "GMT")) %>%
-                      tibble::as_tibble(.))
+                      tibble::as_tibble(., validate = FALSE))
 
       # is partial?
       series_partial <-
