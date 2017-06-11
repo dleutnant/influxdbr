@@ -58,7 +58,6 @@ query_list_to_tibble <- function(x, timestamp_format) {
         purrr::map(unlist)
         
       # extract values
-      # edit 26/05/2017: code is less efficient but more stable
       series_values <- purrr::map(series_ele$series, "values") %>%
         # set names 
         purrr::map2(., .y  = series_columns, ~ purrr::map(., 
