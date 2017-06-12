@@ -51,18 +51,19 @@ testthat::test_that("write xts with NA", {
   influx_query(con = con, db = "tmp", query = "SELECT * from test_str")
   
   # mixed data.frame
-  tmp1 <- xts::xts(x = 1:1000, 
-                   order.by =  seq(as.POSIXct("1970-1-1"), by = "hours", length.out = 1000))
-  tmp2 <- xts::xts(x = paste0("NAME_TWO_", 1:1000),
-                   order.by =  seq(as.POSIXct("1970-1-1"), by = "hours", length.out = 1000))
+  tmp_length <- 1e2
+  tmp1 <- xts::xts(x = 1:tmp_length, 
+                   order.by =  seq(as.POSIXct("1970-1-1"), by = "mins", length.out = tmp_length))
+  tmp2 <- xts::xts(x = paste0("NAME_TWO_", 1:tmp_length),
+                   order.by =  zoo::index(tmp1))
   tmp1[8] <- NA
   tmp2[3] <- NA
   colnames(tmp1) <- c("one")
   colnames(tmp2) <- c("two")
-  influx_write(con = con, db = "tmp", xts = tmp1, measurement = "test_df")
-  influx_write(con = con, db = "tmp", xts = tmp2, measurement = "test_df")
-  influx_query(con = con, db = "tmp", query = "SELECT * from test_df limit 1000")
-  
+  system.time(influx_write(con = con, db = "tmp", xts = tmp1, measurement = "test_df"))
+  system.time(influx_write(con = con, db = "tmp", xts = tmp2, measurement = "test_df"))
+  system.time(tmp <- influx_query(con = con, db = "tmp", query = "SELECT * from test_df limit 1000"))
+
 })
   
   
