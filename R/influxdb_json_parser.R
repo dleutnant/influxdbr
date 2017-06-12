@@ -63,11 +63,14 @@ query_list_to_tibble <- function(x, timestamp_format) {
         purrr::map2(., .y  = series_columns, ~ purrr::map(., 
                                                           purrr::set_names, 
                                                           nm = .y)) %>%
-        # convert influxdb NULL to NA and return tibble
-        # time consuming! alternative?!
-        purrr::map( ~ purrr::map_df(., ~ purrr::map(., ~ . %||% NA))) %>%
+        # transpose for faster data munging
+        purrr::map( ~ purrr::transpose(.)) %>% 
+        # convert influxdb NULL to NA
+        purrr::map( ~ purrr::map(., ~ purrr::map(., ~ . %||% NA))) %>% 
+        # unlist for faster data munging
+        purrr::map( ~ purrr::map(., base::unlist)) %>%
         # convert int to dbl (required for unnesting)
-        purrr::map( ~ purrr::map_if(., is.integer, as.double)) %>% 
+        purrr::map( ~ purrr::map_if(., is.integer, as.double)) %>%
         # influxdb ALWAYS stores data in GMT!!
         purrr::map( ~ purrr::map_at(., .at = "time",
                                     ~ as.POSIXct(. / div, 
