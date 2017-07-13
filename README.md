@@ -1,7 +1,11 @@
 influxdbr
 ================
 
+<<<<<<< HEAD
 [![Build Status](https://travis-ci.org/dleutnant/influxdbr.svg?branch=prepare_cran)](https://travis-ci.org/dleutnant/influxdbr)
+=======
+## see branch 'dev' for latest dev version!!! InfluxDB V1.2 ready!
+>>>>>>> 06950dfcb722c34f556124c5aebc1d3825188b34
 
 R interface to InfluxDB (V1.2)
 
