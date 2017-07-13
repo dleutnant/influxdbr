@@ -1,3 +1,12 @@
+## Resubmission
+This is a resubmission. In this version I have:
+
+* Substituted 'Library' with 'Interface' in the title.
+
+* Included an URL of the enterprise behind InfluxDB.
+
+* Extended the package description to introduce InfluxDB a bit more.
+
 ## Test environments
 * local OS X install, R 3.4.1
 * ubuntu 12.04 (on travis-ci), R 3.4.1
