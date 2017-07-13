@@ -197,7 +197,6 @@ tibble_to_xts <- function(x) {
   # x <- list_of_result[[1]]
   #
   # a tibble header looks like:
-  # # A tibble: 60,804 × 29
   #    statement_id series_names series_partial   [tags]     time [fields]
   # *         <int>        <chr>          <lgl>      ...   <dttm>
   
