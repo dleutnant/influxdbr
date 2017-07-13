@@ -5,18 +5,10 @@ influxdbr
 
 R interface to InfluxDB (V1.2)
 
-Install using devtools:
+Install from CRAN:
 
 ``` r
-if (!require(devtools)) {
-  install.packages('devtools')
-}
-```
-
-    ## Loading required package: devtools
-
-``` r
-devtools::install_github("dleutnant/influxdbr@master", quiet = TRUE)
+install.packages("influxdbr")
 ```
 
 Example use:
