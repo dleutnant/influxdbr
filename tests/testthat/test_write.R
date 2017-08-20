@@ -65,5 +65,23 @@ testthat::test_that("write xts with NA", {
   system.time(tmp <- influx_query(con = con, db = "tmp", query = "SELECT * from test_df limit 1000"))
 
 })
+
+testthat::test_that("write xts with sub-second Accuracy", { 
+  
+  # only local tests
+  testthat::skip_on_cran()
+  testthat::skip_on_travis()
+  
+  # how many digits to print?
+  options(digits.secs = 3)
+  
+  tmp <- xts::xts(runif(10), order.by = runif(10) + Sys.time())
+  colnames(tmp) <- c("accuracy")
+  influx_write(con = con, db = "tmp", xts = tmp, measurement = "subsecond_acc", precision = "ms")
+  tmp_subsecond <- influx_query(con = con, db = "tmp", query = "SELECT * from subsecond_acc ORDER BY time DESC LIMIT 10")
+
+  testthat::expect_is(object = tmp_subsecond, class = "list")
+
+})
   
   

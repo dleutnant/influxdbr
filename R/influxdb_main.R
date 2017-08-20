@@ -484,9 +484,7 @@ influx_write <- function(con,
     "h" = 1 / (60 * 60)
   )
   
-  time <- format(as.integer(as.numeric(zoo::index(xts)) * div), 
-                 scientific = FALSE)
-  
+  time <- format(as.numeric(zoo::index(xts)) * div, scientific = FALSE)
   
   # default NA string 
   na_string <- "NA"
