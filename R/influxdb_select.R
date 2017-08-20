@@ -52,11 +52,13 @@ influx_select <- function(con,
   
   query <- ifelse(is.null(limit),
                   query,
-                  paste(query, ifelse(slimit, "SLIMIT", "LIMIT"), limit))
+                  paste(query, ifelse(slimit, "SLIMIT", "LIMIT"), 
+                        format(as.integer(limit), scientific = FALSE)))
   
   query <- ifelse(is.null(offset),
                   query,
-                  paste(query, "OFFSET", offset))
+                  paste(query, "OFFSET", 
+                        format(as.integer(offset), scientific = FALSE)))
   
   result <- influx_query(
     con = con,
