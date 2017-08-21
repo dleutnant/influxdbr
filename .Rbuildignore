@@ -4,3 +4,4 @@
 ^tests/performance_tests\.R$
 ^\./tests/test\.txt$
 ^cran-comments\.md$
+^NEWS\.md$

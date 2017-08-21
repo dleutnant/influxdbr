@@ -3,15 +3,25 @@ influxdbr
 
 [![Build Status](https://travis-ci.org/dleutnant/influxdbr.svg?branch=master)](https://travis-ci.org/dleutnant/influxdbr)
 
-R interface to InfluxDB (V1.2)
+R interface to [InfluxDB](https://docs.influxdata.com/influxdb)  
 
-Install from CRAN:
+Installation
+------------
 
 ``` r
+# influxdbr is available on CRAN:
 install.packages("influxdbr")
 ```
 
-Example use:
+``` r
+# Install the development version from GitHub:
+if (!require(devtools)) {
+  install.packages('devtools')
+}
+devtools::install_github("dleutnant/influxdbr@dev", quiet = TRUE)
+```
+
+Usage:
 ------------
 
 ``` r

@@ -232,6 +232,14 @@ influx_query <- function(con,
                          return_xts = TRUE,
                          chunked = FALSE, 
                          simplifyList = FALSE) {
+  
+  # development options
+  performance <- FALSE
+  timer <- function(x, txt) {message(paste(Sys.time(), txt));x}
+  
+  # performance profiler
+  if (performance) {perf <- timer(NA, "start")}
+  
   if (is.null(con)) {
     warning("Connection object is NULL.")
     return(NULL)
@@ -259,6 +267,9 @@ influx_query <- function(con,
   # add query
   q <- c(q, q = query)
   
+  # performance profiler
+  if (performance) {perf <- timer(NA, "sending query")}
+  
   # submit query
   response <- tryCatch(httr::GET(url = "",
                                  scheme = con$scheme,
@@ -282,21 +293,28 @@ influx_query <- function(con,
 
   # debug_data <<- rawToChar(response$content)
   
+  if (performance) {perf <- timer(NA, "converting raw to char")}
+  
   # initiate data conversion which result in a tibble with list-columns
   list_of_result <-
     rawToChar(response$content) %>%  # convert to chars
+    `if`(performance, timer(., "converting json to list"), .) %>% 
     purrr::map(response_to_list) %>% # from json to list
+    `if`(performance, timer(., "converting list to tibbles"), .) %>% 
     purrr::map(query_list_to_tibble, # from list to tibble
                timestamp_format = timestamp_format) %>% 
     purrr::flatten(.)
-
+  
   # xts object required?
   if (return_xts)
     list_of_result <- list_of_result %>%
+    `if`(performance, timer(., "converting tibbles to xts"), .) %>% 
     purrr::map(tibble_to_xts)
   
   if (simplifyList && (length(list_of_result[[1]]) == 1)) 
     list_of_result <- list_of_result[[1]][[1]]
+  
+  if (performance) {perf <- timer(NA, "done.")}
     
   # if not simplified, a list of results, either a list of tibbles or xts objects 
   # is ALWAYS returned! A wrapping function ALWAYS returns a tibble!
@@ -484,9 +502,7 @@ influx_write <- function(con,
     "h" = 1 / (60 * 60)
   )
   
-  time <- format(as.integer(as.numeric(zoo::index(xts)) * div), 
-                 scientific = FALSE)
-  
+  time <- format(as.numeric(zoo::index(xts)) * div, scientific = FALSE)
   
   # default NA string 
   na_string <- "NA"
