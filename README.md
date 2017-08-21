@@ -1,7 +1,7 @@
 influxdbr
 ================
 
-[![Build Status](https://travis-ci.org/dleutnant/influxdbr.svg?branch=dev)](https://travis-ci.org/dleutnant/influxdbr)
+[![Build Status](https://travis-ci.org/dleutnant/influxdbr.svg?branch=master)](https://travis-ci.org/dleutnant/influxdbr)
 
 R interface to [InfluxDB](https://docs.influxdata.com/influxdb)  
 
