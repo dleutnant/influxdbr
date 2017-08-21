@@ -6,6 +6,9 @@ query_list_to_tibble <- function(x, timestamp_format) {
   #stop()
   #timestamp_format <- "n"
   
+  # development options
+  performance <- FALSE
+  timer <- function(x, txt) {message(paste(Sys.time(), txt));x}
   
   # create divisor for different timestamp format
   div <- switch(timestamp_format,
@@ -59,19 +62,23 @@ query_list_to_tibble <- function(x, timestamp_format) {
         
       # extract values
       series_values <- purrr::map(series_ele$series, "values") %>%
-        # set names 
-        purrr::map2(., .y  = series_columns, ~ purrr::map(., 
-                                                          purrr::set_names, 
-                                                          nm = .y)) %>%
         # transpose for faster data munging
+        `if`(performance, timer(., "transpose data"), .) %>% 
         purrr::map( ~ purrr::transpose(.)) %>% 
         # convert influxdb NULL to NA
+        `if`(performance, timer(., "convert influxdb NULL to NA"), .) %>% 
         purrr::map( ~ purrr::map(., ~ purrr::map(., ~ . %||% NA))) %>% 
         # unlist for faster data munging
+        `if`(performance, timer(., "unlist data"), .) %>% 
         purrr::map( ~ purrr::map(., base::unlist)) %>%
         # convert int to dbl (required for unnesting)
+        `if`(performance, timer(., "unify numerics"), .) %>% 
         purrr::map( ~ purrr::map_if(., is.integer, as.double)) %>%
+        # set names 
+        `if`(performance, timer(., "setting column names"), .) %>% 
+        purrr::map2(., .y  = series_columns, ~ purrr::set_names(., nm = .y)) %>%
         # influxdb ALWAYS stores data in GMT!!
+        `if`(performance, timer(., "set POSIX-based time index"), .) %>% 
         purrr::map( ~ purrr::map_at(., .at = "time",
                                     ~ as.POSIXct(. / div, 
                                                  origin = "1970-1-1",
@@ -119,6 +126,7 @@ query_list_to_tibble <- function(x, timestamp_format) {
   
   ### in case of CHUNKED responses, concatenate tables with same statement_id
   list_of_result <- list_of_result %>% # take the list of results
+    `if`(performance, timer(., "concatenate tables with same statement_id"), .) %>%
     purrr::map("statement_id") %>% # extract "statement_id" of each result
     purrr::map_int(unique) %>% # create a vector with unique "statement_id"
     rle %>% # perform run length encoding to get the length of each "statement_id"
