@@ -66,7 +66,7 @@ testthat::test_that("write xts with NA", {
 
 })
 
-testthat::test_that("write xts with sub-second Accuracy", { 
+testthat::test_that("write xts with sub-second accuracy", { 
   
   # only local tests
   testthat::skip_on_cran()
