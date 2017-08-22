@@ -1,6 +1,6 @@
 #' \code{influxdbr} package
 #'
-#' R library to influxdb
+#' R Interface for InfluxDB
 #'
 #' @docType package
 #' @name influxdbr
