@@ -1,11 +1,6 @@
-## Resubmission
-This is a resubmission. In this version I have:
+## Package Update
 
-* Substituted 'Library' with 'Interface' in the title.
-
-* Included an URL of the enterprise behind InfluxDB.
-
-* Extended the package description to introduce InfluxDB a bit more.
+This is a package update to influxdbr 0.13.0. 
 
 ## Test environments
 * local OS X install, R 3.4.1

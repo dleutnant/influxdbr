@@ -1,8 +1,4 @@
-# influxdbr 0.13.0.9000
-
-*
-
-# influxdbr 0.13.0
+ # influxdbr 0.13.0
 
 * Fix coercion error in `influx_write()` in case of sub-second accuracy (#25).
 
