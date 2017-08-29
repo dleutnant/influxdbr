@@ -83,7 +83,7 @@ influx_write_df <- function(con,
                                           use_integers = FALSE) {
   
   # stop if data.frame provided contains NA's
-  if (!all(purrr::map_lgl(df, ~ any(is.na(.))))) {
+  if (!all(!purrr::map_lgl(df, ~ any(is.na(.))))) {
     
     print(df %>% 
       purrr::map( ~ which(is.na(.), arr.ind = T)) %>% # transform to logical 
