@@ -129,7 +129,6 @@ influx_ping <- function(con) {
     path = paste0(con$path, "ping")
   )
   
-  
   res <- response$all_headers %>%
     purrr::flatten() %>%
     purrr::map_at("headers", tibble::as_tibble) %>%
@@ -149,11 +148,7 @@ influx_ping <- function(con) {
 #' @keywords internal
 influx_post <- function(con,
                         query = "") {
-  if (is.null(con)) {
-    warning("Connection object is NULL.")
-    return(NULL)
-  }
-  
+
   # create query based on function parameters
   q <- list(u = con$user, p = con$pass)
   
@@ -182,12 +177,8 @@ influx_post <- function(con,
   }
   
   # Check for communication errors
-  if (!response$status_code %in% c(200, 204)) {
-    response_data <- jsonlite::fromJSON(rawToChar(response$content))
-    warning(paste("http:", response_data$error), call. = FALSE)
-    return(NULL)
-  }
-  
+  .check_srv_comm(response)
+
   response <- rawToChar(response$content) %>%  # convert to chars
     purrr::map(response_to_list) %>%
     purrr::map_df(post_list_to_tibble)
@@ -196,11 +187,9 @@ influx_post <- function(con,
   if (any(c("error", "messages") %in% colnames(response))) {
     # return result tbl visible
     return(response)
-    
   }
   
   return(NULL)
-  
 }
 
 
@@ -232,19 +221,7 @@ influx_query <- function(con,
                          return_xts = TRUE,
                          chunked = FALSE, 
                          simplifyList = FALSE) {
-  
-  # development options
-  performance <- FALSE
-  timer <- function(x, txt) {message(paste(Sys.time(), txt));x}
-  
-  # performance profiler
-  if (performance) {perf <- timer(NA, "start")}
-  
-  if (is.null(con)) {
-    warning("Connection object is NULL.")
-    return(NULL)
-  }
-  
+
   # create query based on function parameters
   q <- list(db = db,
             u = con$user,
@@ -267,9 +244,6 @@ influx_query <- function(con,
   # add query
   q <- c(q, q = query)
   
-  # performance profiler
-  if (performance) {perf <- timer(NA, "sending query")}
-  
   # submit query
   response <- tryCatch(httr::GET(url = "",
                                  scheme = con$scheme,
@@ -285,22 +259,14 @@ influx_query <- function(con,
   }
   
   # Check for communication errors
-  if (!response$status_code %in% c(200, 204)) {
-    response_data <- jsonlite::fromJSON(rawToChar(response$content))
-    warning(paste("http:", response_data$error), call. = FALSE)
-    return(NULL)
-  }
+  .check_srv_comm(response)
 
   # debug_data <<- rawToChar(response$content)
-  
-  if (performance) {perf <- timer(NA, "converting raw to char")}
   
   # initiate data conversion which result in a tibble with list-columns
   list_of_result <-
     rawToChar(response$content) %>%  # convert to chars
-    `if`(performance, timer(., "converting json to list"), .) %>% 
     purrr::map(response_to_list) %>% # from json to list
-    `if`(performance, timer(., "converting list to tibbles"), .) %>% 
     purrr::map(query_list_to_tibble, # from list to tibble
                timestamp_format = timestamp_format) %>% 
     purrr::flatten(.)
@@ -308,14 +274,11 @@ influx_query <- function(con,
   # xts object required?
   if (return_xts)
     list_of_result <- list_of_result %>%
-    `if`(performance, timer(., "converting tibbles to xts"), .) %>% 
     purrr::map(tibble_to_xts)
   
   if (simplifyList && (length(list_of_result[[1]]) == 1)) 
     list_of_result <- list_of_result[[1]][[1]]
   
-  if (performance) {perf <- timer(NA, "done.")}
-    
   # if not simplified, a list of results, either a list of tibbles or xts objects 
   # is ALWAYS returned! A wrapping function ALWAYS returns a tibble!
   return(list_of_result)
@@ -355,9 +318,7 @@ influx_write <- function(con,
                          consistency = c(NULL, "one", "quroum", "all", "any"),
                          max_points = 5000,
                          use_integers = FALSE) {
-  # development options
-  performance <- FALSE
-  
+
   # create query based on function parameters
   q <- list(db = db,
             u = con$user,
@@ -376,9 +337,6 @@ influx_write <- function(con,
     q <- c(q, consistency = match.arg(consistency))
   }
   
-  # get no of points for performance analysis
-  no_of_points <- nrow(xts)
-  
   # split xts object into a list of xts objects to reduce batch size
   list_of_xts <- suppressWarnings(split(xts,
                                         rep(1:ceiling((nrow(xts) / max_points)
@@ -394,53 +352,25 @@ influx_write <- function(con,
     xts::xtsAttributes(list_of_xts[[i]]) <- xts::xtsAttributes(xts)
   }
   
-  if (performance)
-    start <- Sys.time()
   
-  res <- lapply(list_of_xts, function(x) {
-    # convert xts to line protocol
-    influxdb_line_protocol <-
-      .xts_to_influxdb_line_protocol(
-        xts = x,
-        use_integers = use_integers,
-        measurement = measurement,
-        precision = precision
-      )
-    
-    # submit post
-    response <- httr::POST(
-      url = "",
-      httr::timeout(60),
-      scheme = con$scheme,
-      hostname = con$host,
-      port = con$port,
-      path = paste0(con$path, "write"),
-      query = q,
-      body = influxdb_line_protocol
+  # conversion to influxdb line protocol and submit post
+  response <- list_of_xts %>% 
+    purrr::map( ~ .xts_to_influxdb_line_protocol(xts = ., 
+                                                 use_integers = use_integers,
+                                                 measurement = measurement,
+                                                 precision = precision) %>% 
+                  httr::POST(body = ., 
+                             url = "",
+                             httr::timeout(60),
+                             scheme = con$scheme,
+                             hostname = con$host,
+                             port = con$port,
+                             path = paste0(con$path, "write"),
+                             query = q) %>% 
+                  .check_srv_comm(.)
     )
-    
-    
-    # Check for communication errors
-    if (response$status_code < 200 || response$status_code >= 300) {
-      if (length(response$content) > 0)
-        stop(rawToChar(response$content), call. = FALSE)
-    }
-    
-    # assign server response to list "res"
-    rawToChar(response$content)
-    
-  })
   
-  if (performance)
-    message(paste(
-      "Wrote",
-      no_of_points,
-      "points in",
-      Sys.time() - start,
-      "seconds."
-    ))
-  
-  invisible(res)
+  invisible(response)
   
 }
 
@@ -451,11 +381,6 @@ influx_write <- function(con,
                                            measurement,
                                            precision = precision,
                                            use_integers = FALSE) {
-  # development options
-  performance <-  FALSE
-  
-  if (performance)
-    start <- Sys.time()
   
   # catch error no XTS object
   if (!xts::is.xts(xts))
@@ -492,17 +417,8 @@ influx_write <- function(con,
     paste(tag_keys, tag_values, sep = "=", collapse = ",")
   
   # create time vector
-  div <- switch(
-    precision,
-    "ns" = 1e+9,
-    "u" = 1e+6,
-    "ms" = 1e+3,
-    "s" = 1,
-    "m" = 1 / 60,
-    "h" = 1 / (60 * 60)
-  )
-  
-  time <- format(as.numeric(zoo::index(xts)) * div, scientific = FALSE)
+  time <- format(as.numeric(zoo::index(xts)) * .get_precision_divisor(precision),
+                 scientific = FALSE)
   
   # default NA string 
   na_string <- "NA"
@@ -577,15 +493,6 @@ influx_write <- function(con,
       collapse = "\n"
     )
   }
-  
-  if (performance)
-    message(paste(
-      "Converted",
-      length(xts),
-      "points in",
-      Sys.time() - start,
-      "seconds."
-    ))
   
   # invisibly return InfluxDB line protocol string
   invisible(influxdb_line_protocol)

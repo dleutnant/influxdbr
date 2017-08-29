@@ -6,5 +6,5 @@
 \alias{influxdbr-package}
 \title{\code{influxdbr} package}
 \description{
-R library to influxdb
+R Interface for InfluxDB
 }

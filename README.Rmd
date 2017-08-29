@@ -1,0 +1,62 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, echo = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "README-"
+)
+```
+
+# influxdbr
+
+[![Build Status](https://travis-ci.org/dleutnant/influxdbr.svg?branch=master)](https://travis-ci.org/dleutnant/influxdbr)
+
+R interface to [InfluxDB](https://docs.influxdata.com/influxdb)  
+
+## Installation
+
+Installation is easy thanks to CRAN:
+``` r
+install.packages("influxdbr")
+```
+
+You can install the dev version influxdbr from github with:
+```{r gh-installation, eval = FALSE}
+# install.packages("devtools")
+devtools::install_github("dleutnant/influxdbr")
+```
+
+## Example
+
+This is a basic example which shows you how to solve a common problem:
+
+```{r libs}
+library(xts)
+```
+
+Let's create first some sample data from the xts package and assign arbitrary 
+attributes:
+
+```{r sample}
+# attach data "sample_matrix"
+data("sample_matrix")
+
+# create xts object
+xts_data <- xts::as.xts(x = sample_matrix)
+
+# assign some attributes
+xts::xtsAttributes(xts_data) <- list(info = "SampleDataMatrix",
+                                     UnitTesting = TRUE, 
+                                     n = 180)
+                                     
+# print structure to inspect the object
+str(xts_data)
+```
+
+to be continued...
+

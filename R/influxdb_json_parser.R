@@ -11,14 +11,7 @@ query_list_to_tibble <- function(x, timestamp_format) {
   timer <- function(x, txt) {message(paste(Sys.time(), txt));x}
   
   # create divisor for different timestamp format
-  div <- switch(timestamp_format,
-                "n" = 1e+9,
-                "u" = 1e+6,
-                "ms" = 1e+3,
-                "s" = 1,
-                "m" = 1 / 60,
-                "h" = 1 / (60 * 60)
-  )
+  div <- .get_precision_divisor(timestamp_format)
   
   # set default result
   result_na <- tibble::tibble(statement_id = NA,

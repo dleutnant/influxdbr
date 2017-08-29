@@ -4,3 +4,5 @@
 ^tests/performance_tests\.R$
 ^\./tests/test\.txt$
 ^cran-comments\.md$
+^README\.Rmd$
+^README-.*\.png$
