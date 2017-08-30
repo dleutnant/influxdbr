@@ -13,7 +13,7 @@ show_diagnostics(con)
 A tibble with diagnostics.
 }
 \description{
-This function is calls \code{influx_query} to receive some diagnostics.
+This function calls \code{influx_query} to receive some diagnostics.
 }
 \seealso{
 \code{\link[influxdbr]{influx_connection}}

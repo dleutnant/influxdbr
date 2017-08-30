@@ -16,13 +16,13 @@
 #' @param db  Sets the target database.
 #' @return A tibble containing post results in case of an error (or message).
 #' Otherwise NULL (invisibly). `show_users()` and `show_grants()` return a tibble.
-#' @name influx_authentication_and_authorization_helpers
+#' @name create_user
 #' @seealso \code{\link[influxdbr]{influx_connection}}
 #' @references \url{https://docs.influxdata.com/influxdb/}
 NULL
 
 #' @export
-#' @rdname influx_authentication_and_authorization_helpers
+#' @rdname create_user
 create_user <- function(con, username, password) {
   options("useFancyQuotes" = FALSE)
   
@@ -46,7 +46,7 @@ create_user <- function(con, username, password) {
 }
 
 #' @export
-#' @rdname influx_authentication_and_authorization_helpers
+#' @rdname create_user
 drop_user <- function(con, username) {
   result <- influx_post(con = con,
                         query = paste("DROP USER", username))
@@ -60,7 +60,7 @@ drop_user <- function(con, username) {
 }
 
 #' @export
-#' @rdname influx_authentication_and_authorization_helpers
+#' @rdname create_user
 grant_privileges <- function(con,
                              privilege = c("READ", "WRITE", "ALL"),
                              db,
@@ -79,7 +79,7 @@ grant_privileges <- function(con,
 }
 
 #' @export
-#' @rdname influx_authentication_and_authorization_helpers
+#' @rdname create_user
 revoke_privileges <- function(con,
                               privilege = c("READ", "WRITE", "ALL"),
                               db,
@@ -98,7 +98,7 @@ revoke_privileges <- function(con,
 }
 
 #' @export
-#' @rdname influx_authentication_and_authorization_helpers
+#' @rdname create_user
 show_users <- function(con) {
   result <- influx_query(con = con,
                          query = "SHOW USERS",
@@ -110,7 +110,7 @@ show_users <- function(con) {
 }
 
 #' @export
-#' @rdname influx_authentication_and_authorization_helpers
+#' @rdname create_user
 show_grants <- function(con, username) {
   result <- influx_query(
     con = con,

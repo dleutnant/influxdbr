@@ -22,14 +22,14 @@
 #'
 #' @return A tibble containing post results in case of an error (or message).
 #' Otherwise NULL (invisibly).
-#' @name influx_database_management_helpers
+#' @name create_database
 #' @seealso \code{\link[influxdbr]{influx_connection}}
 #' @references \url{https://docs.influxdata.com/influxdb/}
 NULL
 
 
 #' @export
-#' @rdname influx_database_management_helpers
+#' @rdname create_database
 create_database <- function(con, db) {
   result <- influx_post(con = con,
                         query = paste("CREATE DATABASE", db))
@@ -43,7 +43,7 @@ create_database <- function(con, db) {
 }
 
 #' @export
-#' @rdname influx_database_management_helpers
+#' @rdname create_database
 drop_database <- function(con, db) {
   result <- influx_post(con = con,
                         query = paste("DROP DATABASE", db))
@@ -56,7 +56,7 @@ drop_database <- function(con, db) {
 }
 
 #' @export
-#' @rdname influx_database_management_helpers
+#' @rdname create_database
 drop_series <- function(con,
                         db,
                         id = NULL,
@@ -94,7 +94,7 @@ drop_series <- function(con,
 }
 
 #' @export
-#' @rdname influx_database_management_helpers
+#' @rdname create_database
 drop_measurement <- function(con, db, measurement) {
   result <- influx_query(
     con = con,
@@ -113,7 +113,7 @@ drop_measurement <- function(con, db, measurement) {
 }
 
 #' @export
-#' @rdname influx_database_management_helpers
+#' @rdname create_database
 create_retention_policy <- function(con,
                                     rp_name,
                                     db,
@@ -149,7 +149,7 @@ create_retention_policy <- function(con,
 }
 
 #' @export
-#' @rdname influx_database_management_helpers
+#' @rdname create_database
 alter_retention_policy <- function(con,
                                    rp_name,
                                    db,
@@ -184,7 +184,7 @@ alter_retention_policy <- function(con,
 }
 
 #' @export
-#' @rdname influx_database_management_helpers
+#' @rdname create_database
 drop_retention_policy <- function(con, rp_name, db) {
   query <- paste("DROP RETENTION POLICY", rp_name,
                  "ON", db)

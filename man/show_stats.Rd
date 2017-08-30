@@ -13,7 +13,7 @@ show_stats(con)
 A tibble.
 }
 \description{
-This function is calls \code{influx_query} to receive some stats.
+This function calls \code{influx_query} to receive some stats.
 }
 \section{Warning}{
 
