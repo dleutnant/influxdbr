@@ -6,19 +6,19 @@
 \alias{influx_write.data.frame}
 \title{Write an xts or data.frame object to an InfluxDB server}
 \usage{
-influx_write(x, con, db, measurement, time_col = NULL, tag_cols = NULL,
-  rp = NULL, precision = c("s", "ns", "u", "ms", "m", "h"),
-  consistency = c(NULL, "one", "quroum", "all", "any"), max_points = 5000,
-  use_integers = FALSE)
+influx_write(x, con, db, measurement, rp = NULL, precision = c("s", "ns",
+  "u", "ms", "m", "h"), consistency = c(NULL, "one", "quroum", "all", "any"),
+  max_points = 5000, use_integers = FALSE, ...)
 
 \method{influx_write}{xts}(x, con, db, measurement, rp = NULL,
   precision = c("s", "ns", "u", "ms", "m", "h"), consistency = c(NULL,
-  "one", "quroum", "all", "any"), max_points = 5000, use_integers = FALSE)
+  "one", "quroum", "all", "any"), max_points = 5000, use_integers = FALSE,
+  ...)
 
-\method{influx_write}{data.frame}(x, con, db, measurement, time_col = NULL,
-  tag_cols = NULL, rp = NULL, precision = c("s", "ns", "u", "ms", "m",
-  "h"), consistency = c(NULL, "one", "quroum", "all", "any"),
-  max_points = 5000, use_integers = FALSE)
+\method{influx_write}{data.frame}(x, con, db, measurement, rp = NULL,
+  precision = c("s", "ns", "u", "ms", "m", "h"), consistency = c(NULL,
+  "one", "quroum", "all", "any"), max_points = 5000, use_integers = FALSE,
+  time_col = NULL, tag_cols = NULL, ...)
 }
 \arguments{
 \item{x}{The object to write to an InfluxDB server (either of class \code{xts} or \code{data.frame}).}
@@ -28,10 +28,6 @@ influx_write(x, con, db, measurement, time_col = NULL, tag_cols = NULL,
 \item{db}{Sets the target database for the query.}
 
 \item{measurement}{Sets the name of the measurement.}
-
-\item{time_col}{A character scalar naming the time index column.}
-
-\item{tag_cols}{A character vector naming tag columns.}
 
 \item{rp}{Sets the target retention policy for the write. If not present the
 default retention policy is used.}
@@ -48,6 +44,12 @@ fail.}
 \item{max_points}{Defines the maximum points per batch (defaults to 5000).}
 
 \item{use_integers}{Should integers (instead of doubles) be written if present?}
+
+\item{...}{Arguments to be passed to methods.}
+
+\item{time_col}{A character scalar naming the time index column.}
+
+\item{tag_cols}{A character vector naming tag columns.}
 }
 \value{
 A list of server responses.

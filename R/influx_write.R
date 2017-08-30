@@ -26,30 +26,28 @@
 #' fail.
 #' @param max_points Defines the maximum points per batch (defaults to 5000).
 #' @param use_integers Should integers (instead of doubles) be written if present?
+#' @param ... Arguments to be passed to methods.
 #' @return A list of server responses.
 #' @name influx_write
 #' @export
 #' @seealso \code{\link[xts]{xts}}, \code{\link[influxdbr]{influx_connection}}
 #' @references \url{https://docs.influxdata.com/influxdb/}
-#' @export
-#' @rdname influx_write
 influx_write <- function(x, 
                          con, 
                          db, 
                          measurement,
-                         time_col = NULL, 
-                         tag_cols = NULL,
                          rp = NULL, 
                          precision = c("s", "ns", "u", "ms", "m", "h"), 
                          consistency = c(NULL, "one", "quroum", "all", "any"), 
                          max_points = 5000, 
-                         use_integers = FALSE) {
+                         use_integers = FALSE, 
+                         ...) {
   
   UseMethod("influx_write", x)
   
 }
 
-
+#' @export
 #' @rdname influx_write
 influx_write.xts <- function(x, 
                              con, 
@@ -59,7 +57,8 @@ influx_write.xts <- function(x,
                              precision = c("s", "ns", "u", "ms", "m", "h"), 
                              consistency = c(NULL, "one", "quroum", "all", "any"), 
                              max_points = 5000, 
-                             use_integers = FALSE) {
+                             use_integers = FALSE,
+                             ...) {
   
   # create query based on function parameters
   q <- list(db = db,
@@ -109,26 +108,27 @@ influx_write.xts <- function(x,
                              port = con$port,
                              path = paste0(con$path, "write"),
                              query = q) %>% 
-                  .check_srv_comm(.)
+                  check_srv_comm(.)
     )
   
   invisible(response)
   
 }
   
-
+#' @export
 #' @rdname influx_write
 influx_write.data.frame <- function(x, 
                                     con, 
                                     db, 
                                     measurement,
-                                    time_col = NULL, 
-                                    tag_cols = NULL,
                                     rp = NULL, 
                                     precision = c("s", "ns", "u", "ms", "m", "h"), 
                                     consistency = c(NULL, "one", "quroum", "all", "any"), 
                                     max_points = 5000, 
-                                    use_integers = FALSE) {
+                                    use_integers = FALSE,
+                                    time_col = NULL, 
+                                    tag_cols = NULL,
+                                    ...) {
   
   # create query based on function parameters
   q <- list(db = db,
@@ -170,7 +170,7 @@ influx_write.data.frame <- function(x,
                              port = con$port,
                              path = paste0(con$path, "write"),
                              query = q) %>% 
-                  .check_srv_comm(.)
+                  check_srv_comm(.)
     )
   
   invisible(response)

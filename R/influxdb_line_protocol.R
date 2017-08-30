@@ -1,7 +1,11 @@
 # method to convert xts and data.frame objects to InfluxDB specific line protocol
 # function is not exported
 #' @keywords internal
-convert_to_line_protocol <- function(x, ...) {
+convert_to_line_protocol <- function(x,
+                                     measurement,
+                                     precision,
+                                     use_integers = FALSE,
+                                     ...) {
   
   UseMethod("convert_to_line_protocol", x)
   
@@ -10,8 +14,9 @@ convert_to_line_protocol <- function(x, ...) {
 #' @keywords internal
 convert_to_line_protocol.xts <- function(x,
                                          measurement,
-                                         precision = precision,
-                                         use_integers = FALSE) {
+                                         precision,
+                                         use_integers = FALSE, 
+                                         ...) {
   
   # catch error no XTS object
   if (!xts::is.xts(x))
@@ -48,7 +53,7 @@ convert_to_line_protocol.xts <- function(x,
     paste(tag_keys, tag_values, sep = "=", collapse = ",")
   
   # create time vector
-  time <- format(as.numeric(zoo::index(x)) * .get_precision_divisor(precision),
+  time <- format(as.numeric(zoo::index(x)) * get_precision_divisor(precision),
                  scientific = FALSE)
   
   # default NA string 
@@ -128,10 +133,11 @@ convert_to_line_protocol.xts <- function(x,
 #' @keywords internal
 convert_to_line_protocol.data.frame <- function(x, 
                                                 measurement,
+                                                precision,
+                                                use_integers = FALSE,
+                                                ...,
                                                 tag_cols = NULL,
-                                                time_col = NULL,
-                                                precision = precision,
-                                                use_integers = FALSE) {
+                                                time_col = NULL) {
   
   # stop if data.frame provided contains NA's
   if (!all(!purrr::map_lgl(x, ~ any(is.na(.))))) {
@@ -193,7 +199,7 @@ convert_to_line_protocol.data.frame <- function(x,
       dplyr::select(dplyr::one_of(time_col)) %>% 
       # rename for easier coding
       dplyr::rename(time = !!time_col) %>% 
-      dplyr::mutate(time = format(as.numeric(time) * .get_precision_divisor(precision),
+      dplyr::mutate(time = format(as.numeric(time) * get_precision_divisor(precision),
                                   scientific = FALSE)) %>% 
       dplyr::mutate(time = paste(" ", time, sep = ""))
     

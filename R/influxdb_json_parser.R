@@ -11,7 +11,7 @@ query_list_to_tibble <- function(x, timestamp_format) {
   timer <- function(x, txt) {message(paste(Sys.time(), txt));x}
   
   # create divisor for different timestamp format
-  div <- .get_precision_divisor(timestamp_format)
+  div <- get_precision_divisor(timestamp_format)
   
   # set default result
   result_na <- tibble::tibble(statement_id = NA,
@@ -125,6 +125,7 @@ query_list_to_tibble <- function(x, timestamp_format) {
     rle %>% # perform run length encoding to get the length of each "statement_id"
     rle_seq_to_list %>% # own function to make a list of sequences from rle
     purrr::map( ~ dplyr::bind_rows(list_of_result[.])) # rbind results
+  
     
   # return list of tibbles
   return(list_of_result)

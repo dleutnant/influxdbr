@@ -2,7 +2,7 @@
 #' function is not exported
 #' @param x httr::POST response
 #' @keywords  internal
-.check_srv_comm <- function(x) {
+check_srv_comm <- function(x) {
   
   # query:
   # HTTP status code	Description
@@ -39,7 +39,7 @@
 #' function is not exported
 #' @param x character
 #' @keywords  internal
-.get_precision_divisor <- function(x) {
+get_precision_divisor <- function(x) {
   div <- switch(
     x,
     "ns" = 1e+9,
