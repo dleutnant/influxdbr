@@ -1,5 +1,5 @@
 #' @title Show stats
-#' @description This function is calls `influx_query` to receive some stats.
+#' @description This function calls `influx_query` to receive some stats.
 #' @inheritParams influx_query
 #'
 #' @return A tibble.
