@@ -1,9 +1,12 @@
-# influxdbr 0.13.0.9000 - Do not use in production!
+# influxdbr 0.13.0.9000
 
-* testing `influx_write_df` to upload mulitple tags and fields per timestamp (#20).
+## Breaking changes
 
-Warning: final test still to be done. NA's are currently not supported.
-Also breaking change to be expected in `influx_write()` api!
+* `influx_write` function argument `xts` changes to `x` (method is now generic`)
+
+## New features
+
+* `influx_write` now accepts data.frames to upload mulitple tags and fields per timestamp (#20).
 
 # influxdbr 0.13.0
 
