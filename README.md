@@ -22,7 +22,7 @@ You can install the dev version from github with:
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("dleutnant/influxdbr")
+devtools::install_github("dleutnant/influxdbr@dev")
 ```
 
 Example

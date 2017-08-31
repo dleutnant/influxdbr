@@ -31,7 +31,7 @@ install.packages("influxdbr")
 You can install the dev version from github with:
 ```{r gh-installation, eval = FALSE}
 # install.packages("devtools")
-devtools::install_github("dleutnant/influxdbr")
+devtools::install_github("dleutnant/influxdbr@dev")
 ```
 
 ## Example
