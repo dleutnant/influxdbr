@@ -24,7 +24,7 @@ Additionally, handy wrappers for the Influx Query Language (IQL) to manage and e
 ## Installation
 
 Installation is easy thanks to CRAN:
-``` r
+```{r cran, eval = FALSE}
 install.packages("influxdbr")
 ```
 
