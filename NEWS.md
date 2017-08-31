@@ -2,7 +2,7 @@
 
 ## Breaking changes
 
-* `influx_write` function argument `xts` changes to `x` (method is now generic`)
+* `influx_write` function argument `xts` changes to `x` (method is now generic)
 
 ## New features
 
