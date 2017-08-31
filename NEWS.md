@@ -8,6 +8,10 @@
 
 * `influx_write` now accepts data.frames to upload mulitple tags and fields per timestamp (#20).
 
+## Bug fixes
+
+* special characters in `xts` attributes are now supported (#30). 
+
 # influxdbr 0.13.0
 
 * Fix coercion error in `influx_write()` in case of sub-second accuracy (#25).

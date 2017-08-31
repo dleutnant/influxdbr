@@ -93,8 +93,8 @@ testthat::test_that("valid data.frame", {
   library(magrittr)
   
   df <- tibble::tibble(time = seq(from = Sys.time(), by = "-5 min", length.out = 10),
-                       `tag_one,` = sample(LETTERS, 10, replace = F),
-                       tag_two = sample(LETTERS, 10, replace = F),
+                       `tag_one,` = sample(LETTERS[1:5], 10, replace = T),
+                       tag_two = sample(LETTERS[1:5], 10, replace = T),
                        field_chr = sample(LETTERS, 10, replace = F),
                        field_float = stats::runif(10),
                        field_int = sample(1:100000000,10),
@@ -124,7 +124,9 @@ testthat::test_that("valid data.frame", {
                           max_points = 2,
                           use_integers = TRUE)
   
-  tmp <- influxdbr::influx_query(con = con, db = "new_df", query = "select * from new_df2 group by *", return_xts = FALSE)
+  tmp_df <- influxdbr::influx_query(con = con, db = "new_df", query = "select * from new_df2 group by *", return_xts = FALSE)
+  tmp_xts <- influxdbr::influx_query(con = con, db = "new_df", query = "select * from new_df2 group by *", return_xts = TRUE)
+  
   
 })
   

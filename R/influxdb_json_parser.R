@@ -211,7 +211,7 @@ tibble_to_xts <- function(x) {
     # select all "tagkey" columns
     dplyr::select(statement_id:time,-time) %>%
     # create a group index
-    dplyr::group_indices_(.dots = colnames(.)) %>%
+    dplyr::group_indices(!!!rlang::syms(colnames(.))) %>%
     # add group index to tibble
     dplyr::mutate(x, grp_idx = .) %>%
     # create list of tibble by group
