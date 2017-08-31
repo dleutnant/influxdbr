@@ -18,7 +18,7 @@ Installation is easy thanks to CRAN:
 install.packages("influxdbr")
 ```
 
-You can install the dev version influxdbr from github with:
+You can install the dev version from github with:
 
 ``` r
 # install.packages("devtools")
