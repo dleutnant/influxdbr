@@ -233,9 +233,19 @@ convert_to_line_protocol.data.frame <- function(x,
 # method to convert the line protocol to a data.frame
 # function is not exported
 #' @keywords internal
-.influxdb_line_protocol_to_array <- function(x) {
+line_protocol_to_array <- function(x) {
+  
+  # substitute [ ], [,] and [=]
+  x <- gsub("\\ ", replacement = " ", x, fixed = TRUE)
+  x <- gsub("\\,", replacement = ";;;ABC;;;", x, fixed = TRUE) # dummy
+  x <- gsub("\\=", replacement = "=", x, fixed = TRUE)
+  
   # split by ","
   splitted_string <- unlist(strsplit(x, split = ","))
+  
+  # subsitute dummy
+  splitted_string <- gsub(pattern = ";;;ABC;;;", replacement = ",",
+                          splitted_string, fixed = TRUE)
   
   # extract measurement name
   measurement_df <- data.frame(measurement = splitted_string[1])

@@ -72,7 +72,7 @@ show_series <- function(con,
   ) %>%
     purrr::map_df( ~ dplyr::select(., key)) %>%
     .[["key"]] %>%
-    purrr::map_df(.influxdb_line_protocol_to_array) %>%
+    purrr::map_df(line_protocol_to_array) %>%
     tibble::as_tibble()
   
   return(result)
