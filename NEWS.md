@@ -14,7 +14,7 @@
 
 * Fix special character representation in `show_series`.
 
-* Using double quotes in string arguments in `influx_query` wrapper (e.g. `show_tag_values`).
+* Using double quotes in string arguments of `influx_query` wrappers (e.g. `influx_select`, `show_tag_values`) (#22).
 
 # influxdbr 0.13.0
 
