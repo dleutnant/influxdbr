@@ -10,7 +10,11 @@
 
 ## Bug fixes
 
-* special characters in `xts` attributes are now supported (#30). 
+* special characters in `xts` attributes are now supported (#30).
+
+* Fix special character representation in `show_series`.
+
+* Using double quotes in string arguments in `influx_query` wrapper (e.g. `show_tag_values`).
 
 # influxdbr 0.13.0
 
