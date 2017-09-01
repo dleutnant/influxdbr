@@ -38,8 +38,7 @@ influx_select <- function(con,
   options("useFancyQuotes" = FALSE)
   
   if (!is.null(rp)) {
-    options("useFancyQuotes" = FALSE)
-    measurement <- paste(base::dQuote(rp), measurement, sep = ".")
+    measurement <- paste(base::dQuote(rp), base::dQuote(measurement), sep = ".")
   }
   
   query <- paste("SELECT", field_keys, "FROM", measurement)
