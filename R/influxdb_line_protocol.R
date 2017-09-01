@@ -71,7 +71,11 @@ convert_to_line_protocol.xts <- function(x,
   } else {
     if (!is.numeric(x)) {
       # add quotes if matrix contains no numerics i.e. -> characters
+      # check Option useFancyQuotes
+      quotes <- getOption("useFancyQuotes")
+      on.exit(options("useFancyQuotes" = quotes))
       options("useFancyQuotes" = FALSE)
+      
       x[, ] <- sapply(seq_len(ncol(x)), function(y) base::dQuote(x[, y]))
       # trim leading and trailing whitespaces
       x <- gsub("^\\s+|\\s+$", "", x)
@@ -174,6 +178,9 @@ convert_to_line_protocol.data.frame <- function(x,
   }
   
   # for dquotes in fields of type character
+  # check Option useFancyQuotes
+  quotes <- getOption("useFancyQuotes")
+  on.exit(options("useFancyQuotes" = quotes))
   options("useFancyQuotes" = FALSE)
   
   # FIELD SET
