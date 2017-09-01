@@ -99,10 +99,16 @@ show_tag_keys <- function(con, db, measurement = NULL) {
 #' @export
 #' @rdname show_databases
 show_tag_values <- function(con, db, measurement = NULL, key) {
+  
+  # check Option useFancyQuotes
+  quotes <- getOption("useFancyQuotes")
+  on.exit(options("useFancyQuotes" = quotes))
+  options("useFancyQuotes" = FALSE)
+  
   query <- ifelse(is.null(measurement),
                   "SHOW TAG VALUES",
                   paste("SHOW TAG VALUES FROM", measurement)) %>%
-    paste(., "WITH KEY=", key)
+    paste(., " WITH KEY=", base::dQuote(key), sep = "")
   
   result <- influx_query(
     con = con,
