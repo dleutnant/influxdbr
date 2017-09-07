@@ -59,30 +59,23 @@ drop_database <- function(con, db) {
 #' @rdname create_database
 drop_series <- function(con,
                         db,
-                        id = NULL,
                         measurement = NULL,
                         where = NULL) {
+  
   query <- "DROP SERIES"
   
-  if (!is.null(id)) {
-    query <- paste(query, id)
+  query <- ifelse(is.null(measurement),
+                  query,
+                  paste(query, "FROM", measurement))
     
-  } else {
-    query <- ifelse(is.null(measurement),
-                    query,
-                    paste(query, "FROM", measurement))
-    
-    query <- ifelse(is.null(where),
-                    query,
-                    paste(query, "WHERE", where))
-    
-  }
+  query <- ifelse(is.null(where),
+                  query,
+                  paste(query, "WHERE", where))
   
-  result <- influx_query(
+  result <- influx_post(
     con = con,
     db = db,
-    query = query,
-    return_xts = FALSE
+    query = query
   )
   
   if (!is.null(result)) {
@@ -96,12 +89,11 @@ drop_series <- function(con,
 #' @export
 #' @rdname create_database
 drop_measurement <- function(con, db, measurement) {
-  result <- influx_query(
+  result <- influx_post(
     con = con,
     db = db,
     query = paste("DROP MEASUREMENT",
-                  measurement),
-    return_xts = FALSE
+                  measurement)
   )
   
   if (!is.null(result)) {
@@ -115,8 +107,8 @@ drop_measurement <- function(con, db, measurement) {
 #' @export
 #' @rdname create_database
 create_retention_policy <- function(con,
-                                    rp_name,
                                     db,
+                                    rp_name,
                                     duration,
                                     replication,
                                     default = FALSE) {
@@ -136,9 +128,9 @@ create_retention_policy <- function(con,
     
   }
   
-  result <- influx_query(con = con,
-                         query = query,
-                         return_xts = FALSE)
+  result <- influx_post(con = con,
+                        db = db,
+                        query = query)
   
   if (!is.null(result)) {
     return(result)
@@ -151,8 +143,8 @@ create_retention_policy <- function(con,
 #' @export
 #' @rdname create_database
 alter_retention_policy <- function(con,
-                                   rp_name,
                                    db,
+                                   rp_name,
                                    duration,
                                    replication,
                                    default = FALSE) {
@@ -171,9 +163,9 @@ alter_retention_policy <- function(con,
     query <- paste(query, "DEFAULT")
   }
   
-  result <- influx_query(con = con,
-                         query = query,
-                         return_xts = FALSE)
+  result <- influx_post(con = con,
+                         db = db,
+                         query = query)
   
   if (!is.null(result)) {
     return(result)
@@ -185,13 +177,15 @@ alter_retention_policy <- function(con,
 
 #' @export
 #' @rdname create_database
-drop_retention_policy <- function(con, rp_name, db) {
+drop_retention_policy <- function(con,
+                                  db,
+                                  rp_name) {
   query <- paste("DROP RETENTION POLICY", rp_name,
                  "ON", db)
   
-  result <- influx_query(con = con,
-                         query = query,
-                         return_xts = FALSE)
+  result <- influx_post(con = con,
+                        db = db,
+                        query = query)
   
   if (!is.null(result)) {
     return(result)
