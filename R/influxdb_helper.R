@@ -28,7 +28,7 @@ check_srv_comm <- function(x) {
   
   if (!x$status_code %in% c(200, 204)) {
     response_data <- jsonlite::fromJSON(rawToChar(x$content))
-    stop(paste("http:", response_data$error), call. = FALSE)
+    stop(response_data$error, call. = FALSE)
   }
   
   return(NULL)
