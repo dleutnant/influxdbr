@@ -22,8 +22,9 @@ testthat::test_that("write xts with NA", {
   testthat::skip_on_travis()
   
   # prepare tmp xts object
-  tmp <- xts::xts(x = runif(10),
-                  order.by = seq(as.POSIXct("1970-1-1"), by = "hours", length.out = 10))
+  tmp <- xts::xts(x = runif(1e1),
+                  order.by = seq(as.POSIXct("1970-1-1"), by = "hours", length.out = 1e1))
+  colnames(tmp) <- "one"
   # add second column
   tmp <- cbind(tmp, tmp)
   colnames(tmp) <- c("one", "two")
