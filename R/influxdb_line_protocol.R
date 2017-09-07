@@ -38,11 +38,11 @@ convert_to_line_protocol.xts <- function(x,
   tag_keys <- names(xts::xtsAttributes(x)[valid_attr])
   tag_values <- xts::xtsAttributes(x)[valid_attr]
   
-  # handle commas and spaces in values
-  tag_values <- gsub(pattern = "[ ]", replacement = "\\\\ ", x = tag_values)
-  tag_values <- gsub(pattern = "[,]", replacement = "\\\\,", x = tag_values)
-  tag_values <- gsub(pattern = "[=]", replacement = "\\\\=", x = tag_values)
-  
+  # handle special characters
+  measurement <- replace_spec_char(measurement, chars = c(",", " "))
+  tag_keys <- replace_spec_char(tag_keys, chars = c(",", "=", " "))
+  tag_values <- replace_spec_char(tag_values, chars = c(",", "=", " "))
+    
   # handle empty values in keys
   tag_values <- gsub(pattern = "numeric\\(0\\)|character\\(0\\)",
                      replacement = "NA",
@@ -155,7 +155,8 @@ convert_to_line_protocol.data.frame <- function(x,
     
   }
   
-  # measurement
+  # handling of special character in measurement name
+  measurement <- replace_spec_char(measurement, chars = c(",", " "))
   tbl_measurement <- tibble::tibble(measurement = rep(measurement, 
                                                       times = nrow(x)))
   
@@ -164,10 +165,10 @@ convert_to_line_protocol.data.frame <- function(x,
     tbl_tags <- x %>%
       # select only tag column
       dplyr::select(dplyr::one_of(tag_cols)) %>%
-      # handling of special character in column names
-      dplyr::rename_all(dplyr::funs(gsub(pattern = "[ ]", replacement = "\\\\ ", .))) %>% 
-      dplyr::rename_all(dplyr::funs(gsub(pattern = "[,]", replacement = "\\\\,", .))) %>% 
-      dplyr::rename_all(dplyr::funs(gsub(pattern = "[=]", replacement = "\\\\=", .))) %>% 
+      # handling of special characters in tag keys
+      dplyr::rename_all(dplyr::funs(replace_spec_char(., chars = c(",", "=", " ")))) %>%
+      # handling of special characters in tag values
+      dplyr::mutate_all(dplyr::funs(replace_spec_char(., chars = c(",", "=", " ")))) %>%
       # create tag set
       purrr::imap_dfr( ~ paste(.y, .x, sep = "=")) %>% 
       tidyr::unite(col = "tags", dplyr::everything(), sep = ",") %>% 
@@ -187,10 +188,12 @@ convert_to_line_protocol.data.frame <- function(x,
   tbl_values <- x %>%
     # use all columns as fields except for tags and time 
     dplyr::select(-dplyr::one_of(tag_cols, time_col, "time")) %>%
-    # double quote character columns
-    dplyr::mutate_if(., is.character, base::dQuote) %>% 
     # remove ws
-    dplyr::mutate_if(., is.character, gsub, pattern = "^\\s+|\\s+$", replacement = "") %>% 
+    dplyr::mutate_if(., is.character, base::trimws) %>% 
+    # double quote character columns
+    dplyr::mutate_if(., is.character, base::dQuote) %>%
+    # handling of special characters in values
+    # TODO!
     # add i in case for integers
     `if`(use_integers, dplyr::mutate_if(., is.integer, paste, "i", sep=""), .) %>%
     # create field set
@@ -269,3 +272,15 @@ line_protocol_to_array <- function(x) {
   return(result)
   
 }
+
+
+# substitute special characters to comfort InfluxDB line protocol
+# function is not exported
+#' @keywords internal
+replace_spec_char <- function(x, chars) {
+  for (char in chars) {
+    x <- gsub(char, replacement = paste0("\\\\", char), x = x)
+  }
+  return(x)
+}
+

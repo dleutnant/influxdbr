@@ -31,24 +31,24 @@ testthat::test_that("write xts with NA", {
   # numeric matrix
   tmp[8,1] <- NA
   tmp[3,2] <- NA
-  influx_write(con = con, db = "tmp", x = tmp, measurement = "test_num")
-  influx_query(con = con, db = "tmp", query = "SELECT * from test_num")
+  influx_write(con = con, db = "test", x = tmp, measurement = "test_num")
+  influx_query(con = con, db = "test", query = "SELECT * from test_num")
   
   # integer matrix
   tmp[,1] <- 1:10
   tmp[,2] <- 20:21
   tmp[8,1] <- NA
   tmp[3,2] <- NA
-  influx_write(con = con, db = "tmp", x = tmp, measurement = "test_int", use_integers = T)
-  influx_query(con = con, db = "tmp", query = "SELECT * from test_int")
+  influx_write(con = con, db = "test", x = tmp, measurement = "test_int", use_integers = T)
+  influx_query(con = con, db = "test", query = "SELECT * from test_int")
   
   # character matrix
   tmp[,1] <- paste0("NAME", 1:10)
   tmp[,2] <- paste0("NAME_TWO_", 1:10)
   tmp[8,1] <- NA
   tmp[3,2] <- NA
-  influx_write(con = con, db = "tmp", x = tmp, measurement = "test_str")
-  influx_query(con = con, db = "tmp", query = "SELECT * from test_str")
+  influx_write(con = con, db = "test", x = tmp, measurement = "test_str")
+  influx_query(con = con, db = "test", query = "SELECT * from test_str")
   
   # mixed data.frame
   tmp_length <- 1e2
@@ -60,9 +60,9 @@ testthat::test_that("write xts with NA", {
   tmp2[3] <- NA
   colnames(tmp1) <- c("one")
   colnames(tmp2) <- c("two")
-  system.time(influx_write(con = con, db = "tmp", x = tmp1, measurement = "test_df"))
-  system.time(influx_write(con = con, db = "tmp", x = tmp2, measurement = "test_df"))
-  system.time(tmp <- influx_query(con = con, db = "tmp", query = "SELECT * from test_df limit 1000"))
+  system.time(influx_write(con = con, db = "test", x = tmp1, measurement = "test_df"))
+  system.time(influx_write(con = con, db = "test", x = tmp2, measurement = "test_df"))
+  system.time(tmp <- influx_query(con = con, db = "test", query = "SELECT * from test_df limit 1000"))
 
 })
 
@@ -77,8 +77,8 @@ testthat::test_that("write xts with sub-second accuracy", {
   
   tmp <- xts::xts(runif(10), order.by = runif(10) + Sys.time())
   colnames(tmp) <- c("accuracy")
-  influx_write(con = con, db = "tmp", x = tmp, measurement = "subsecond_acc", precision = "ms")
-  tmp_subsecond <- influx_query(con = con, db = "tmp", query = "SELECT * from subsecond_acc ORDER BY time DESC LIMIT 10")
+  influx_write(con = con, db = "test", x = tmp, measurement = "subsecond_acc", precision = "ms")
+  tmp_subsecond <- influx_query(con = con, db = "test", query = "SELECT * from subsecond_acc ORDER BY time DESC LIMIT 10")
 
   testthat::expect_is(object = tmp_subsecond, class = "list")
 
@@ -95,7 +95,8 @@ testthat::test_that("valid data.frame", {
   df <- tibble::tibble(time = seq(from = Sys.time(), by = "-5 min", length.out = 10),
                        `tag_one,` = sample(LETTERS[1:5], 10, replace = T),
                        tag_two = sample(LETTERS[1:5], 10, replace = T),
-                       field_chr = sample(LETTERS, 10, replace = F),
+                       `tag three` = sample(paste(LETTERS[1:5], "tag"), 10, replace = T),
+                       field_chr = sample(paste(" ", LETTERS[1:5], "field"), 10, replace = T),
                        field_float = stats::runif(10),
                        field_int = sample(1:100000000,10),
                        field_bool = stats::runif(10) > 0.5) %>%
@@ -107,25 +108,25 @@ testthat::test_that("valid data.frame", {
   # df[c(2), c(7)] <- NA
   # df[c(4,6), c(7)] <- NA
   
-  convert_to_line_protocol(x = df,
-                           measurement = "test",
-                           tag_cols = paste("tag", c("one,", "two"), sep = "_"),
-                           time_col = NULL,
-                           precision = "s",
-                           use_integers = FALSE) %>% cat
+  influxdbr:::convert_to_line_protocol(x = df,
+                                       measurement = "test,asd",
+                                       tag_cols = c("tag_one,", "tag_two", "tag three"),
+                                       time_col = NULL,
+                                       precision = "s",
+                                       use_integers = FALSE) %>% cat
   
   
   influxdbr::influx_write(x = df, 
                           con = con,
-                          db = "new_df",
+                          db = "test",
                           measurement = "new_df2",
                           time_col = "time",
-                          tag_cols = paste("tag", c("one,", "two"), sep = "_"),
+                          tag_cols = c("tag_one,", "tag_two", "tag three"),
                           max_points = 2,
                           use_integers = TRUE)
   
-  tmp_df <- influxdbr::influx_query(con = con, db = "new_df", query = "select * from new_df2 group by *", return_xts = FALSE)
-  tmp_xts <- influxdbr::influx_query(con = con, db = "new_df", query = "select * from new_df2 group by *", return_xts = TRUE)
+  tmp_df <- influxdbr::influx_query(con = con, db = "test", query = "select * from new_df2 group by *", return_xts = FALSE)
+  tmp_xts <- influxdbr::influx_query(con = con, db = "test", query = "select * from new_df2 group by *", return_xts = TRUE)
   
   
 })
