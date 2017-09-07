@@ -4,10 +4,12 @@
 \alias{influx_post}
 \title{send POST to an InfluxDB server}
 \usage{
-influx_post(con, query = "")
+influx_post(con, db = NULL, query = "")
 }
 \arguments{
 \item{con}{An \code{influx_connection} object (s. \code{\link{influx_connection}}).}
+
+\item{db}{Sets the target database for the query.}
 
 \item{query}{The InfluxDB query to be sent.}
 }
