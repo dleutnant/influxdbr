@@ -1,7 +1,6 @@
 #' Influx database management
 #'
-#' The folllowing functions are convenient wrappers around `influx_post`
-#' and `influx_query`.
+#' The folllowing functions are convenient wrappers around `influx_post`.
 #' * `create_database()`: creates a new database
 #' * `drop_database()`: drops an existing database
 #' * `drop_series()`: drops specific series
@@ -11,7 +10,6 @@
 #' * `drop_retention_policy()`: drop a retention policy
 #'
 #' @inheritParams influx_query
-#' @param id Sets the series ID.
 #' @param measurement Sets a specific measurement.
 #' @param where Apply filter on tag key values.
 #' @param rp_name The name of the retention policy.
