@@ -44,16 +44,13 @@ drop_retention_policy(con, db, rp_name)
 
 \item{default}{logical. If TRUE, the new retention policy is the default retention policy
 for the database.}
-
-\item{id}{Sets the series ID.}
 }
 \value{
 A tibble containing post results in case of an error (or message).
 Otherwise NULL (invisibly).
 }
 \description{
-The folllowing functions are convenient wrappers around \code{influx_post}
-and \code{influx_query}.
+The folllowing functions are convenient wrappers around \code{influx_post}.
 \itemize{
 \item \code{create_database()}: creates a new database
 \item \code{drop_database()}: drops an existing database
