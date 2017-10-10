@@ -16,6 +16,8 @@
 
 * Using double quotes in string arguments of `influx_query` wrappers (e.g. `influx_select`, `show_tag_values`) (#22).
 
+* IQL wrapper functions with no expected return value now use `influx_post` instead of `influx_query`.  
+
 # influxdbr 0.13.0
 
 * Fix coercion error in `influx_write()` in case of sub-second accuracy (#25).

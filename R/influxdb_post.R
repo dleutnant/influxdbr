@@ -6,10 +6,13 @@
 #' @references \url{https://influxdb.com/}
 #' @keywords internal
 influx_post <- function(con,
+                        db = NULL,
                         query = "") {
   
   # create query based on function parameters
-  q <- list(u = con$user, p = con$pass)
+  q <- list(db = db,
+            u = con$user,
+            p = con$pass)
   
   # add query
   q <- c(q, q = query)

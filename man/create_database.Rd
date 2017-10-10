@@ -15,24 +15,22 @@ create_database(con, db)
 
 drop_database(con, db)
 
-drop_series(con, db, id = NULL, measurement = NULL, where = NULL)
+drop_series(con, db, measurement = NULL, where = NULL)
 
 drop_measurement(con, db, measurement)
 
-create_retention_policy(con, rp_name, db, duration, replication,
+create_retention_policy(con, db, rp_name, duration, replication,
   default = FALSE)
 
-alter_retention_policy(con, rp_name, db, duration, replication,
+alter_retention_policy(con, db, rp_name, duration, replication,
   default = FALSE)
 
-drop_retention_policy(con, rp_name, db)
+drop_retention_policy(con, db, rp_name)
 }
 \arguments{
 \item{con}{An \code{influx_connection} object (s. \code{\link{influx_connection}}).}
 
 \item{db}{Sets the target database for the query.}
-
-\item{id}{Sets the series ID.}
 
 \item{measurement}{Sets a specific measurement.}
 
@@ -52,8 +50,7 @@ A tibble containing post results in case of an error (or message).
 Otherwise NULL (invisibly).
 }
 \description{
-The folllowing functions are convenient wrappers around \code{influx_post}
-and \code{influx_query}.
+The folllowing functions are convenient wrappers around \code{influx_post}.
 \itemize{
 \item \code{create_database()}: creates a new database
 \item \code{drop_database()}: drops an existing database
