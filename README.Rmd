@@ -117,7 +117,7 @@ to be of class `tibble` or of class `xts`.
 
 #### Return tibbles
 
-ToDo: List of tibbles, each with statement_id, series_names, tags, time, fields
+If `return_xts = FALSE` a list of tibbles per query statement is returned. Each tibble contains columns with statement_id, series_names, tags, time and fields.
 
 ```{r return_tibble}
 # fetch time series data by using the helper function `influx_select`
@@ -135,10 +135,7 @@ result
 
 #### Return xts
 
-ToDo: List of xts. Because xts objects are basically matrices (which can store one data type only), 
-a single xts object is created for each InfluxDB field. This ensures a correct 
-representation of the field values data type (instead of getting all into a "character" matrix).
-InfluxDB tags are now xts attributes.
+If `return_xts = TRUE` a list of xts objects per query statement is returned. Because xts objects are basically matrices (which can store one data type only), a single xts object is created for each InfluxDB field. This ensures a correct representation of the field values data type (instead of getting all into a "character" matrix). InfluxDB tags are now xts attributes.
 
 ```{r return_xts}
 # fetch time series data by using the helper function `influx_select`
