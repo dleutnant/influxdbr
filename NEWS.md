@@ -10,6 +10,8 @@
 
 ## Bug fixes
 
+* correct parsing of json structure without `statement_id` (#32).
+
 * special characters in `xts` attributes are now supported (#30).
 
 * Fix special character representation in `show_series`.
