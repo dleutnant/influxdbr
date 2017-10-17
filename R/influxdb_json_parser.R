@@ -37,6 +37,9 @@ query_list_to_tibble <- function(x, timestamp_format) {
     if (!is.null(series_ele$statement_id)) {
       # extract "statement_id"
       statement_id <- series_ele$statement_id
+    } else {
+      # set NA to statement_id if not found
+      statement_id <- NA_integer_
     }
       
     if (!is.null(series_ele$series)) {
@@ -120,6 +123,7 @@ query_list_to_tibble <- function(x, timestamp_format) {
   ### in case of CHUNKED responses, concatenate tables with same statement_id
   list_of_result <- list_of_result %>% # take the list of results
     `if`(performance, timer(., "concatenate tables with same statement_id"), .) %>%
+    # This may cause trouble in with InfluxDB < V1.2, see issue #32
     purrr::map("statement_id") %>% # extract "statement_id" of each result
     purrr::map_int(unique) %>% # create a vector with unique "statement_id"
     rle %>% # perform run length encoding to get the length of each "statement_id"
