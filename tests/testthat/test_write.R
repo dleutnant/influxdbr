@@ -64,6 +64,9 @@ testthat::test_that("write xts with NA", {
   system.time(influx_write(con = con, db = "test", x = tmp1, measurement = "test_df"))
   system.time(influx_write(con = con, db = "test", x = tmp2, measurement = "test_df"))
   system.time(tmp <- influx_query(con = con, db = "test", query = "SELECT * from test_df limit 1000"))
+  
+  # delete measurements
+  purrr::walk(paste0("test", c("num", "int", "str", "df")), ~ drop_measurement(con, "test", .))
 
 })
 
@@ -109,14 +112,14 @@ testthat::test_that("valid data.frame", {
   # df[c(2), c(7)] <- NA
   # df[c(4,6), c(7)] <- NA
   
-  influxdbr:::convert_to_line_protocol(x = df,
-                                       measurement = "test,asd",
-                                       tag_cols = c("tag_one,", "tag_two", "tag three"),
-                                       time_col = NULL,
+  influxdbr:::convert_to_line_protocol.data.frame(x = df,
+                                       measurement = "test",
+                                       #tag_cols = c("tag_one,", "tag_two", "tag three"),
+                                       time_col = "time",
                                        precision = "s",
                                        use_integers = FALSE) %>% cat
   
-  
+  # write full df
   influxdbr::influx_write(x = df, 
                           con = con,
                           db = "test",
@@ -126,9 +129,81 @@ testthat::test_that("valid data.frame", {
                           max_points = 2,
                           use_integers = TRUE)
   
-  tmp_df <- influxdbr::influx_query(con = con, db = "test", query = "select * from new_df2 group by *", return_xts = FALSE)
-  tmp_xts <- influxdbr::influx_query(con = con, db = "test", query = "select * from new_df2 group by *", return_xts = TRUE)
+  # write df without tags
+  influxdbr::influx_write(x = df, 
+                          con = con,
+                          db = "test",
+                          measurement = "new_df3",
+                          time_col = "time",
+                          use_integers = TRUE)
   
+  # write df without time
+  influxdbr::influx_write(x = df %>% 
+                            dplyr::mutate(time_chr = as.character(time)) %>% 
+                            dplyr::select(-time), 
+                          con = con,
+                          db = "test",
+                          measurement = "new_df4",
+                          tag_cols = c("tag_one,", "tag_two", "tag three"),
+                          use_integers = TRUE)
+  
+  # write only data
+  influxdbr::influx_write(x = df %>% 
+                            dplyr::mutate(time_chr = as.character(time)) %>% 
+                            dplyr::select(-time), 
+                          con = con,
+                          db = "test",
+                          # if no time and no tags are supplied, only one point is written
+                          # remember: points which don't have timestamps will get the same 
+                          # timestamp for the batch
+                          # therefore set at least a unique dummy tag:
+                          tag_cols = "time_chr", 
+                          measurement = "new_df5",
+                          precision = "ns",
+                          points = 1,
+                          use_integers = TRUE)
+  
+  # query the data to check once again
+  tmp_df_full <-
+    influxdbr::influx_query(
+      con = con,
+      db = "test",
+      query = "select * from new_df2 group by *",
+      return_xts = FALSE
+    )
+  tmp_df_no_tags <-
+    influxdbr::influx_query(
+      con = con,
+      db = "test",
+      query = "select * from new_df3 group by *",
+      return_xts = FALSE
+    )
+  tmp_df_no_time <-
+    influxdbr::influx_query(
+      con = con,
+      db = "test",
+      query = "select * from new_df4 group by *",
+      return_xts = FALSE,
+      timestamp_format = "ms"
+    )
+  tmp_df_data_only <-
+    influxdbr::influx_query(
+      con = con,
+      db = "test",
+      query = "select * from new_df5 group by *",
+      return_xts = FALSE,
+      timestamp_format = "ms"
+    )
+  tmp_xts <-
+    influxdbr::influx_query(
+      con = con,
+      db = "test",
+      query = "select * from new_df2 group by *",
+      return_xts = TRUE
+    )
+  
+  # delete measurements
+  purrr::walk(paste0("new_df", 2:5), ~ drop_measurement(con, "test", .))
   
 })
   

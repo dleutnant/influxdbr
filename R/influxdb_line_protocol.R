@@ -187,20 +187,28 @@ convert_to_line_protocol.data.frame <- function(x,
   # FIELD SET
   tbl_values <- x %>%
     # use all columns as fields except for tags and time 
-    dplyr::select(-dplyr::one_of(tag_cols, time_col, "time")) %>%
+    `if`(!all(is.null(tag_cols), is.null(time_col)), 
+         dplyr::select(., -dplyr::one_of(tag_cols, time_col)), .) %>%
     # remove ws
     dplyr::mutate_if(., is.character, base::trimws) %>% 
     # double quote character columns
     dplyr::mutate_if(., is.character, base::dQuote) %>%
-    # handling of special characters in values
-    # TODO!
+    # handling of special characters in field keys
+    # opt1: substitute all whitespaces and non-word character
+    #dplyr::rename_all(dplyr::funs(gsub("\\s+|\\W", "_", x = .))) %>%
+    # opt2: dquote if whitespaces or non-word character is in colname
+    #dplyr::rename_if(grepl("\\s+|\\W", x = names(.)), base::dQuote) %>% 
+    # opt3: apply escape rule of InfluxDb
+    dplyr::rename_all(dplyr::funs(replace_spec_char(., chars = c(",", "=", " ")))) %>%
+    #dplyr::rename_if(grepl("\\s+|\\W", x = names(.)), base::sQuote) %>%
+    #dplyr::rename_all(dplyr::funs(gsub("`", "", x = .))) %>%
     # add i in case for integers
     `if`(use_integers, dplyr::mutate_if(., is.integer, paste, "i", sep=""), .) %>%
     # create field set
     purrr::imap_dfr( ~ paste(.y, .x, sep = "=")) %>% 
     tidyr::unite(col = "values", dplyr::everything(), sep = ",") %>% 
-    # add leading ws
-    dplyr::mutate(values = paste(" ", values, sep = ""))
+    # add leading and trailing ws
+    dplyr::mutate(values = paste(" ", values, " ", sep = ""))
   
   # TIME (is not necessary, server time is used if not given)
   if (!is.null(time_col)) {
@@ -210,8 +218,7 @@ convert_to_line_protocol.data.frame <- function(x,
       # rename for easier coding
       dplyr::rename(time = !!time_col) %>% 
       dplyr::mutate(time = format(as.numeric(time) * get_precision_divisor(precision),
-                                  scientific = FALSE)) %>% 
-      dplyr::mutate(time = paste(" ", time, sep = ""))
+                                  scientific = FALSE))
     
   } else {
     tbl_time <- NULL
@@ -225,7 +232,8 @@ convert_to_line_protocol.data.frame <- function(x,
     tidyr::unite("line_protocol",
                  dplyr::everything(), 
                  sep = "") %>% 
-    purrr::flatten_chr() %>% 
+    purrr::flatten_chr() %>%
+    purrr::map_chr(base::trimws) %>% 
     paste(., collapse = "\n")
   
   # invisibly return converted line protocol
