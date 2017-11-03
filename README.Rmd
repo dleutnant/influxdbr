@@ -1,4 +1,5 @@
 ---
+title: "influxdbr"
 output: github_document
 ---
 
@@ -11,8 +12,6 @@ knitr::opts_chunk$set(
   fig.path = "README-"
 )
 ```
-
-# influxdbr
 
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/influxdbr)](https://cran.r-project.org/package=influxdbr) [![Build Status](https://travis-ci.org/dleutnant/influxdbr.svg?branch=master)](https://travis-ci.org/dleutnant/influxdbr)
 
@@ -106,9 +105,9 @@ influx_write(con = con,
 
 Writing a data.frame (or tibble) to the server can also be achieved with
 `influx_write`. In this case, we need to specify which columns of the data.frame 
-represent time, tags and fields. Each row represents a unique data point.
-`NA`'s are not supported and need to be removed. Timestamps should be located in
-column `time`.
+represent time and tags. Fields are automatically determined.Each row represents
+a unique data point. `NA`'s are not supported and need to be removed. 
+Timestamps should be located in column `time`.
 
 Remember that time and tags are optional: InfluxDB uses the server’s local 
 nanosecond timestamp in UTC if the timestamp is not included with the point.
@@ -131,10 +130,10 @@ influx_write(con = con,
              measurement = "sampledata_df")
 ```
 
-We can now check if the time series was succefully written:
+We can now check if the time series were succefully written:
 
 ```{r check_write_xts}
-# check if measurement was succefully written
+# check if measurements were succefully written
 show_measurements(con = con, db = "mydb")
 ```
 
