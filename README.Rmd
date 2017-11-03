@@ -1,8 +1,6 @@
 ---
 title: "influxdbr"
-output:   
-  md_document:
-    variant: markdown_github
+output: github_document  
 ---
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
@@ -14,8 +12,6 @@ knitr::opts_chunk$set(
   fig.path = "README-"
 )
 ```
-
-# influxdbr
 
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/influxdbr)](https://cran.r-project.org/package=influxdbr) [![Build Status](https://travis-ci.org/dleutnant/influxdbr.svg?branch=master)](https://travis-ci.org/dleutnant/influxdbr)
 

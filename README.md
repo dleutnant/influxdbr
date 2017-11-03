@@ -1,6 +1,7 @@
-<!-- README.md is generated from README.Rmd. Please edit that file -->
 influxdbr
-=========
+================
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
 
 [![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/influxdbr)](https://cran.r-project.org/package=influxdbr)
 [![Build
@@ -12,8 +13,7 @@ This package allows you to fetch and write time series data from/to an
 InfluxDB server. Additionally, handy wrappers for the Influx Query
 Language (IQL) to manage and explore a remote database are provided.
 
-Installation
-------------
+## Installation
 
 Installation is easy thanks to CRAN:
 
@@ -28,8 +28,7 @@ You can install the dev version from github with:
 devtools::install_github("dleutnant/influxdbr@dev")
 ```
 
-Example
--------
+## Example
 
 This is a basic example which shows you how to communicate (i.e. query
 and write data) with the InfluxDB server.
@@ -331,8 +330,7 @@ str(result)
 #>  $ n             : chr "180"
 ```
 
-Contributions
--------------
+## Contributions
 
 This Git repository uses the [Git
 Flow](http://nvie.com/posts/a-successful-git-branching-model/) branching
@@ -352,8 +350,7 @@ should pass `R CMD check --as-cran`, which will also be checked by
 <a href="https://travis-ci.org/dleutnant/influxdbr">Travis CI</a> when
 the PR is submitted.
 
-Code of condcut
----------------
+## Code of condcut
 
 Please note that this project is released with a [Contributor Code of
 Conduct](CONDUCT.md). By participating in this project you agree to
