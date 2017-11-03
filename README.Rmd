@@ -40,8 +40,9 @@ This is a basic example which shows you how to communicate (i.e. query and write
 with the InfluxDB server.
 
 ```{r libs}
-library(xts)
+library(dplyr)
 library(influxdbr)
+library(xts)
 ```
 
 Let's create first some sample data from the xts package and assign arbitrary 
@@ -86,7 +87,7 @@ create_database(con = con, db = "mydb")
 show_databases(con = con)
 ```
 
-### Write data
+### Write data: xts
 
 Writing an xts-object to the server can be achieved with `influx_write`. In this 
 case, columnnames of the `xts` object are used as InfluxDB's field keys,
@@ -98,7 +99,36 @@ as tag keys and values, respectively.
 influx_write(con = con, 
              db = "mydb",
              x = xts_data, 
-             measurement = "sampledata")
+             measurement = "sampledata_xts")
+```
+
+### Write data: data.frame
+
+Writing a data.frame (or tibble) to the server can also be achieved with
+`influx_write`. In this case, we need to specify which columns of the data.frame 
+represent time, tags and fields. Each row represents a unique data point.
+`NA`'s are not supported and need to be removed. Timestamps should be located in
+column `time`.
+
+Remember that time and tags are optional: InfluxDB uses the server’s local 
+nanosecond timestamp in UTC if the timestamp is not included with the point.
+
+```{r write_df}
+# convert the existing xts-object to data.frame
+df_data <- dplyr::bind_cols(time = zoo::index(xts_data), # timestamp
+                            data.frame(xts_data)) %>% # coredata
+  dplyr::mutate(info = "SampleDataMatrix", # add tag 'info'
+                UnitTesting = TRUE, # add tag 'UnitTesting'
+                n = row_number()) # add tag 'n'
+
+df_data
+
+# write example data.frame to database
+influx_write(con = con, 
+             db = "mydb",
+             x = df_data,
+             time_col = "time", tag_cols = c("info", "UnitTesting", "n"),
+             measurement = "sampledata_df")
 ```
 
 We can now check if the time series was succefully written:
