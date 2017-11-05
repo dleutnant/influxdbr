@@ -66,7 +66,7 @@ testthat::test_that("write xts with NA", {
   system.time(tmp <- influx_query(con = con, db = "test", query = "SELECT * from test_df limit 1000"))
   
   # delete measurements
-  purrr::walk(paste0("test", c("num", "int", "str", "df")), ~ drop_measurement(con, "test", .))
+  purrr::walk(paste("test", c("num", "int", "str", "df"), sep = "_"), ~ drop_measurement(con, "test", .))
 
 })
 
@@ -85,6 +85,9 @@ testthat::test_that("write xts with sub-second accuracy", {
   tmp_subsecond <- influx_query(con = con, db = "test", query = "SELECT * from subsecond_acc ORDER BY time DESC LIMIT 10")
 
   testthat::expect_is(object = tmp_subsecond, class = "list")
+  
+  # delete measurement
+  drop_measurement(con, "test", "subsecond_acc")
 
 })
   
