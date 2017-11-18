@@ -91,7 +91,7 @@ testthat::test_that("write xts with sub-second accuracy", {
 
 })
   
-testthat::test_that("valid data.frame", {
+testthat::test_that("write data.frame with single measurement", {
   
   # only local tests
   testthat::skip_on_cran()
@@ -210,3 +210,59 @@ testthat::test_that("valid data.frame", {
   
 })
   
+testthat::test_that("write data.frame with multiple measurements", {
+  
+  # only local tests
+  testthat::skip_on_cran()
+  testthat::skip_on_travis()
+  
+  library(magrittr)
+  
+  df <- tibble::tibble(time = seq(from = Sys.time(), by = "-5 min", length.out = 10),
+                       `tag_one,` = sample(LETTERS[1:5], 10, replace = T),
+                       tag_two = sample(LETTERS[1:5], 10, replace = T),
+                       `tag three` = sample(paste(LETTERS[1:5], "tag"), 10, replace = T),
+                       field_chr = sample(paste(" ", LETTERS[1:5], "field"), 10, replace = T),
+                       field_float = stats::runif(10),
+                       field_int = sample(1:100000000,10),
+                       field_bool = stats::runif(10) > 0.5, 
+                       measurement = rep(c("one", "two", "three", "four", "five"), 2)) %>%
+    dplyr::arrange(time)
+  
+  # NAs not supported!
+  # df[c(3, 8), c(5)] <- NA
+  # df[c(4), c(6)] <- NA
+  # df[c(2), c(7)] <- NA
+  # df[c(4,6), c(7)] <- NA
+  
+  influxdbr:::convert_to_line_protocol.data.frame(x = df,
+                                                  measurement = "test",
+                                                  #tag_cols = c("tag_one,", "tag_two", "tag three"),
+                                                  time_col = "time",
+                                                  measurement_col = "measurement",
+                                                  precision = "s",
+                                                  use_integers = FALSE) %>% cat
+  
+  # write full df
+  influxdbr::influx_write(x = df, 
+                          con = con,
+                          db = "test",
+                          measurement_col = "measurement",
+                          time_col = "time",
+                          tag_cols = c("tag_one,", "tag_two", "tag three"),
+                          use_integers = TRUE)
+  
+  res <-
+    influxdbr::influx_query(
+      con = con,
+      db = "test",
+      query = paste("select * from", 
+                    c("one", "two", "three", "four", "five"), 
+                    "group by *", collapse = ";"),
+      return_xts = FALSE
+    )
+  
+  # delete measurements
+  purrr::walk(c("one", "two", "three", "four", "five"), ~ drop_measurement(con, "test", .))
+  
+})

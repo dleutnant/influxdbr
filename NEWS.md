@@ -1,5 +1,10 @@
-# influxdbr 0.14.0.9000
+# influxdbr 0.14.1.9000
 
+## New features
+
+* `influx_write` function gets `measurement_col` argument to enable writing a 
+data.frame with multiple measurements with only one function call
+ 
 # influxdbr 0.14.0
 
 ## Breaking changes

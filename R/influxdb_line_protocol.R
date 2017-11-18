@@ -136,10 +136,11 @@ convert_to_line_protocol.xts <- function(x,
 
 #' @keywords internal
 convert_to_line_protocol.data.frame <- function(x, 
-                                                measurement,
-                                                precision,
+                                                measurement = NULL,
+                                                precision = NULL,
                                                 use_integers = FALSE,
                                                 ...,
+                                                measurement_col = NULL,
                                                 tag_cols = NULL,
                                                 time_col = NULL) {
   
@@ -155,10 +156,35 @@ convert_to_line_protocol.data.frame <- function(x,
     
   }
   
-  # handling of special character in measurement name
-  measurement <- replace_spec_char(measurement, chars = c(",", " "))
-  tbl_measurement <- tibble::tibble(measurement = rep(measurement, 
-                                                      times = nrow(x)))
+  # no measurement name is given
+  if (is.null(measurement) & is.null(measurement_col)) {
+    stop("measurement must be specified")
+  }
+  
+  # name of measurement is given with argument "measurement" 
+  # single measurement per data.frame
+  if (!is.null(measurement) & is.null(measurement_col)) {
+  
+    # handling of special character in measurement name
+    measurement <- replace_spec_char(measurement, chars = c(",", " "))
+    tbl_measurement <- tibble::tibble(measurement = rep(measurement, 
+                                                        times = nrow(x)))  
+    
+  }
+  
+  # name of measurement is given with argument "measurement_col"
+  # multiple measurement per data.frame
+  # overrides `measurement` function argument
+  if (!is.null(measurement_col)) {
+    
+    tbl_measurement <- x %>% 
+      dplyr::select(measurement_col) %>% 
+      dplyr::mutate_all(dplyr::funs(replace_spec_char(., chars = c(",", " ")))) 
+    
+    # remove column from df
+    x <- dplyr::select(x, -dplyr::one_of(measurement_col))
+    
+  }
   
   # TAG SET (are not necessary)
   if (!is.null(tag_cols)) {

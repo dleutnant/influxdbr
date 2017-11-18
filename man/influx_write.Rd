@@ -15,10 +15,10 @@ influx_write(x, con, db, measurement, rp = NULL, precision = c("s", "ns",
   "one", "quroum", "all", "any"), max_points = 5000, use_integers = FALSE,
   ...)
 
-\method{influx_write}{data.frame}(x, con, db, measurement, rp = NULL,
+\method{influx_write}{data.frame}(x, con, db, measurement = NULL, rp = NULL,
   precision = c("s", "ns", "u", "ms", "m", "h"), consistency = c(NULL,
   "one", "quroum", "all", "any"), max_points = 5000, use_integers = FALSE,
-  time_col = NULL, tag_cols = NULL, ...)
+  time_col = NULL, tag_cols = NULL, measurement_col = NULL, ...)
 }
 \arguments{
 \item{x}{The object to write to an InfluxDB server (either of class \code{xts} or \code{data.frame}).}
@@ -27,7 +27,9 @@ influx_write(x, con, db, measurement, rp = NULL, precision = c("s", "ns",
 
 \item{db}{Sets the target database for the query.}
 
-\item{measurement}{Sets the name of the measurement.}
+\item{measurement}{Sets the name of the measurement (data.frame has data to write
+to one measurement only). If both arguments \code{measurement} and \code{measurement_col}
+are given, \code{measurement} gets overridden.}
 
 \item{rp}{Sets the target retention policy for the write. If not present the
 default retention policy is used.}
@@ -50,6 +52,9 @@ fail.}
 \item{time_col}{A character scalar naming the time index column.}
 
 \item{tag_cols}{A character vector naming tag columns.}
+
+\item{measurement_col}{A character scalar naming the measurement column (data.frame
+has data to write to mulitple measurements). Overrides \code{measurement} argument.}
 }
 \value{
 A list of server responses.
@@ -63,7 +68,8 @@ as tag keys and values, respectively.
 In case of a \code{data.frame}, columns may represent times and both tag and field values.
 Columnnames of the \code{data.frame} object are used as InfluxDB's tag and field keys.
 Times and tags are optional. Use parameter \code{time_col} and \code{tag_col} to define
-the interpretation.
+the interpretation. By specifiying one of the arguments \code{measurement} or \code{measurement_col},
+a data.frame may contain data from one measurement or multiple measurements, respectively.
 }
 \references{
 \url{https://docs.influxdata.com/influxdb/}
