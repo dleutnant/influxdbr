@@ -24,8 +24,8 @@ install.packages("influxdbr")
 You can install the dev version from github with:
 
 ``` r
-# install.packages("devtools")
-devtools::install_github("dleutnant/influxdbr@dev")
+# install.packages("remotes")
+remotes::install_github("dleutnant/influxdbr@dev")
 ```
 
 ## Example
@@ -113,7 +113,7 @@ create_database(con = con, db = "mydb")
 
 # list all databases
 show_databases(con = con)
-#> # A tibble: 7 x 1
+#> # A tibble: 8 x 1
 #>        name
 #>       <chr>
 #> 1 _internal
@@ -123,6 +123,7 @@ show_databases(con = con)
 #> 5   wasig-h
 #> 6      mydb
 #> 7      test
+#> 8   deznwba
 ```
 
 ### Write data
@@ -355,3 +356,16 @@ the PR is submitted.
 Please note that this project is released with a [Contributor Code of
 Conduct](CONDUCT.md). By participating in this project you agree to
 abide by its terms.
+
+## Citation
+
+To cite package ‘influxdbr’ in publications use:
+
+Dominik Leutnant (2017). influxdbr: R Interface to InfluxDB. R package
+version 0.14.1.9000. <https://github.com/dleutnant/influxdbr>
+
+A BibTeX entry for LaTeX users is
+
+@Manual{, title = {influxdbr: R Interface to InfluxDB}, author =
+{Dominik Leutnant}, year = {2017}, note = {R package version
+0.14.1.9000}, url = {<https://github.com/dleutnant/influxdbr>}, }

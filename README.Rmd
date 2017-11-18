@@ -11,6 +11,7 @@ knitr::opts_chunk$set(
   comment = "#>",
   fig.path = "README-"
 )
+Sys.setenv(LANG = "en")
 ```
 
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/influxdbr)](https://cran.r-project.org/package=influxdbr) [![Build Status](https://travis-ci.org/dleutnant/influxdbr.svg?branch=master)](https://travis-ci.org/dleutnant/influxdbr)
@@ -29,8 +30,8 @@ install.packages("influxdbr")
 
 You can install the dev version from github with:
 ```{r gh-installation, eval = FALSE}
-# install.packages("devtools")
-devtools::install_github("dleutnant/influxdbr@dev")
+# install.packages("remotes")
+remotes::install_github("dleutnant/influxdbr@dev")
 ```
 
 ## Example
@@ -207,3 +208,9 @@ Contributing to this package is easy. Just send a [pull request](https://help.gi
 
 ## Code of condcut
 Please note that this project is released with a [Contributor Code of Conduct](CONDUCT.md). By participating in this project you agree to abide by its terms.
+
+## Citation
+
+```{r citation, echo=FALSE, results='asis'}
+citation("influxdbr")
+```
