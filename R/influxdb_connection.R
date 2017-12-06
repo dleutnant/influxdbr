@@ -88,7 +88,7 @@ influx_connection <-  function(scheme = c("http", "https"),
     scheme = influxdb_srv$scheme,
     hostname = influxdb_srv$host,
     port = influxdb_srv$port,
-    path = paste0(path, "ping"),
+    path = paste0(influxdb_srv$path, "ping"),
     httr::timeout(5)
   )
   
