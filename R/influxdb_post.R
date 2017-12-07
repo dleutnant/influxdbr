@@ -18,20 +18,7 @@ influx_post <- function(con,
   q <- c(q, q = query)
   
   # submit POST
-  response <- tryCatch(
-    httr::POST(
-      url = "",
-      scheme = con$scheme,
-      hostname = con$host,
-      port = con$port,
-      path = paste0(con$path, "query"),
-      query = q
-    ),
-    error = function(e) {
-      print(e)
-      return(NULL)
-    }
-  )
+  response <- httr_POST(con = con, query = q, endpoint = "query")
   
   # if curl fails return NULL
   if (is.null(response)) {

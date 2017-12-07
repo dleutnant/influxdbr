@@ -105,14 +105,7 @@ influx_write.xts <- function(x,
                                            use_integers = use_integers,
                                            measurement = measurement,
                                            precision = precision) %>% 
-                  httr::POST(body = ., 
-                             url = "",
-                             httr::timeout(60),
-                             scheme = con$scheme,
-                             hostname = con$host,
-                             port = con$port,
-                             path = paste0(con$path, "write"),
-                             query = q) %>% 
+                  httr_POST(con = con, query = q, body = ., endpoint = "write") %>% 
                   check_srv_comm(.)
     )
   
@@ -169,14 +162,7 @@ influx_write.data.frame <- function(x,
                                            tag_cols = tag_cols,
                                            precision = precision,
                                            use_integers = use_integers) %>% 
-                  httr::POST(body = ., 
-                             url = "",
-                             httr::timeout(60),
-                             scheme = con$scheme,
-                             hostname = con$host,
-                             port = con$port,
-                             path = paste0(con$path, "write"),
-                             query = q) %>% 
+                  httr_POST(con = con, query = q, body = ., endpoint = "write") %>% 
                   check_srv_comm(.)
     )
   
