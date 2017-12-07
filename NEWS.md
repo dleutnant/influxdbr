@@ -1,6 +1,8 @@
-# influxdbr 0.14.1.9000
+# influxdbr 0.14.2.9000
 
 ## New features
+
+* `influx_connection` gains new argument `curl_options` to control http communication
 
 * `influx_write` function gets `measurement_col` argument to enable writing a 
 data.frame with multiple measurements with only one function call

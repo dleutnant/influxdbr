@@ -50,13 +50,7 @@ influx_query <- function(con,
   q <- c(q, q = query)
   
   # submit query
-  response <- tryCatch(httr::GET(url = "",
-                                 scheme = con$scheme,
-                                 hostname = con$host,
-                                 port = con$port,
-                                 path = paste0(con$path, "query"),
-                                 query = q),
-                       error = function(e) {print(e); return(NULL)})
+  response <- httr_GET(con = con, query = q, endpoint = "query")
   
   # if curl fails return NULL
   if (is.null(response)) {
