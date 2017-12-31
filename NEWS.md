@@ -2,7 +2,7 @@
 
 ## New features
 
-* `influx_connection` gains new argument `curl_options` to control http communication
+* `influx_connection` gains new argument `curl_options` to control http communication (#36)
 
 * `influx_write` function gets `measurement_col` argument to enable writing a 
 data.frame with multiple measurements with only one function call

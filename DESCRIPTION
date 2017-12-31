@@ -10,11 +10,11 @@ ByteCompile: TRUE
 URL: https://github.com/dleutnant/influxdbr
 BugReports: http://github.com/dleutnant/influxdbr/issues
 Imports:
-    dplyr,
+    dplyr (>= 0.7.0),
     jsonlite,
     httr,
     magrittr,
-    purrr,
+    purrr (>= 0.2.3),
     rlang,
     tibble,
     tidyr,
