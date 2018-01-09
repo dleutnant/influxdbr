@@ -11,7 +11,7 @@ data.frame with multiple measurements with only one function call
 
 ## Internals
 
-* package dependencies specified for `dplyr` and `purrr`
+* package dependencies specified for `dplyr` and `purrr` (#21, #38, #39)
 
 * new internal helper functions for `httr::GET` and `httr::POST`
   
