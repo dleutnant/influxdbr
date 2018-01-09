@@ -11,11 +11,11 @@ influx_connection(scheme = c("http", "https"), host = "localhost",
 \arguments{
 \item{scheme}{The scheme to use, either http or https. Defaults to http.}
 
-\item{host}{Hostname of the InfluxDB server. Defaults to localhost}
+\item{host}{Hostname of the InfluxDB server. Defaults to localhost.}
 
 \item{port}{numerical. Port number of the InfluxDB server. Defaults to 8086.}
 
-\item{user}{username The username to use. Defaults to "user"}
+\item{user}{username The username to use. Defaults to "user".}
 
 \item{pass}{password The password to use. Defaults to "pass".}
 

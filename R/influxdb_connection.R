@@ -5,7 +5,7 @@
 #' @param scheme The scheme to use, either http or https. Defaults to http.
 #' @param host Hostname of the InfluxDB server. Defaults to localhost.
 #' @param port numerical. Port number of the InfluxDB server. Defaults to 8086.
-#' @param user username The username to use. Defaults to "user"
+#' @param user username The username to use. Defaults to "user".
 #' @param pass password The password to use. Defaults to "pass".
 #' @param path The prefix path on which the InfluxDB is running. Can be useful 
 #' in proxy situations.
