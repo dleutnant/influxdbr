@@ -2,6 +2,8 @@
 
 ## New features
 
+* added IQL wrapper for `delete` 
+
 * `influx_connection` gains new argument `curl_options` to control http communication (#36)
 
 * `influx_write` function gets `measurement_col` argument to enable writing a 
