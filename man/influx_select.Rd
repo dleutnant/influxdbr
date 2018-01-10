@@ -33,7 +33,7 @@ grouping by given values, but also for grouping by given time buckets.}
 \item{order_desc}{logical. Change sort order to descending.}
 
 \item{return_xts}{logical. Sets the return type. If set to TRUE, a list of xts objects
-is returned, FALSE gives list of tibbbles.}
+is returned, FALSE gives list of tibbles.}
 
 \item{simplifyList}{logical. If only one series is returned, the result can
 be flatten to directly get either a tibble or an xts object (instead of a list)

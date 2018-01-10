@@ -2,7 +2,7 @@
 % Please edit documentation in R/influxdb_helper.R
 \name{check_srv_comm}
 \alias{check_srv_comm}
-\title{method to check the server communicatin results
+\title{method to check the server communication results
 function is not exported}
 \usage{
 check_srv_comm(x)
@@ -11,7 +11,7 @@ check_srv_comm(x)
 \item{x}{httr::POST response}
 }
 \description{
-method to check the server communicatin results
+method to check the server communication results
 function is not exported
 }
 \keyword{internal}

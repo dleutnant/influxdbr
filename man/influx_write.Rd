@@ -54,7 +54,7 @@ fail.}
 \item{tag_cols}{A character vector naming tag columns.}
 
 \item{measurement_col}{A character scalar naming the measurement column (data.frame
-has data to write to mulitple measurements). Overrides \code{measurement} argument.}
+has data to write to multiple measurements). Overrides \code{measurement} argument.}
 }
 \value{
 A list of server responses.

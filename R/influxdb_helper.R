@@ -41,7 +41,7 @@ httr_POST <- function(con, query = NULL, body = NULL, endpoint) {
 }
 
 
-#' method to check the server communicatin results
+#' method to check the server communication results
 #' function is not exported
 #' @param x httr::POST response
 #' @keywords  internal
