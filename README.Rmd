@@ -11,6 +11,7 @@ knitr::opts_chunk$set(
   comment = "#>",
   fig.path = "README-"
 )
+Sys.setenv(LANG = "en")
 ```
 
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/influxdbr)](https://cran.r-project.org/package=influxdbr) [![Build Status](https://travis-ci.org/dleutnant/influxdbr.svg?branch=master)](https://travis-ci.org/dleutnant/influxdbr)
@@ -29,8 +30,8 @@ install.packages("influxdbr")
 
 You can install the dev version from github with:
 ```{r gh-installation, eval = FALSE}
-# install.packages("devtools")
-devtools::install_github("dleutnant/influxdbr@dev")
+# install.packages("remotes")
+remotes::install_github("dleutnant/influxdbr@dev")
 ```
 
 ## Example
@@ -57,7 +58,8 @@ xts_data <- xts::as.xts(x = sample_matrix)
 # assign some attributes
 xts::xtsAttributes(xts_data) <- list(info = "SampleDataMatrix",
                                      UnitTesting = TRUE, 
-                                     n = 180)
+                                     n = 180,
+                                     source = "xts")
                                      
 # print structure to inspect the object
 str(xts_data)
@@ -99,7 +101,7 @@ as tag keys and values, respectively.
 influx_write(con = con, 
              db = "mydb",
              x = xts_data, 
-             measurement = "sampledata_xts")
+             measurement = "sampledata")
 ```
 
 #### data.frame
@@ -119,7 +121,8 @@ df_data <- dplyr::bind_cols(time = zoo::index(xts_data), # timestamp
                             data.frame(xts_data)) %>% # coredata
   dplyr::mutate(info = "SampleDataMatrix", # add tag 'info'
                 UnitTesting = TRUE, # add tag 'UnitTesting'
-                n = row_number()) # add tag 'n'
+                n = row_number(), # add tag 'n'
+                source = "df")  # add source 'df'
 
 df_data
 
@@ -127,8 +130,8 @@ df_data
 influx_write(con = con, 
              db = "mydb",
              x = df_data,
-             time_col = "time", tag_cols = c("info", "UnitTesting", "n"),
-             measurement = "sampledata_df")
+             time_col = "time", tag_cols = c("info", "UnitTesting", "n", "source"),
+             measurement = "sampledata")
 ```
 
 We can now check if the time series were succefully written:
@@ -155,6 +158,7 @@ result <- influx_select(con = con,
                         db = "mydb", 
                         field_keys = "Open, High", 
                         measurement = "sampledata",
+                        where = "source = 'df'",
                         group_by = "*",
                         limit = 10, 
                         order_desc = TRUE, 
@@ -173,6 +177,7 @@ result <- influx_select(con = con,
                         db = "mydb", 
                         field_keys = "Open, High", 
                         measurement = "sampledata",
+                        where = "source = 'xts'",
                         group_by =  "*",
                         limit = 10, 
                         order_desc = TRUE, 
@@ -191,10 +196,11 @@ result <- influx_select(con = con,
                         db = "mydb", 
                         field_keys = "Open", 
                         measurement = "sampledata",
+                        where = "source = 'df'",
                         group_by =  "*",
                         limit = 10, 
                         order_desc = TRUE, 
-                        return_xts = TRUE, 
+                        return_xts = FALSE, 
                         simplifyList = TRUE)
 
 str(result)
@@ -205,5 +211,11 @@ This Git repository uses the [Git Flow](http://nvie.com/posts/a-successful-git-b
 
 Contributing to this package is easy. Just send a [pull request](https://help.github.com/articles/using-pull-requests/). When you send your PR, make sure `dev` is the destination branch on the [influxdbr repository](https://github.com/dleutnant/influxdbr). Your PR should pass `R CMD check --as-cran`, which will also be checked by <a href="https://travis-ci.org/dleutnant/influxdbr">Travis CI</a> when the PR is submitted.
 
-## Code of condcut
+## Code of conduct
 Please note that this project is released with a [Contributor Code of Conduct](CONDUCT.md). By participating in this project you agree to abide by its terms.
+
+## Citation
+
+```{r citation, echo=FALSE, results='asis'}
+citation("influxdbr")
+```

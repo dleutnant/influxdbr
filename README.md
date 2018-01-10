@@ -24,8 +24,8 @@ install.packages("influxdbr")
 You can install the dev version from github with:
 
 ``` r
-# install.packages("devtools")
-devtools::install_github("dleutnant/influxdbr@dev")
+# install.packages("remotes")
+remotes::install_github("dleutnant/influxdbr@dev")
 ```
 
 ## Example
@@ -67,13 +67,12 @@ data("sample_matrix")
 
 # create xts object
 xts_data <- xts::as.xts(x = sample_matrix)
-#> Warning in strptime(xx, f <- "%Y-%m-%d %H:%M:%OS", tz = tz): unknown
-#> timezone 'zone/tz/2017c.1.0/zoneinfo/Europe/Berlin'
 
 # assign some attributes
 xts::xtsAttributes(xts_data) <- list(info = "SampleDataMatrix",
                                      UnitTesting = TRUE, 
-                                     n = 180)
+                                     n = 180,
+                                     source = "xts")
                                      
 # print structure to inspect the object
 str(xts_data)
@@ -84,10 +83,11 @@ str(xts_data)
 #>   ..$ : chr [1:4] "Open" "High" "Low" "Close"
 #>   Indexed by objects of class: [POSIXct,POSIXt] TZ: 
 #>   xts Attributes:  
-#> List of 3
+#> List of 4
 #>  $ info       : chr "SampleDataMatrix"
 #>  $ UnitTesting: logi TRUE
 #>  $ n          : num 180
+#>  $ source     : chr "xts"
 ```
 
 ### InfluxDB connection
@@ -113,16 +113,19 @@ create_database(con = con, db = "mydb")
 
 # list all databases
 show_databases(con = con)
-#> # A tibble: 7 x 1
-#>        name
-#>       <chr>
-#> 1 _internal
-#> 2    stbmod
-#> 3     wasig
-#> 4  wasig-fr
-#> 5   wasig-h
-#> 6      mydb
-#> 7      test
+#> # A tibble: 10 x 1
+#>    name      
+#>    <chr>     
+#>  1 _internal 
+#>  2 stbmod    
+#>  3 wasig     
+#>  4 wasig-fr  
+#>  5 wasig-h   
+#>  6 test      
+#>  7 oscar_test
+#>  8 longterm  
+#>  9 deznwba   
+#> 10 mydb
 ```
 
 ### Write data
@@ -139,7 +142,7 @@ preserved and written as tag keys and values, respectively.
 influx_write(con = con, 
              db = "mydb",
              x = xts_data, 
-             measurement = "sampledata_xts")
+             measurement = "sampledata")
 ```
 
 #### data.frame
@@ -161,30 +164,31 @@ df_data <- dplyr::bind_cols(time = zoo::index(xts_data), # timestamp
                             data.frame(xts_data)) %>% # coredata
   dplyr::mutate(info = "SampleDataMatrix", # add tag 'info'
                 UnitTesting = TRUE, # add tag 'UnitTesting'
-                n = row_number()) # add tag 'n'
+                n = row_number(), # add tag 'n'
+                source = "df")  # add source 'df'
 
 df_data
-#> # A tibble: 180 x 8
-#>          time     Open     High      Low    Close             info
-#>        <dttm>    <dbl>    <dbl>    <dbl>    <dbl>            <chr>
-#>  1 2007-01-02 50.03978 50.11778 49.95041 50.11778 SampleDataMatrix
-#>  2 2007-01-03 50.23050 50.42188 50.23050 50.39767 SampleDataMatrix
-#>  3 2007-01-04 50.42096 50.42096 50.26414 50.33236 SampleDataMatrix
-#>  4 2007-01-05 50.37347 50.37347 50.22103 50.33459 SampleDataMatrix
-#>  5 2007-01-06 50.24433 50.24433 50.11121 50.18112 SampleDataMatrix
-#>  6 2007-01-07 50.13211 50.21561 49.99185 49.99185 SampleDataMatrix
-#>  7 2007-01-08 50.03555 50.10363 49.96971 49.98806 SampleDataMatrix
-#>  8 2007-01-09 49.99489 49.99489 49.80454 49.91333 SampleDataMatrix
-#>  9 2007-01-10 49.91228 50.13053 49.91228 49.97246 SampleDataMatrix
-#> 10 2007-01-11 49.88529 50.23910 49.88529 50.23910 SampleDataMatrix
-#> # ... with 170 more rows, and 2 more variables: UnitTesting <lgl>, n <int>
+#> # A tibble: 180 x 9
+#>    time                 Open  High   Low Close info     UnitT…     n sour…
+#>    <dttm>              <dbl> <dbl> <dbl> <dbl> <chr>    <lgl>  <int> <chr>
+#>  1 2007-01-02 00:00:00  50.0  50.1  50.0  50.1 SampleD… T          1 df   
+#>  2 2007-01-03 00:00:00  50.2  50.4  50.2  50.4 SampleD… T          2 df   
+#>  3 2007-01-04 00:00:00  50.4  50.4  50.3  50.3 SampleD… T          3 df   
+#>  4 2007-01-05 00:00:00  50.4  50.4  50.2  50.3 SampleD… T          4 df   
+#>  5 2007-01-06 00:00:00  50.2  50.2  50.1  50.2 SampleD… T          5 df   
+#>  6 2007-01-07 00:00:00  50.1  50.2  50.0  50.0 SampleD… T          6 df   
+#>  7 2007-01-08 00:00:00  50.0  50.1  50.0  50.0 SampleD… T          7 df   
+#>  8 2007-01-09 00:00:00  50.0  50.0  49.8  49.9 SampleD… T          8 df   
+#>  9 2007-01-10 00:00:00  49.9  50.1  49.9  50.0 SampleD… T          9 df   
+#> 10 2007-01-11 00:00:00  49.9  50.2  49.9  50.2 SampleD… T         10 df   
+#> # ... with 170 more rows
 
 # write example data.frame to database
 influx_write(con = con, 
              db = "mydb",
              x = df_data,
-             time_col = "time", tag_cols = c("info", "UnitTesting", "n"),
-             measurement = "sampledata_df")
+             time_col = "time", tag_cols = c("info", "UnitTesting", "n", "source"),
+             measurement = "sampledata")
 ```
 
 We can now check if the time series were succefully written:
@@ -192,12 +196,10 @@ We can now check if the time series were succefully written:
 ``` r
 # check if measurements were succefully written
 show_measurements(con = con, db = "mydb")
-#> # A tibble: 3 x 1
-#>             name
-#>            <chr>
-#> 1     sampledata
-#> 2  sampledata_df
-#> 3 sampledata_xts
+#> # A tibble: 1 x 1
+#>   name      
+#>   <chr>     
+#> 1 sampledata
 ```
 
 ### Query data
@@ -220,6 +222,7 @@ result <- influx_select(con = con,
                         db = "mydb", 
                         field_keys = "Open, High", 
                         measurement = "sampledata",
+                        where = "source = 'df'",
                         group_by = "*",
                         limit = 10, 
                         order_desc = TRUE, 
@@ -227,20 +230,20 @@ result <- influx_select(con = con,
 
 result
 #> [[1]]
-#> # A tibble: 10 x 9
-#>    statement_id series_names series_partial UnitTesting             info
-#>           <int>        <chr>          <lgl>       <chr>            <chr>
-#>  1            0   sampledata          FALSE        TRUE SampleDataMatrix
-#>  2            0   sampledata          FALSE        TRUE SampleDataMatrix
-#>  3            0   sampledata          FALSE        TRUE SampleDataMatrix
-#>  4            0   sampledata          FALSE        TRUE SampleDataMatrix
-#>  5            0   sampledata          FALSE        TRUE SampleDataMatrix
-#>  6            0   sampledata          FALSE        TRUE SampleDataMatrix
-#>  7            0   sampledata          FALSE        TRUE SampleDataMatrix
-#>  8            0   sampledata          FALSE        TRUE SampleDataMatrix
-#>  9            0   sampledata          FALSE        TRUE SampleDataMatrix
-#> 10            0   sampledata          FALSE        TRUE SampleDataMatrix
-#> # ... with 4 more variables: n <chr>, time <dttm>, Open <dbl>, High <dbl>
+#> # A tibble: 180 x 10
+#>    state… serie… serie… Unit… info   n     sour… time                 Open
+#>     <int> <chr>  <lgl>  <chr> <chr>  <chr> <chr> <dttm>              <dbl>
+#>  1      0 sampl… F      TRUE  Sampl… 99    df    2007-04-09 22:00:00  49.6
+#>  2      0 sampl… F      TRUE  Sampl… 98    df    2007-04-08 22:00:00  49.4
+#>  3      0 sampl… F      TRUE  Sampl… 97    df    2007-04-07 22:00:00  49.5
+#>  4      0 sampl… F      TRUE  Sampl… 96    df    2007-04-06 22:00:00  49.5
+#>  5      0 sampl… F      TRUE  Sampl… 95    df    2007-04-05 22:00:00  49.3
+#>  6      0 sampl… F      TRUE  Sampl… 94    df    2007-04-04 22:00:00  49.4
+#>  7      0 sampl… F      TRUE  Sampl… 93    df    2007-04-03 22:00:00  49.2
+#>  8      0 sampl… F      TRUE  Sampl… 92    df    2007-04-02 22:00:00  49.1
+#>  9      0 sampl… F      TRUE  Sampl… 91    df    2007-04-01 22:00:00  48.9
+#> 10      0 sampl… F      TRUE  Sampl… 90    df    2007-03-31 22:00:00  48.9
+#> # ... with 170 more rows, and 1 more variable: High <dbl>
 ```
 
 #### Return xts
@@ -258,6 +261,7 @@ result <- influx_select(con = con,
                         db = "mydb", 
                         field_keys = "Open, High", 
                         measurement = "sampledata",
+                        where = "source = 'xts'",
                         group_by =  "*",
                         limit = 10, 
                         order_desc = TRUE, 
@@ -266,34 +270,36 @@ result <- influx_select(con = con,
 str(result)
 #> List of 1
 #>  $ :List of 2
-#>   ..$ sampledata:An 'xts' object on 2007-06-25 22:00:00/2007-06-30 containing:
-#>   Data: num [1:10, 1] 47.4 47.4 47.6 47.6 47.7 ...
+#>   ..$ sampledata:An 'xts' object on 2007-06-20 22:00:00/2007-06-29 22:00:00 containing:
+#>   Data: num [1:10, 1] 47.7 47.6 47.2 47.2 47.2 ...
 #>  - attr(*, "dimnames")=List of 2
 #>   ..$ : NULL
 #>   ..$ : chr "Open"
 #>   Indexed by objects of class: [POSIXct,POSIXt] TZ: GMT
 #>   xts Attributes:  
-#> List of 6
+#> List of 7
 #>   .. ..$ statement_id  : int 0
 #>   .. ..$ series_names  : chr "sampledata"
 #>   .. ..$ series_partial: logi FALSE
 #>   .. ..$ UnitTesting   : chr "TRUE"
 #>   .. ..$ info          : chr "SampleDataMatrix"
 #>   .. ..$ n             : chr "180"
-#>   ..$ sampledata:An 'xts' object on 2007-06-25 22:00:00/2007-06-30 containing:
-#>   Data: num [1:10, 1] 47.6 47.6 47.7 47.7 47.7 ...
+#>   .. ..$ source        : chr "xts"
+#>   ..$ sampledata:An 'xts' object on 2007-06-20 22:00:00/2007-06-29 22:00:00 containing:
+#>   Data: num [1:10, 1] 47.7 47.6 47.2 47.3 47.4 ...
 #>  - attr(*, "dimnames")=List of 2
 #>   ..$ : NULL
 #>   ..$ : chr "High"
 #>   Indexed by objects of class: [POSIXct,POSIXt] TZ: GMT
 #>   xts Attributes:  
-#> List of 6
+#> List of 7
 #>   .. ..$ statement_id  : int 0
 #>   .. ..$ series_names  : chr "sampledata"
 #>   .. ..$ series_partial: logi FALSE
 #>   .. ..$ UnitTesting   : chr "TRUE"
 #>   .. ..$ info          : chr "SampleDataMatrix"
 #>   .. ..$ n             : chr "180"
+#>   .. ..$ source        : chr "xts"
 ```
 
 #### Simplify InfluxDB response
@@ -307,27 +313,25 @@ result <- influx_select(con = con,
                         db = "mydb", 
                         field_keys = "Open", 
                         measurement = "sampledata",
+                        where = "source = 'df'",
                         group_by =  "*",
                         limit = 10, 
                         order_desc = TRUE, 
-                        return_xts = TRUE, 
+                        return_xts = FALSE, 
                         simplifyList = TRUE)
 
 str(result)
-#> An 'xts' object on 2007-06-25 22:00:00/2007-06-30 containing:
-#>   Data: num [1:10, 1] 47.4 47.4 47.6 47.6 47.7 ...
-#>  - attr(*, "dimnames")=List of 2
-#>   ..$ : NULL
-#>   ..$ : chr "Open"
-#>   Indexed by objects of class: [POSIXct,POSIXt] TZ: GMT
-#>   xts Attributes:  
-#> List of 6
-#>  $ statement_id  : int 0
-#>  $ series_names  : chr "sampledata"
-#>  $ series_partial: logi FALSE
-#>  $ UnitTesting   : chr "TRUE"
-#>  $ info          : chr "SampleDataMatrix"
-#>  $ n             : chr "180"
+#> List of 1
+#>  $ :Classes 'tbl_df', 'tbl' and 'data.frame':    180 obs. of  9 variables:
+#>   ..$ statement_id  : int [1:180] 0 0 0 0 0 0 0 0 0 0 ...
+#>   ..$ series_names  : chr [1:180] "sampledata" "sampledata" "sampledata" "sampledata" ...
+#>   ..$ series_partial: logi [1:180] FALSE FALSE FALSE FALSE FALSE FALSE ...
+#>   ..$ UnitTesting   : chr [1:180] "TRUE" "TRUE" "TRUE" "TRUE" ...
+#>   ..$ info          : chr [1:180] "SampleDataMatrix" "SampleDataMatrix" "SampleDataMatrix" "SampleDataMatrix" ...
+#>   ..$ n             : chr [1:180] "99" "98" "97" "96" ...
+#>   ..$ source        : chr [1:180] "df" "df" "df" "df" ...
+#>   ..$ time          : POSIXct[1:180], format: "2007-04-09 22:00:00" ...
+#>   ..$ Open          : num [1:180] 49.6 49.4 49.5 49.5 49.3 ...
 ```
 
 ## Contributions
@@ -350,8 +354,21 @@ should pass `R CMD check --as-cran`, which will also be checked by
 <a href="https://travis-ci.org/dleutnant/influxdbr">Travis CI</a> when
 the PR is submitted.
 
-## Code of condcut
+## Code of conduct
 
 Please note that this project is released with a [Contributor Code of
 Conduct](CONDUCT.md). By participating in this project you agree to
 abide by its terms.
+
+## Citation
+
+To cite package ‘influxdbr’ in publications use:
+
+Dominik Leutnant (2018). influxdbr: R Interface to InfluxDB. R package
+version 0.14.2. <https://github.com/dleutnant/influxdbr>
+
+A BibTeX entry for LaTeX users is
+
+@Manual{, title = {influxdbr: R Interface to InfluxDB}, author =
+{Dominik Leutnant}, year = {2018}, note = {R package version 0.14.2},
+url = {<https://github.com/dleutnant/influxdbr>}, }

@@ -4,6 +4,7 @@
 #' * `create_database()`: creates a new database
 #' * `drop_database()`: drops an existing database
 #' * `drop_series()`: drops specific series
+#' * `delete()`: deletes all points from a series in a database (supports time intervals)
 #' * `drop_measurement()`: drops an entire measurement
 #' * `create_retention_policy()`: create a new retention policy
 #' * `alter_retention_policy()`: alter a retention policy
@@ -65,7 +66,38 @@ drop_series <- function(con,
   query <- ifelse(is.null(measurement),
                   query,
                   paste(query, "FROM", measurement))
-    
+  
+  query <- ifelse(is.null(where),
+                  query,
+                  paste(query, "WHERE", where))
+  
+  result <- influx_post(
+    con = con,
+    db = db,
+    query = query
+  )
+  
+  if (!is.null(result)) {
+    return(result)
+  }
+  
+  invisible(result)
+  
+}
+
+#' @export
+#' @rdname create_database
+delete <- function(con,
+                   db,
+                   measurement = NULL,
+                   where = NULL) {
+  
+  query <- "DELETE"
+  
+  query <- ifelse(is.null(measurement),
+                  query,
+                  paste(query, "FROM", measurement))
+  
   query <- ifelse(is.null(where),
                   query,
                   paste(query, "WHERE", where))
@@ -162,8 +194,8 @@ alter_retention_policy <- function(con,
   }
   
   result <- influx_post(con = con,
-                         db = db,
-                         query = query)
+                        db = db,
+                        query = query)
   
   if (!is.null(result)) {
     return(result)

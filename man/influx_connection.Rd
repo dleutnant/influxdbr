@@ -6,16 +6,16 @@
 \usage{
 influx_connection(scheme = c("http", "https"), host = "localhost",
   port = 8086, user = "user", pass = "pass", path = "/", group = NULL,
-  verbose = FALSE, config_file = "~/.influxdb.cnf")
+  verbose = FALSE, config_file = "~/.influxdb.cnf", curl_options = NULL)
 }
 \arguments{
 \item{scheme}{The scheme to use, either http or https. Defaults to http.}
 
-\item{host}{Hostname of the InfluxDB server. Defaults to localhost}
+\item{host}{Hostname of the InfluxDB server. Defaults to localhost.}
 
 \item{port}{numerical. Port number of the InfluxDB server. Defaults to 8086.}
 
-\item{user}{username The username to use. Defaults to "user"}
+\item{user}{username The username to use. Defaults to "user".}
 
 \item{pass}{password The password to use. Defaults to "pass".}
 
@@ -28,6 +28,9 @@ in proxy situations.}
 
 \item{config_file}{The configuration file to be used if \code{group} is
 specified.}
+
+\item{curl_options}{Additional curl arguments created with \code{\link[httr]{config}}
+(e.g. httr::config(verbose = TRUE, timeout = 5, ssl_verifypeer = FALSE)).}
 }
 \description{
 Create an influxdb_connection object by specifying server

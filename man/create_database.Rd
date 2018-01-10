@@ -5,6 +5,7 @@
 \alias{create_database}
 \alias{drop_database}
 \alias{drop_series}
+\alias{delete}
 \alias{drop_measurement}
 \alias{create_retention_policy}
 \alias{alter_retention_policy}
@@ -16,6 +17,8 @@ create_database(con, db)
 drop_database(con, db)
 
 drop_series(con, db, measurement = NULL, where = NULL)
+
+delete(con, db, measurement = NULL, where = NULL)
 
 drop_measurement(con, db, measurement)
 
@@ -55,6 +58,7 @@ The folllowing functions are convenient wrappers around \code{influx_post}.
 \item \code{create_database()}: creates a new database
 \item \code{drop_database()}: drops an existing database
 \item \code{drop_series()}: drops specific series
+\item \code{delete()}: deletes all points from a series in a database (supports time intervals)
 \item \code{drop_measurement()}: drops an entire measurement
 \item \code{create_retention_policy()}: create a new retention policy
 \item \code{alter_retention_policy()}: alter a retention policy

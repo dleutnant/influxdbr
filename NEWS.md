@@ -1,3 +1,20 @@
+# influxdbr 0.14.2
+
+## New features
+
+* added IQL wrapper for `delete`
+
+* `influx_connection` gains new argument `curl_options` to control http communication (#36)
+
+* `influx_write` function gets `measurement_col` argument to enable writing a 
+data.frame with multiple measurements with only one function call
+
+## Internals
+
+* package dependencies specified for `dplyr` and `purrr` (#21, #38, #39)
+
+* new internal helper functions for `httr::GET` and `httr::POST`
+  
 # influxdbr 0.14.0
 
 ## Breaking changes

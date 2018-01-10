@@ -20,5 +20,5 @@ This function pings an influxdb server
 \url{https://docs.influxdata.com/influxdb/}
 }
 \seealso{
-\code{\link[xts]{xts}}, \code{\link[influxdbr]{influx_connection}}
+\code{\link[influxdbr]{influx_connection}}
 }

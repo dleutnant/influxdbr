@@ -3,9 +3,9 @@
 #' connection details. Credentials can also be saved and accessed through a 
 #' config file.
 #' @param scheme The scheme to use, either http or https. Defaults to http.
-#' @param host Hostname of the InfluxDB server. Defaults to localhost
+#' @param host Hostname of the InfluxDB server. Defaults to localhost.
 #' @param port numerical. Port number of the InfluxDB server. Defaults to 8086.
-#' @param user username The username to use. Defaults to "user"
+#' @param user username The username to use. Defaults to "user".
 #' @param pass password The password to use. Defaults to "pass".
 #' @param path The prefix path on which the InfluxDB is running. Can be useful 
 #' in proxy situations.
@@ -13,6 +13,8 @@
 #' @param verbose logical. Provide additional details?
 #' @param config_file The configuration file to be used if `group` is
 #' specified.
+#' @param curl_options Additional curl arguments created with \code{\link[httr]{config}} 
+#' (e.g. httr::config(verbose = TRUE, timeout = 5, ssl_verifypeer = FALSE)). 
 #' @rdname influx_connection
 #' @export
 #' @references \url{https://influxdb.com/}
@@ -36,7 +38,8 @@ influx_connection <-  function(scheme = c("http", "https"),
                                path = "/",
                                group = NULL,
                                verbose = FALSE,
-                               config_file = "~/.influxdb.cnf") {
+                               config_file = "~/.influxdb.cnf",
+                               curl_options = NULL) {
   # if group name is given, get db credentials from config file
   if (!is.null(group)) {
     if (file.exists(config_file)) {
@@ -71,6 +74,13 @@ influx_connection <-  function(scheme = c("http", "https"),
     
   }
   
+  # check if curl_options are of class "request"
+  if (!is.null(curl_options) && !inherits(curl_options, "request")) {
+    stop(paste("Please provide curl options with the {httr} package,", 
+               "e.g. curl_options = httr::config(verbose = TRUE)"),
+         call. = FALSE)
+  }
+  
   # create list of server connection details
   influxdb_srv <-
     list(
@@ -79,7 +89,8 @@ influx_connection <-  function(scheme = c("http", "https"),
       port = port,
       user = user,
       pass = pass,
-      path = path
+      path = path,
+      config = curl_options
     )
   
   # submit test ping
@@ -88,13 +99,12 @@ influx_connection <-  function(scheme = c("http", "https"),
     scheme = influxdb_srv$scheme,
     hostname = influxdb_srv$host,
     port = influxdb_srv$port,
-    path = paste0(path, "ping"),
-    httr::timeout(5)
+    path = paste0(influxdb_srv$path, "ping"),
+    config = influxdb_srv$config
   )
   
   # print url
-  if (verbose)
-    print(response$url)
+  if (verbose) print(response$url)
   
   # Check for communication errors
   check_srv_comm(response)
@@ -112,17 +122,12 @@ influx_connection <-  function(scheme = c("http", "https"),
 #' @return A tibble with server information.
 #' @rdname influx_ping
 #' @export
-#' @seealso \code{\link[xts]{xts}}, \code{\link[influxdbr]{influx_connection}}
+#' @seealso \code{\link[influxdbr]{influx_connection}}
 #' @references \url{https://docs.influxdata.com/influxdb/}
 influx_ping <- function(con) {
+  
   # submit ping
-  response <- httr::GET(
-    url = "",
-    scheme = con$scheme,
-    hostname = con$host,
-    port = con$port,
-    path = paste0(con$path, "ping")
-  )
+  response <- httr_GET(con = con, endpoint = "ping")
   
   res <- response$all_headers %>%
     purrr::flatten() %>%
