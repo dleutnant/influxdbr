@@ -13,7 +13,7 @@
 #' @param offset Offsets the returned points by the value provided.
 #' @param order_desc logical. Change sort order to descending.
 #' @param return_xts logical. Sets the return type. If set to TRUE, a list of xts objects
-#' is returned, FALSE gives list of tibbbles.
+#' is returned, FALSE gives list of tibbles.
 #'
 #' @return A list of xts or tibbles.
 #' @export

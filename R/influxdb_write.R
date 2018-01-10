@@ -19,7 +19,7 @@
 #' @param time_col A character scalar naming the time index column.
 #' @param tag_cols A character vector naming tag columns.
 #' @param measurement_col A character scalar naming the measurement column (data.frame 
-#' has data to write to mulitple measurements). Overrides `measurement` argument.
+#' has data to write to multiple measurements). Overrides `measurement` argument.
 #' @param rp Sets the target retention policy for the write. If not present the
 #' default retention policy is used.
 #' @param precision Sets the precision of the supplied Unix time values

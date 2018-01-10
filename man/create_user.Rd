@@ -43,8 +43,8 @@ and \code{influx_query} (show_users and show grants).
 \itemize{
 \item \code{create_user()}: creates a new user
 \item \code{drop_user()}: drops an existing user
-\item \code{grant_privileges()}: grant priviliges to an existing users
-\item \code{revoke_privileges()}: revoke priviliges to an existing users
+\item \code{grant_privileges()}: grant privileges to an existing users
+\item \code{revoke_privileges()}: revoke privileges to an existing users
 \item \code{show_users()}: show all users
 \item \code{show_grants()}: show grants of an user
 }

@@ -4,8 +4,8 @@
 #' and `influx_query` (show_users and show grants).
 #' * `create_user()`: creates a new user
 #' * `drop_user()`: drops an existing user
-#' * `grant_privileges()`: grant priviliges to an existing users
-#' * `revoke_privileges()`: revoke priviliges to an existing users
+#' * `grant_privileges()`: grant privileges to an existing users
+#' * `revoke_privileges()`: revoke privileges to an existing users
 #' * `show_users()`: show all users
 #' * `show_grants()`: show grants of an user
 #'
