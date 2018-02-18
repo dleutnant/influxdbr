@@ -2,7 +2,7 @@ Package: influxdbr
 Type: Package
 Title: R Interface to InfluxDB
 Version: 0.14.3.9000
-Date: 2018-01-10
+Date: 2018-02-18
 Authors@R: person("Dominik", "Leutnant", email = "leutnant@fh-muenster.de", role = c("aut", "cre"), comment = c(ORCID = "0000-0003-3293-2315"))
 Description: An R interface to the InfluxDB time series database <https://www.influxdata.com>. This package allows you to fetch and write time series data from/to an InfluxDB server. Additionally, handy wrappers for the Influx Query Language (IQL) to manage and explore a remote database are provided. 
 License: GPL-3

@@ -1,5 +1,9 @@
 # influxdbr 0.14.3.9000
 
+## Bug fixes
+
+* Encoding Fix, defaults to UTF-8 (@Avsamoht).
+
 # influxdbr 0.14.2
 
 ## New features

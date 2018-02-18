@@ -69,7 +69,7 @@ check_srv_comm <- function(x) {
   #     The returned JSON offers further information.
   
   if (!x$status_code %in% c(200, 204)) {
-    response_data <- jsonlite::fromJSON(httr::content(x, "text", encoding="UTF-8"))
+    response_data <- jsonlite::fromJSON(httr::content(x, "text", encoding = "UTF-8"))
     stop(response_data$error, call. = FALSE)
   }
   

@@ -64,7 +64,7 @@ influx_query <- function(con,
   
   # initiate data conversion which result in a tibble with list-columns
   list_of_result <-
-    httr::content(response, "text", encoding="UTF-8") %>%  # convert to chars
+    httr::content(response, "text", encoding = "UTF-8") %>%  # convert to chars
     purrr::map(response_to_list) %>% # from json to list
     purrr::map(query_list_to_tibble, # from list to tibble
                timestamp_format = timestamp_format) %>% 
