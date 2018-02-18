@@ -26,7 +26,7 @@ testthat::test_that("show commands", {
   
   testthat::expect_is(show_measurements(con, db = "stbmod"), class = "tbl_df")
   
-  testthat::expect_is(show_series(con, db = "stbmod"), class = "tbl_df")
+  testthat::expect_is(show_series(con, db = "oscar_test"), class = "tbl_df")
   
   testthat::expect_is(show_tag_keys(con, db = "stbmod"), class = "tbl_df")
   

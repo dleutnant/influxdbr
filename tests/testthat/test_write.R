@@ -120,7 +120,7 @@ testthat::test_that("write data.frame with single measurement", {
                                        #tag_cols = c("tag_one,", "tag_two", "tag three"),
                                        time_col = "time",
                                        precision = "s",
-                                       use_integers = FALSE) %>% cat
+                                       use_integers = FALSE)#%>% cat
   
   # write full df
   influxdbr::influx_write(x = df, 
@@ -241,7 +241,7 @@ testthat::test_that("write data.frame with multiple measurements", {
                                                   time_col = "time",
                                                   measurement_col = "measurement",
                                                   precision = "s",
-                                                  use_integers = FALSE) %>% cat
+                                                  use_integers = FALSE) #%>% cat
   
   # write full df
   influxdbr::influx_write(x = df, 
@@ -264,5 +264,43 @@ testthat::test_that("write data.frame with multiple measurements", {
   
   # delete measurements
   purrr::walk(c("one", "two", "three", "four", "five"), ~ drop_measurement(con, "test", .))
+  
+})
+
+testthat::test_that("UTF-8 encodings", {
+  
+  # only local tests
+  testthat::skip_on_cran()
+  testthat::skip_on_travis()
+  
+  library(magrittr)
+  
+  df <- tibble::tibble(time = seq(from = Sys.time(), by = "-5 min", length.out = 2),
+                       value = runif(2),
+                       unit = c("µg", "m³")) %>%
+    dplyr::arrange(time)
+  
+  # write full df
+  influxdbr::influx_write(x = df, 
+                          con = con,
+                          measurement = "utf",
+                          db = "test",
+                          time_col = "time",
+                          tag_cols = "unit")
+  
+  res <-
+    influxdbr::influx_select(
+      con = con,
+      db = "test",
+      measurement = "utf",
+      field_keys = "value",
+      group_by = "*", 
+      return_xts = FALSE
+    )
+  
+  # delete measurements
+  drop_measurement(con, "test", "utf")
+  
+  testthat::expect_equal(res[[1]]$unit, df$unit)
   
 })
