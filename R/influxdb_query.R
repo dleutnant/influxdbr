@@ -60,11 +60,11 @@ influx_query <- function(con,
   # Check for communication errors
   check_srv_comm(response)
   
-  # debug_data <<- rawToChar(response$content)
+  # debug_data <<- httr::content(response, "text", encoding="UTF-8")
   
   # initiate data conversion which result in a tibble with list-columns
   list_of_result <-
-    rawToChar(response$content) %>%  # convert to chars
+    httr::content(response, "text", encoding="UTF-8") %>%  # convert to chars
     purrr::map(response_to_list) %>% # from json to list
     purrr::map(query_list_to_tibble, # from list to tibble
                timestamp_format = timestamp_format) %>% 

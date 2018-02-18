@@ -28,7 +28,7 @@ influx_post <- function(con,
   # Check for communication errors
   check_srv_comm(response)
   
-  response <- rawToChar(response$content) %>%  # convert to chars
+  response <- httr::content(response, "text", encoding="UTF-8") %>%  # convert to chars
     purrr::map(response_to_list) %>%
     purrr::map_df(post_list_to_tibble)
   
