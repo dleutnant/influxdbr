@@ -2,6 +2,8 @@
 
 ## Bug fixes
 
+* simplifyList argument of `influx_query()` now works as expected
+
 * Encoding Fix, defaults to UTF-8 (@Avsamoht).
 
 # influxdbr 0.14.2

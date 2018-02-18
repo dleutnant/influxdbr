@@ -49,9 +49,45 @@ testthat::test_that("single query no chunking", {
                           limit = 10, 
                           simplifyList = FALSE)
   
+  data2a <- influx_select(con, "stbmod", 
+                          field_keys = "value", 
+                          where = "Ort ='Flachbau'",
+                          measurement = "MengeNEZ",
+                          limit = 10, 
+                          return_xts = FALSE,
+                          simplifyList = FALSE)
+  
+  data2b <- influx_select(con, "stbmod", 
+                          field_keys = "value", 
+                          where = "Ort ='Flachbau'",
+                          measurement = "MengeNEZ",
+                          limit = 10, 
+                          return_xts = FALSE,
+                          simplifyList = TRUE)
+  
+  data2c <- influx_select(con, "stbmod", 
+                          field_keys = "value", 
+                          where = "Ort ='Flachbau'",
+                          measurement = "MengeNEZ",
+                          group_by = "*",
+                          limit = 10, 
+                          return_xts = FALSE,
+                          simplifyList = FALSE)
+  
+  data2d <- influx_select(con, "stbmod", 
+                          field_keys = "value", 
+                          where = "Ort ='Flachbau'",
+                          measurement = "MengeNEZ",
+                          group_by = "*",
+                          limit = 10, 
+                          return_xts = FALSE,
+                          simplifyList = TRUE)
+  
   testthat::expect_is(data1a, class = "list")
   testthat::expect_is(data1b, class = "list")
   testthat::expect_equal(data1c, data1d[[1]][[1]])
+  testthat::expect_equal(data2a[[1]]$time, data2b$time) # series_tags are empty -> error
+  testthat::expect_equal(data2c[[1]], data2d)
   
 })
 
