@@ -134,7 +134,7 @@ influx_write(con = con,
              measurement = "sampledata")
 ```
 
-We can now check if the time series were succefully written:
+We can now check if the time series were successfully written:
 
 ```{r check_write_xts}
 # check if measurements were succefully written

@@ -121,11 +121,11 @@ show_databases(con = con)
 #>  3 wasig     
 #>  4 wasig-fr  
 #>  5 wasig-h   
-#>  6 test      
-#>  7 oscar_test
-#>  8 longterm  
-#>  9 deznwba   
-#> 10 mydb
+#>  6 oscar_test
+#>  7 longterm  
+#>  8 deznwba   
+#>  9 mydb      
+#> 10 test
 ```
 
 ### Write data
@@ -169,19 +169,19 @@ df_data <- dplyr::bind_cols(time = zoo::index(xts_data), # timestamp
 
 df_data
 #> # A tibble: 180 x 9
-#>    time                 Open  High   Low Close info     UnitT…     n sour…
-#>    <dttm>              <dbl> <dbl> <dbl> <dbl> <chr>    <lgl>  <int> <chr>
-#>  1 2007-01-02 00:00:00  50.0  50.1  50.0  50.1 SampleD… T          1 df   
-#>  2 2007-01-03 00:00:00  50.2  50.4  50.2  50.4 SampleD… T          2 df   
-#>  3 2007-01-04 00:00:00  50.4  50.4  50.3  50.3 SampleD… T          3 df   
-#>  4 2007-01-05 00:00:00  50.4  50.4  50.2  50.3 SampleD… T          4 df   
-#>  5 2007-01-06 00:00:00  50.2  50.2  50.1  50.2 SampleD… T          5 df   
-#>  6 2007-01-07 00:00:00  50.1  50.2  50.0  50.0 SampleD… T          6 df   
-#>  7 2007-01-08 00:00:00  50.0  50.1  50.0  50.0 SampleD… T          7 df   
-#>  8 2007-01-09 00:00:00  50.0  50.0  49.8  49.9 SampleD… T          8 df   
-#>  9 2007-01-10 00:00:00  49.9  50.1  49.9  50.0 SampleD… T          9 df   
-#> 10 2007-01-11 00:00:00  49.9  50.2  49.9  50.2 SampleD… T         10 df   
-#> # ... with 170 more rows
+#>    time                 Open  High   Low Close info      UnitTesting     n
+#>    <dttm>              <dbl> <dbl> <dbl> <dbl> <chr>     <lgl>       <int>
+#>  1 2007-01-02 00:00:00  50.0  50.1  50.0  50.1 SampleDa… T               1
+#>  2 2007-01-03 00:00:00  50.2  50.4  50.2  50.4 SampleDa… T               2
+#>  3 2007-01-04 00:00:00  50.4  50.4  50.3  50.3 SampleDa… T               3
+#>  4 2007-01-05 00:00:00  50.4  50.4  50.2  50.3 SampleDa… T               4
+#>  5 2007-01-06 00:00:00  50.2  50.2  50.1  50.2 SampleDa… T               5
+#>  6 2007-01-07 00:00:00  50.1  50.2  50.0  50.0 SampleDa… T               6
+#>  7 2007-01-08 00:00:00  50.0  50.1  50.0  50.0 SampleDa… T               7
+#>  8 2007-01-09 00:00:00  50.0  50.0  49.8  49.9 SampleDa… T               8
+#>  9 2007-01-10 00:00:00  49.9  50.1  49.9  50.0 SampleDa… T               9
+#> 10 2007-01-11 00:00:00  49.9  50.2  49.9  50.2 SampleDa… T              10
+#> # ... with 170 more rows, and 1 more variable: source <chr>
 
 # write example data.frame to database
 influx_write(con = con, 
@@ -191,7 +191,7 @@ influx_write(con = con,
              measurement = "sampledata")
 ```
 
-We can now check if the time series were succefully written:
+We can now check if the time series were successfully written:
 
 ``` r
 # check if measurements were succefully written
@@ -231,19 +231,20 @@ result <- influx_select(con = con,
 result
 #> [[1]]
 #> # A tibble: 180 x 10
-#>    state… serie… serie… Unit… info   n     sour… time                 Open
-#>     <int> <chr>  <lgl>  <chr> <chr>  <chr> <chr> <dttm>              <dbl>
-#>  1      0 sampl… F      TRUE  Sampl… 99    df    2007-04-09 22:00:00  49.6
-#>  2      0 sampl… F      TRUE  Sampl… 98    df    2007-04-08 22:00:00  49.4
-#>  3      0 sampl… F      TRUE  Sampl… 97    df    2007-04-07 22:00:00  49.5
-#>  4      0 sampl… F      TRUE  Sampl… 96    df    2007-04-06 22:00:00  49.5
-#>  5      0 sampl… F      TRUE  Sampl… 95    df    2007-04-05 22:00:00  49.3
-#>  6      0 sampl… F      TRUE  Sampl… 94    df    2007-04-04 22:00:00  49.4
-#>  7      0 sampl… F      TRUE  Sampl… 93    df    2007-04-03 22:00:00  49.2
-#>  8      0 sampl… F      TRUE  Sampl… 92    df    2007-04-02 22:00:00  49.1
-#>  9      0 sampl… F      TRUE  Sampl… 91    df    2007-04-01 22:00:00  48.9
-#> 10      0 sampl… F      TRUE  Sampl… 90    df    2007-03-31 22:00:00  48.9
-#> # ... with 170 more rows, and 1 more variable: High <dbl>
+#>    statement_id series_names series_partial UnitTesting info  n     source
+#>           <int> <chr>        <lgl>          <chr>       <chr> <chr> <chr> 
+#>  1            0 sampledata   F              TRUE        Samp… 99    df    
+#>  2            0 sampledata   F              TRUE        Samp… 98    df    
+#>  3            0 sampledata   F              TRUE        Samp… 97    df    
+#>  4            0 sampledata   F              TRUE        Samp… 96    df    
+#>  5            0 sampledata   F              TRUE        Samp… 95    df    
+#>  6            0 sampledata   F              TRUE        Samp… 94    df    
+#>  7            0 sampledata   F              TRUE        Samp… 93    df    
+#>  8            0 sampledata   F              TRUE        Samp… 92    df    
+#>  9            0 sampledata   F              TRUE        Samp… 91    df    
+#> 10            0 sampledata   F              TRUE        Samp… 90    df    
+#> # ... with 170 more rows, and 3 more variables: time <dttm>, Open <dbl>,
+#> #   High <dbl>
 ```
 
 #### Return xts
@@ -321,17 +322,16 @@ result <- influx_select(con = con,
                         simplifyList = TRUE)
 
 str(result)
-#> List of 1
-#>  $ :Classes 'tbl_df', 'tbl' and 'data.frame':    180 obs. of  9 variables:
-#>   ..$ statement_id  : int [1:180] 0 0 0 0 0 0 0 0 0 0 ...
-#>   ..$ series_names  : chr [1:180] "sampledata" "sampledata" "sampledata" "sampledata" ...
-#>   ..$ series_partial: logi [1:180] FALSE FALSE FALSE FALSE FALSE FALSE ...
-#>   ..$ UnitTesting   : chr [1:180] "TRUE" "TRUE" "TRUE" "TRUE" ...
-#>   ..$ info          : chr [1:180] "SampleDataMatrix" "SampleDataMatrix" "SampleDataMatrix" "SampleDataMatrix" ...
-#>   ..$ n             : chr [1:180] "99" "98" "97" "96" ...
-#>   ..$ source        : chr [1:180] "df" "df" "df" "df" ...
-#>   ..$ time          : POSIXct[1:180], format: "2007-04-09 22:00:00" ...
-#>   ..$ Open          : num [1:180] 49.6 49.4 49.5 49.5 49.3 ...
+#> Classes 'tbl_df', 'tbl' and 'data.frame':    180 obs. of  9 variables:
+#>  $ statement_id  : int  0 0 0 0 0 0 0 0 0 0 ...
+#>  $ series_names  : chr  "sampledata" "sampledata" "sampledata" "sampledata" ...
+#>  $ series_partial: logi  FALSE FALSE FALSE FALSE FALSE FALSE ...
+#>  $ UnitTesting   : chr  "TRUE" "TRUE" "TRUE" "TRUE" ...
+#>  $ info          : chr  "SampleDataMatrix" "SampleDataMatrix" "SampleDataMatrix" "SampleDataMatrix" ...
+#>  $ n             : chr  "99" "98" "97" "96" ...
+#>  $ source        : chr  "df" "df" "df" "df" ...
+#>  $ time          : POSIXct, format: "2007-04-09 22:00:00" "2007-04-08 22:00:00" ...
+#>  $ Open          : num  49.6 49.4 49.5 49.5 49.3 ...
 ```
 
 ## Contributions
@@ -365,10 +365,10 @@ abide by its terms.
 To cite package ‘influxdbr’ in publications use:
 
 Dominik Leutnant (2018). influxdbr: R Interface to InfluxDB. R package
-version 0.14.2. <https://github.com/dleutnant/influxdbr>
+version 0.14.3.9000. <https://github.com/dleutnant/influxdbr>
 
 A BibTeX entry for LaTeX users is
 
 @Manual{, title = {influxdbr: R Interface to InfluxDB}, author =
-{Dominik Leutnant}, year = {2018}, note = {R package version 0.14.2},
-url = {<https://github.com/dleutnant/influxdbr>}, }
+{Dominik Leutnant}, year = {2018}, note = {R package version
+0.14.3.9000}, url = {<https://github.com/dleutnant/influxdbr>}, }
