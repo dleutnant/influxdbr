@@ -74,9 +74,21 @@ influx_query <- function(con,
   if (return_xts)
     list_of_result <- list_of_result %>%
     purrr::map(tibble_to_xts)
-  
-  if (simplifyList && (length(list_of_result[[1]]) == 1)) 
-    list_of_result <- list_of_result[[1]][[1]]
+
+  # simplifyList?
+  if (simplifyList) {
+    .x <- list_of_result
+    if (length(.x) == 1) { 
+      .x <- .x[[1]]
+      if (rlang::is_bare_list(.x)) {
+        if (length(.x) == 1) {
+          list_of_result <- .x[[1]]
+        } 
+      } else {
+        list_of_result <- .x
+      }
+    }
+  } 
   
   # if not simplified, a list of results, either a list of tibbles or xts objects 
   # is ALWAYS returned! A wrapping function ALWAYS returns a tibble!
