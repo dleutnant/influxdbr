@@ -17,7 +17,7 @@ influx_select(con, db, field_keys, rp = NULL, measurement, where = NULL,
 
 \item{rp}{The name of the retention policy.}
 
-\item{measurement}{Sets the name of the measurement.}
+\item{measurement}{Character vector containing name(s) of the measurement(s).}
 
 \item{where}{Apply filter on tag key values.}
 
