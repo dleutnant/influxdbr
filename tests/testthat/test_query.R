@@ -161,3 +161,41 @@ testthat::test_that("multiple query with chunking and xts result", {
   testthat::expect_is(object = data5, class = "list")
   
 })
+
+testthat::test_that("empty results", { 
+  
+  # only local tests
+  testthat::skip_on_cran()
+  testthat::skip_on_travis()
+  
+  empty_results <- influx_query(con = con,
+                                db =  "stbmod",
+                                query = "select * from MengeNEZ where Ort='idontknow';
+                                         select * from MengeNEZ where Ort='idontknoweither'", 
+                                return_xts = FALSE,
+                                simplifyList = TRUE)
+  
+  testthat::expect_true(length(empty_results) == 2 && all(sapply(empty_results, is.null)))
+  
+})
+
+testthat::test_that("empty and non-empty results ", { 
+  
+  # only local tests
+  testthat::skip_on_cran()
+  testthat::skip_on_travis()
+  
+  empty_results <- influx_query(con = con,
+                                db =  "stbmod",
+                                query = "select * from MengeNEZ where Ort='idontknow';
+                                         select value from MengeNEZ where Ort='Flachbau' limit 10;
+                                         select * from MengeNEZ where Ort='idontknoweither'", 
+                                return_xts = FALSE,
+                                simplifyList = FALSE)
+  
+  testthat::expect_true(length(empty_results) == 3 && 
+                          ncol(empty_results[[2]]) == 6 && 
+                          nrow(empty_results[[2]]) == 10)
+  
+  
+})

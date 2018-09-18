@@ -6,6 +6,8 @@
 
 * Encoding Fix, defaults to UTF-8 (@Avsamoht).
 
+* Empty query results yield to `NULL` instead of raising an error (#46).
+
 # influxdbr 0.14.2
 
 ## New features

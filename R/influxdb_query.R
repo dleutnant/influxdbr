@@ -14,7 +14,7 @@
 #' be flatten to directly get either a tibble or an xts object (instead of a list)
 #' (default is FALSE).
 #'
-#' @return A list of tibble or xts objects.
+#' @return A list of tibble or xts objects. Empty query results yield to NULL.
 #' @rdname influx_query
 #' @export
 #' @seealso \code{\link[xts]{xts}}, \code{\link[influxdbr]{influx_connection}}
@@ -68,12 +68,14 @@ influx_query <- function(con,
     purrr::map(response_to_list) %>% # from json to list
     purrr::map(query_list_to_tibble, # from list to tibble
                timestamp_format = timestamp_format) %>% 
-    purrr::flatten(.)
+    purrr::flatten(.) %>% 
+    # set 'result_na' tibble to NULL
+    purrr::map_if(result_is_empty, ~ NULL)
   
   # xts object required?
-  if (return_xts)
+  if (return_xts) 
     list_of_result <- list_of_result %>%
-    purrr::map(tibble_to_xts)
+    purrr::map_if(result_is_not_null, tibble_to_xts)
 
   # simplifyList?
   if (simplifyList) {

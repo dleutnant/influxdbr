@@ -266,3 +266,14 @@ tibble_to_xts <- function(x) {
   return(list_of_xts)
   
 }
+
+#' @keywords internal
+result_is_empty <- function(x) {
+  # (!any(grepl("time", colnames(x)))
+  nrow(x) == 1 && all(is.na(x[1, ]))
+}
+
+#' @keywords internal
+result_is_not_null <- function(x) {
+  !is.null(x)
+}

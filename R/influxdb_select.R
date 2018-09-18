@@ -15,7 +15,7 @@
 #' @param return_xts logical. Sets the return type. If set to TRUE, a list of xts objects
 #' is returned, FALSE gives list of tibbles.
 #'
-#' @return A list of xts or tibbles.
+#' @return A list of xts or tibbles. Empty query results yield to NULL.
 #' @export
 #' @references \url{https://docs.influxdata.com/influxdb/}
 influx_select <- function(con,
