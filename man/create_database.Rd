@@ -2,7 +2,6 @@
 % Please edit documentation in R/influxdb_database_management.R
 \name{create_database}
 \alias{create_database}
-\alias{create_database}
 \alias{drop_database}
 \alias{drop_series}
 \alias{delete}

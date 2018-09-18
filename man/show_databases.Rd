@@ -2,7 +2,6 @@
 % Please edit documentation in R/influxdb_schema_exploration.R
 \name{show_databases}
 \alias{show_databases}
-\alias{show_databases}
 \alias{show_measurements}
 \alias{show_series}
 \alias{show_tag_keys}

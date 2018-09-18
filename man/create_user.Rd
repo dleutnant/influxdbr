@@ -2,7 +2,6 @@
 % Please edit documentation in R/influxdb_authentication_and_authorization.R
 \name{create_user}
 \alias{create_user}
-\alias{create_user}
 \alias{drop_user}
 \alias{grant_privileges}
 \alias{revoke_privileges}
@@ -14,9 +13,11 @@ create_user(con, username, password)
 
 drop_user(con, username)
 
-grant_privileges(con, privilege = c("READ", "WRITE", "ALL"), db, username)
+grant_privileges(con, privilege = c("READ", "WRITE", "ALL"), db,
+  username)
 
-revoke_privileges(con, privilege = c("READ", "WRITE", "ALL"), db, username)
+revoke_privileges(con, privilege = c("READ", "WRITE", "ALL"), db,
+  username)
 
 show_users(con)
 
