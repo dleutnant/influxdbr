@@ -50,19 +50,24 @@ influx_connection <-  function(scheme = c("http", "https"),
       lines <- readLines(con)
       
       # find line with groupname
-      grp <- grep(paste0("[", group, "]"), x = lines, fixed = T)
+      grp <- grep(sprintf("^ *\\[%s\\]", group), x = lines)
       
       # catch the case if group name is not found
       if (identical(grp, integer(0)))
         stop("Group does not exist in config file.")
+
+      if (length(grp) > 1)
+        stop(sprintf("Multiple groups with the same name (%s) in config file.", group))
+
+      the_lines <- lines[(grp + 1):min(grp + 6, length(lines))]
       
       # get db credentials
-      scheme <- gsub("scheme=", "", grep("scheme=", lines[(grp + 1):(grp + 6)], fixed = T, value = T))
-      host <- gsub("host=", "", grep("host=", lines[(grp + 1):(grp + 6)], fixed = T, value = T))
-      port <- as.numeric(gsub("port=", "", grep("port=", lines[(grp + 1):(grp + 6)], fixed = T, value = T)))
-      user <- gsub("user=", "", grep("user=", lines[(grp + 1):(grp + 6)], fixed = T, value = T))
-      pass <- gsub("pass=", "", grep("pass=", lines[(grp + 1):(grp + 6)], fixed = T, value = T))
-      path <- gsub("path=", "", grep("path=", lines[(grp + 1):(grp + 6)], fixed = T, value = T))
+      scheme <- gsub("scheme=", "", grep("scheme=", the_lines, fixed = T, value = T))
+      host <- gsub("host=", "", grep("host=", the_lines, fixed = T, value = T))
+      port <- as.numeric(gsub("port=", "", grep("port=", the_lines, fixed = T, value = T)))
+      user <- gsub("user=", "", grep("user=", the_lines, fixed = T, value = T))
+      pass <- gsub("pass=", "", grep("pass=", the_lines, fixed = T, value = T))
+      path <- gsub("path=", "", grep("path=", the_lines, fixed = T, value = T))
       
       # close file connection
       close(con)
