@@ -14,6 +14,7 @@ Imports:
     jsonlite,
     httr,
     magrittr,
+    progress,
     purrr (>= 0.2.3),
     rlang,
     tibble,
