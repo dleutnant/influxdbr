@@ -304,3 +304,52 @@ testthat::test_that("UTF-8 encodings", {
   testthat::expect_equal(res[[1]]$unit, df$unit)
   
 })
+
+testthat::test_that("write data.table with multiple measurements", {
+  
+  # only local tests
+  testthat::skip_on_cran()
+  testthat::skip_on_travis()
+  
+  library(magrittr)
+  
+  # create dummy data.table
+  dt <- data.table::data.table(time = seq(from = Sys.time(), by = "-5 min", length.out = 10),
+                               `tag_one,` = sample(LETTERS[1:5], 10, replace = T),
+                               tag_two = sample(LETTERS[1:5], 10, replace = T),
+                               `tag three` = sample(paste(LETTERS[1:5], "tag"), 10, replace = T),
+                               field_chr = sample(paste(" ", LETTERS[1:5], "field"), 10, replace = T),
+                               field_float = stats::runif(10),
+                               field_int = sample(1:100000000,10),
+                               field_bool = stats::runif(10) > 0.5, 
+                               measurement = rep(c("one", "two", "three", "four", "five"), 2)) %>% 
+    data.table::setorder("time")
+    
+  # connection object
+  con <- influxdbr::influx_connection(group = "admin")
+  
+  # write data.table
+  influxdbr::influx_write(x = dt, 
+                          con = con,
+                          db = "test",
+                          measurement_col = "measurement",
+                          time_col = "time",
+                          tag_cols = c("tag_one,", "tag_two", "tag three"),
+                          use_integers = TRUE)
+  
+  res <-
+    influxdbr::influx_query(
+      con = con,
+      db = "test",
+      query = paste("select * from", 
+                    c("one", "two", "three", "four", "five"), 
+                    "group by *", collapse = ";"),
+      return_xts = FALSE
+    )
+  
+  res
+    
+  # delete measurements
+  purrr::walk(c("one", "two", "three", "four", "five"), ~ drop_measurement(con, "test", .))
+  
+})
