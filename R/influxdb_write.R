@@ -143,10 +143,10 @@ influx_write.data.frame <- function(x,
                                     consistency = c(NULL, "one", "quroum", "all", "any"),
                                     max_points = 5000,
                                     use_integers = FALSE,
+                                    progress_bar = TRUE,
                                     time_col = NULL,
                                     tag_cols = NULL,
                                     measurement_col = NULL,
-                                    progress_bar = TRUE,
                                     ...) {
 
   # create query based on function parameters

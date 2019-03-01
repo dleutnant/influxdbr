@@ -8,18 +8,19 @@
 \usage{
 influx_write(x, con, db, measurement, rp = NULL, precision = c("s",
   "ns", "u", "ms", "m", "h"), consistency = c(NULL, "one", "quroum",
-  "all", "any"), max_points = 5000, use_integers = FALSE, ...)
+  "all", "any"), max_points = 5000, use_integers = FALSE,
+  progress_bar = TRUE, ...)
 
 \method{influx_write}{xts}(x, con, db, measurement, rp = NULL,
   precision = c("s", "ns", "u", "ms", "m", "h"), consistency = c(NULL,
   "one", "quroum", "all", "any"), max_points = 5000,
-  use_integers = FALSE, ...)
+  use_integers = FALSE, progress_bar = TRUE, ...)
 
 \method{influx_write}{data.frame}(x, con, db, measurement = NULL,
   rp = NULL, precision = c("s", "ns", "u", "ms", "m", "h"),
   consistency = c(NULL, "one", "quroum", "all", "any"),
-  max_points = 5000, use_integers = FALSE, time_col = NULL,
-  tag_cols = NULL, measurement_col = NULL, ...)
+  max_points = 5000, use_integers = FALSE, progress_bar = TRUE,
+  time_col = NULL, tag_cols = NULL, measurement_col = NULL, ...)
 }
 \arguments{
 \item{x}{The object to write to an InfluxDB server (either of class \code{xts} or \code{data.frame}).}
@@ -47,6 +48,8 @@ fail.}
 \item{max_points}{Defines the maximum points per batch (defaults to 5000).}
 
 \item{use_integers}{Should integers (instead of doubles) be written if present?}
+
+\item{progress_bar}{\code{TRUE} if progress bar should be shown.}
 
 \item{...}{Arguments to be passed to methods.}
 
