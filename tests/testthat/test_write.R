@@ -16,7 +16,7 @@ df <- tibble::tibble(time = seq(from = time0, by = "-5 min", length.out = 10),
                      field_int = sample(1:100000000,10),
                      field_bool = stats::runif(10) > 0.5) %>% dplyr::arrange(time)
 df[1:3, "tag_two"] <- c("B,C", "B C", "B=C")
-df[1:3, "field_chr"] <- c(" B,C", " B C", " B=C")
+df[1:4, "field_chr"] <- c(" B,C", " B C", " B=C", " \"D\" ")
 
 # NAs not supported!
 # df[c(3, 8), c(5)] <- NA
@@ -133,17 +133,16 @@ testthat::test_that("write data.frame with single measurement", {
 
   testthat::expect_equal(
     dfline,
-    c("test,tag_one\\,=A,tag_two=B\\,C,tag\\ three=B\\ tag field_chr=\" B,C\",field_float=0.307085896842182,field_int=21140856,field_bool=TRUE -2700",
-      "test,tag_one\\,=C,tag_two=B\\ C,tag\\ three=C\\ tag field_chr=\" B C\",field_float=0.207713897805661,field_int=59757530,field_bool=FALSE -2400",
-      "test,tag_one\\,=B,tag_two=B\\=C,tag\\ three=E\\ tag field_chr=\" B=C\",field_float=0.884227027418092,field_int=22990589,field_bool=FALSE -2100",
-      "test,tag_one\\,=E,tag_two=B,tag\\ three=D\\ tag field_chr=\"  A field\",field_float=0.780358511023223,field_int=12348724,field_bool=FALSE -1800",
-      "test,tag_one\\,=C,tag_two=D,tag\\ three=A\\ tag field_chr=\"  E field\",field_float=0.491231821943074,field_int=25339066,field_bool=FALSE -1500",
-      "test,tag_one\\,=C,tag_two=D,tag\\ three=C\\ tag field_chr=\"  D field\",field_float=0.603324356488883,field_int=59132106,field_bool=FALSE -1200",
-      "test,tag_one\\,=A,tag_two=B,tag\\ three=D\\ tag field_chr=\"  E field\",field_float=0.827303449623287,field_int=27488667,field_bool=TRUE  -900",
-      "test,tag_one\\,=C,tag_two=B,tag\\ three=C\\ tag field_chr=\"  B field\",field_float=0.777584439376369,field_int=23569431,field_bool=TRUE  -600",
-      "test,tag_one\\,=B,tag_two=E,tag\\ three=D\\ tag field_chr=\"  E field\",field_float=0.865120546659455,field_int=19867908,field_bool=TRUE  -300",
-      "test,tag_one\\,=B,tag_two=D,tag\\ three=C\\ tag field_chr=\"  C field\",field_float=0.330660525709391,field_int=33052985,field_bool=FALSE     0"
-    ))
+    c("test,tag_one\\,=A,tag_two=B\\,C,tag\\ three=B\\ tag field_chr=\" B,C\",field_float=0.307085896842182,field_int=21140856,field_bool=TRUE -2700", 
+      "test,tag_one\\,=C,tag_two=B\\ C,tag\\ three=C\\ tag field_chr=\" B C\",field_float=0.207713897805661,field_int=59757530,field_bool=FALSE -2400", 
+      "test,tag_one\\,=B,tag_two=B\\=C,tag\\ three=E\\ tag field_chr=\" B=C\",field_float=0.884227027418092,field_int=22990589,field_bool=FALSE -2100", 
+      "test,tag_one\\,=E,tag_two=B,tag\\ three=D\\ tag field_chr=\" \"D\" \",field_float=0.780358511023223,field_int=12348724,field_bool=FALSE -1800", 
+      "test,tag_one\\,=C,tag_two=D,tag\\ three=A\\ tag field_chr=\"  E field\",field_float=0.491231821943074,field_int=25339066,field_bool=FALSE -1500", 
+      "test,tag_one\\,=C,tag_two=D,tag\\ three=C\\ tag field_chr=\"  D field\",field_float=0.603324356488883,field_int=59132106,field_bool=FALSE -1200", 
+      "test,tag_one\\,=A,tag_two=B,tag\\ three=D\\ tag field_chr=\"  E field\",field_float=0.827303449623287,field_int=27488667,field_bool=TRUE -900", 
+      "test,tag_one\\,=C,tag_two=B,tag\\ three=C\\ tag field_chr=\"  B field\",field_float=0.777584439376369,field_int=23569431,field_bool=TRUE -600", 
+      "test,tag_one\\,=B,tag_two=E,tag\\ three=D\\ tag field_chr=\"  E field\",field_float=0.865120546659455,field_int=19867908,field_bool=TRUE -300", 
+      "test,tag_one\\,=B,tag_two=D,tag\\ three=C\\ tag field_chr=\"  C field\",field_float=0.330660525709391,field_int=33052985,field_bool=FALSE 0"))
 
   influxdbr::drop_measurement(con, "test", "df2")
 
@@ -263,24 +262,24 @@ testthat::test_that("write data.frame with multiple measurements", {
   # df[c(2), c(7)] <- NA
   # df[c(4,6), c(7)] <- NA
 
-  dlines <- influxdbr:::convert_to_line_protocol.data.frame(x = df1 %>% dplyr::mutate(tag_two = as.factor(tag_two)),
+  dfline <- influxdbr:::convert_to_line_protocol.data.frame(x = df1 %>% dplyr::mutate(tag_two = as.factor(tag_two)),
                                                             tag_cols = c("tag_one,", "tag_two", "tag three"),
                                                             time_col = "time",
                                                             measurement_col = "measurement",
                                                             precision = "s",
                                                             use_integers = FALSE)
 
-  expect_equal(dlines,
-               c("one,tag_one\\,=A,tag_two=B\\,C,tag\\ three=B\\ tag field_chr=\" B,C\",field_float=0.307085896842182,field_int=21140856,field_bool=TRUE,measurement=\"one\" -2700",
-                 "two,tag_one\\,=C,tag_two=B\\ C,tag\\ three=C\\ tag field_chr=\" B C\",field_float=0.207713897805661,field_int=59757530,field_bool=FALSE,measurement=\"two\" -2400",
-                 "three,tag_one\\,=B,tag_two=B\\=C,tag\\ three=E\\ tag field_chr=\" B=C\",field_float=0.884227027418092,field_int=22990589,field_bool=FALSE,measurement=\"three\" -2100",
-                 "four,tag_one\\,=E,tag_two=B,tag\\ three=D\\ tag field_chr=\"  A field\",field_float=0.780358511023223,field_int=12348724,field_bool=FALSE,measurement=\"four\" -1800",
-                 "five,tag_one\\,=C,tag_two=D,tag\\ three=A\\ tag field_chr=\"  E field\",field_float=0.491231821943074,field_int=25339066,field_bool=FALSE,measurement=\"five\" -1500",
-                 "one,tag_one\\,=C,tag_two=D,tag\\ three=C\\ tag field_chr=\"  D field\",field_float=0.603324356488883,field_int=59132106,field_bool=FALSE,measurement=\"one\" -1200",
-                 "two,tag_one\\,=A,tag_two=B,tag\\ three=D\\ tag field_chr=\"  E field\",field_float=0.827303449623287,field_int=27488667,field_bool=TRUE,measurement=\"two\"  -900",
-                 "three,tag_one\\,=C,tag_two=B,tag\\ three=C\\ tag field_chr=\"  B field\",field_float=0.777584439376369,field_int=23569431,field_bool=TRUE,measurement=\"three\"  -600",
-                 "four,tag_one\\,=B,tag_two=E,tag\\ three=D\\ tag field_chr=\"  E field\",field_float=0.865120546659455,field_int=19867908,field_bool=TRUE,measurement=\"four\"  -300",
-                 "five,tag_one\\,=B,tag_two=D,tag\\ three=C\\ tag field_chr=\"  C field\",field_float=0.330660525709391,field_int=33052985,field_bool=FALSE,measurement=\"five\"     0"))
+  expect_equal(dfline,
+               c("one,tag_one\\,=A,tag_two=B\\,C,tag\\ three=B\\ tag field_chr=\" B,C\",field_float=0.307085896842182,field_int=21140856,field_bool=TRUE,measurement=\"one\" -2700", 
+                 "two,tag_one\\,=C,tag_two=B\\ C,tag\\ three=C\\ tag field_chr=\" B C\",field_float=0.207713897805661,field_int=59757530,field_bool=FALSE,measurement=\"two\" -2400", 
+                 "three,tag_one\\,=B,tag_two=B\\=C,tag\\ three=E\\ tag field_chr=\" B=C\",field_float=0.884227027418092,field_int=22990589,field_bool=FALSE,measurement=\"three\" -2100", 
+                 "four,tag_one\\,=E,tag_two=B,tag\\ three=D\\ tag field_chr=\" \"D\" \",field_float=0.780358511023223,field_int=12348724,field_bool=FALSE,measurement=\"four\" -1800", 
+                 "five,tag_one\\,=C,tag_two=D,tag\\ three=A\\ tag field_chr=\"  E field\",field_float=0.491231821943074,field_int=25339066,field_bool=FALSE,measurement=\"five\" -1500", 
+                 "one,tag_one\\,=C,tag_two=D,tag\\ three=C\\ tag field_chr=\"  D field\",field_float=0.603324356488883,field_int=59132106,field_bool=FALSE,measurement=\"one\" -1200", 
+                 "two,tag_one\\,=A,tag_two=B,tag\\ three=D\\ tag field_chr=\"  E field\",field_float=0.827303449623287,field_int=27488667,field_bool=TRUE,measurement=\"two\" -900", 
+                 "three,tag_one\\,=C,tag_two=B,tag\\ three=C\\ tag field_chr=\"  B field\",field_float=0.777584439376369,field_int=23569431,field_bool=TRUE,measurement=\"three\" -600", 
+                 "four,tag_one\\,=B,tag_two=E,tag\\ three=D\\ tag field_chr=\"  E field\",field_float=0.865120546659455,field_int=19867908,field_bool=TRUE,measurement=\"four\" -300", 
+                 "five,tag_one\\,=B,tag_two=D,tag\\ three=C\\ tag field_chr=\"  C field\",field_float=0.330660525709391,field_int=33052985,field_bool=FALSE,measurement=\"five\" 0"))
 
   # write full df
   df1a <- df1 %>% dplyr::mutate(field_int = as.integer(field_int))
