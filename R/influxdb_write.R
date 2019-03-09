@@ -5,7 +5,8 @@ split_ixes <- function(nrows, max_points) {
 
 write_batched <- function(x, con, query, measurement = NULL, measurement_col = NULL,
                           time_col = NULL, tag_cols = NULL, use_integers = FALSE,
-                          max_points = 5000, progress_bar = TRUE, batch_processor = identity) {
+                          max_points = 5000, progress_bar = getOption("influxdbr.progress_bar", TRUE),
+                          batch_processor = identity) {
   # split xts object into a list of xts objects to reduce batch size
   ixes <- split_ixes(nrow(x), max_points)
 
@@ -56,27 +57,30 @@ write_batched <- function(x, con, query, measurement = NULL, measurement_col = N
 #' a data.frame may contain data from one measurement or multiple measurements, respectively.
 #'
 #' @inheritParams influx_query
-#' @param x The object to write to an InfluxDB server (either of class `xts` or `data.frame`).
-#' @param measurement Sets the name of the measurement (data.frame has data to write
-#' to one measurement only). If both arguments `measurement` and `measurement_col`
-#' are given, `measurement` gets overridden.
+#' @param x The object to write to an InfluxDB server (either of class `xts` or
+#'   `data.frame`).
+#' @param measurement Sets the name of the measurement (data.frame has data to
+#'   write to one measurement only). If both arguments `measurement` and
+#'   `measurement_col` are given, `measurement` gets overridden.
 #' @param rp Sets the target retention policy for the write. If not present the
-#' default retention policy is used.
-#' @param precision Sets the precision of the supplied Unix time values
-#' ("s", "ns", "u", "ms", "m", "h"). If not present timestamps are assumed to be
-#' in seconds.
-#' @param consistency Set the number of nodes that must confirm the write.
-#' If the requirement is not met the return value will be partial write
-#' if some points in the batch fail, or write failure if all points in the batch
-#' fail.
+#'   default retention policy is used.
+#' @param precision Sets the precision of the supplied Unix time values ("s",
+#'   "ns", "u", "ms", "m", "h"). If not present timestamps are assumed to be in
+#'   seconds.
+#' @param consistency Set the number of nodes that must confirm the write. If
+#'   the requirement is not met the return value will be partial write if some
+#'   points in the batch fail, or write failure if all points in the batch fail.
 #' @param max_points Defines the maximum points per batch (defaults to 5000).
-#' @param use_integers Should integers (instead of doubles) be written if present?
-#' @param progress_bar \code{TRUE} if progress bar should be shown.
+#' @param use_integers Should integers (instead of doubles) be written if
+#'   present?
+#' @param progress_bar \code{TRUE} if progress bar should be shown. Honor the
+#'   "influxdbr.progress_bar" option and defaults to TRUE.
 #' @param ... Arguments to be passed to methods.
 #' @param time_col A character scalar naming the time index column.
 #' @param tag_cols A character vector naming tag columns.
-#' @param measurement_col A character scalar naming the measurement column (data.frame
-#' has data to write to multiple measurements). Overrides `measurement` argument.
+#' @param measurement_col A character scalar naming the measurement column
+#'   (data.frame has data to write to multiple measurements). Overrides
+#'   `measurement` argument.
 #' @return A list of server responses.
 #' @name influx_write
 #' @export
@@ -91,7 +95,7 @@ influx_write <- function(x,
                          consistency = c(NULL, "one", "quroum", "all", "any"),
                          max_points = 5000,
                          use_integers = FALSE,
-                         progress_bar = TRUE,
+                         progress_bar = getOption("influxdbr.progress_bar", TRUE),
                          ...) {
 
   UseMethod("influx_write", x)
@@ -107,8 +111,8 @@ influx_write.xts <- function(x,
                              precision = c("s", "ns", "u", "ms", "m", "h"),
                              consistency = c(NULL, "one", "quroum", "all", "any"),
                              max_points = 5000,
-                             use_integers = FALSE,
-                             progress_bar = TRUE,
+                             use_integers = FALSE,                             
+                             progress_bar = getOption("influxdbr.progress_bar", TRUE),
                              ...) {
 
   # create query based on function parameters
@@ -143,7 +147,7 @@ influx_write.data.frame <- function(x,
                                     consistency = c(NULL, "one", "quroum", "all", "any"),
                                     max_points = 5000,
                                     use_integers = FALSE,
-                                    progress_bar = TRUE,
+                                    progress_bar = getOption("influxdbr.progress_bar", TRUE),
                                     time_col = NULL,
                                     tag_cols = NULL,
                                     measurement_col = NULL,
