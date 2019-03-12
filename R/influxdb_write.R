@@ -5,8 +5,10 @@ split_ixes <- function(nrows, max_points) {
 
 write_batched <- function(x, con, query, measurement = NULL, measurement_col = NULL,
                           time_col = NULL, tag_cols = NULL, use_integers = FALSE,
-                          max_points = 5000, progress_bar = getOption("influxdbr.progress_bar", TRUE),
-                          batch_processor = identity) {
+                          max_points = 5000, batch_processor = identity) {
+  
+  progress_bar <- getOption("influxdbr.progress_bar", TRUE)
+  
   # split xts object into a list of xts objects to reduce batch size
   ixes <- split_ixes(nrow(x), max_points)
 
@@ -94,8 +96,7 @@ influx_write <- function(x,
                          precision = c("s", "ns", "u", "ms", "m", "h"),
                          consistency = c(NULL, "one", "quroum", "all", "any"),
                          max_points = 5000,
-                         use_integers = FALSE,
-                         progress_bar = getOption("influxdbr.progress_bar", TRUE),
+                         use_integers = FALSE
                          ...) {
 
   UseMethod("influx_write", x)
@@ -111,10 +112,9 @@ influx_write.xts <- function(x,
                              precision = c("s", "ns", "u", "ms", "m", "h"),
                              consistency = c(NULL, "one", "quroum", "all", "any"),
                              max_points = 5000,
-                             use_integers = FALSE,                             
-                             progress_bar = getOption("influxdbr.progress_bar", TRUE),
+                             use_integers = FALSE,
                              ...) {
-
+  
   # create query based on function parameters
   q <- list(db = db,
             u = con$user,
@@ -127,7 +127,6 @@ influx_write.xts <- function(x,
     con = con,
     query = q,
     measurement = measurement,
-    progress_bar = progress_bar,
     max_points = max_points,
     batch_processor = function(xi) {
       xts::xtsAttributes(xi) <- xts::xtsAttributes(x)
@@ -147,12 +146,11 @@ influx_write.data.frame <- function(x,
                                     consistency = c(NULL, "one", "quroum", "all", "any"),
                                     max_points = 5000,
                                     use_integers = FALSE,
-                                    progress_bar = getOption("influxdbr.progress_bar", TRUE),
                                     time_col = NULL,
                                     tag_cols = NULL,
                                     measurement_col = NULL,
                                     ...) {
-
+  
   # create query based on function parameters
   q <- list(db = db,
             u = con$user,
@@ -169,7 +167,6 @@ influx_write.data.frame <- function(x,
     time_col = time_col,
     tag_cols = tag_cols,
     use_integers = use_integers,
-    progress_bar = progress_bar,
     max_points = max_points)
 
 }
