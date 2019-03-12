@@ -8,21 +8,18 @@
 \usage{
 influx_write(x, con, db, measurement, rp = NULL, precision = c("s",
   "ns", "u", "ms", "m", "h"), consistency = c(NULL, "one", "quroum",
-  "all", "any"), max_points = 5000, use_integers = FALSE,
-  progress_bar = getOption("influxdbr.progress_bar", TRUE), ...)
+  "all", "any"), max_points = 5000, use_integers = FALSE, ...)
 
 \method{influx_write}{xts}(x, con, db, measurement, rp = NULL,
   precision = c("s", "ns", "u", "ms", "m", "h"), consistency = c(NULL,
   "one", "quroum", "all", "any"), max_points = 5000,
-  use_integers = FALSE,
-  progress_bar = getOption("influxdbr.progress_bar", TRUE), ...)
+  use_integers = FALSE, ...)
 
 \method{influx_write}{data.frame}(x, con, db, measurement = NULL,
   rp = NULL, precision = c("s", "ns", "u", "ms", "m", "h"),
   consistency = c(NULL, "one", "quroum", "all", "any"),
-  max_points = 5000, use_integers = FALSE,
-  progress_bar = getOption("influxdbr.progress_bar", TRUE),
-  time_col = NULL, tag_cols = NULL, measurement_col = NULL, ...)
+  max_points = 5000, use_integers = FALSE, time_col = NULL,
+  tag_cols = NULL, measurement_col = NULL, ...)
 }
 \arguments{
 \item{x}{The object to write to an InfluxDB server (either of class \code{xts} or
@@ -52,9 +49,6 @@ points in the batch fail, or write failure if all points in the batch fail.}
 \item{use_integers}{Should integers (instead of doubles) be written if
 present?}
 
-\item{progress_bar}{\code{TRUE} if progress bar should be shown. Honor the
-"influxdbr.progress_bar" option and defaults to TRUE.}
-
 \item{...}{Arguments to be passed to methods.}
 
 \item{time_col}{A character scalar naming the time index column.}
@@ -64,6 +58,9 @@ present?}
 \item{measurement_col}{A character scalar naming the measurement column
 (data.frame has data to write to multiple measurements). Overrides
 \code{measurement} argument.}
+
+\item{progress_bar}{\code{TRUE} if progress bar should be shown. Honor the
+"influxdbr.progress_bar" option and defaults to TRUE.}
 }
 \value{
 A list of server responses.

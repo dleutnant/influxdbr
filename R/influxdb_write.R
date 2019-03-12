@@ -75,8 +75,6 @@ write_batched <- function(x, con, query, measurement = NULL, measurement_col = N
 #' @param max_points Defines the maximum points per batch (defaults to 5000).
 #' @param use_integers Should integers (instead of doubles) be written if
 #'   present?
-#' @param progress_bar \code{TRUE} if progress bar should be shown. Honor the
-#'   "influxdbr.progress_bar" option and defaults to TRUE.
 #' @param ... Arguments to be passed to methods.
 #' @param time_col A character scalar naming the time index column.
 #' @param tag_cols A character vector naming tag columns.
@@ -96,7 +94,7 @@ influx_write <- function(x,
                          precision = c("s", "ns", "u", "ms", "m", "h"),
                          consistency = c(NULL, "one", "quroum", "all", "any"),
                          max_points = 5000,
-                         use_integers = FALSE
+                         use_integers = FALSE,
                          ...) {
 
   UseMethod("influx_write", x)
