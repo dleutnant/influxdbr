@@ -8,45 +8,52 @@
 \usage{
 influx_write(x, con, db, measurement, rp = NULL, precision = c("s",
   "ns", "u", "ms", "m", "h"), consistency = c(NULL, "one", "quroum",
-  "all", "any"), max_points = 5000, use_integers = FALSE, ...)
+  "all", "any"), max_points = 5000, use_integers = FALSE,
+  progress_bar = getOption("influxdbr.progress_bar", TRUE), ...)
 
 \method{influx_write}{xts}(x, con, db, measurement, rp = NULL,
   precision = c("s", "ns", "u", "ms", "m", "h"), consistency = c(NULL,
   "one", "quroum", "all", "any"), max_points = 5000,
-  use_integers = FALSE, ...)
+  use_integers = FALSE,
+  progress_bar = getOption("influxdbr.progress_bar", TRUE), ...)
 
 \method{influx_write}{data.frame}(x, con, db, measurement = NULL,
   rp = NULL, precision = c("s", "ns", "u", "ms", "m", "h"),
   consistency = c(NULL, "one", "quroum", "all", "any"),
-  max_points = 5000, use_integers = FALSE, time_col = NULL,
-  tag_cols = NULL, measurement_col = NULL, ...)
+  max_points = 5000, use_integers = FALSE,
+  progress_bar = getOption("influxdbr.progress_bar", TRUE),
+  time_col = NULL, tag_cols = NULL, measurement_col = NULL, ...)
 }
 \arguments{
-\item{x}{The object to write to an InfluxDB server (either of class \code{xts} or \code{data.frame}).}
+\item{x}{The object to write to an InfluxDB server (either of class \code{xts} or
+\code{data.frame}).}
 
 \item{con}{An \code{influx_connection} object (s. \code{\link{influx_connection}}).}
 
 \item{db}{Sets the target database for the query.}
 
-\item{measurement}{Sets the name of the measurement (data.frame has data to write
-to one measurement only). If both arguments \code{measurement} and \code{measurement_col}
-are given, \code{measurement} gets overridden.}
+\item{measurement}{Sets the name of the measurement (data.frame has data to
+write to one measurement only). If both arguments \code{measurement} and
+\code{measurement_col} are given, \code{measurement} gets overridden.}
 
 \item{rp}{Sets the target retention policy for the write. If not present the
 default retention policy is used.}
 
-\item{precision}{Sets the precision of the supplied Unix time values
-("s", "ns", "u", "ms", "m", "h"). If not present timestamps are assumed to be
-in seconds.}
+\item{precision}{Sets the precision of the supplied Unix time values ("s",
+"ns", "u", "ms", "m", "h"). If not present timestamps are assumed to be in
+seconds.}
 
-\item{consistency}{Set the number of nodes that must confirm the write.
-If the requirement is not met the return value will be partial write
-if some points in the batch fail, or write failure if all points in the batch
-fail.}
+\item{consistency}{Set the number of nodes that must confirm the write. If
+the requirement is not met the return value will be partial write if some
+points in the batch fail, or write failure if all points in the batch fail.}
 
 \item{max_points}{Defines the maximum points per batch (defaults to 5000).}
 
-\item{use_integers}{Should integers (instead of doubles) be written if present?}
+\item{use_integers}{Should integers (instead of doubles) be written if
+present?}
+
+\item{progress_bar}{\code{TRUE} if progress bar should be shown. Honor the
+"influxdbr.progress_bar" option and defaults to TRUE.}
 
 \item{...}{Arguments to be passed to methods.}
 
@@ -54,8 +61,9 @@ fail.}
 
 \item{tag_cols}{A character vector naming tag columns.}
 
-\item{measurement_col}{A character scalar naming the measurement column (data.frame
-has data to write to multiple measurements). Overrides \code{measurement} argument.}
+\item{measurement_col}{A character scalar naming the measurement column
+(data.frame has data to write to multiple measurements). Overrides
+\code{measurement} argument.}
 }
 \value{
 A list of server responses.
