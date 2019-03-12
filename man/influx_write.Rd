@@ -58,9 +58,6 @@ present?}
 \item{measurement_col}{A character scalar naming the measurement column
 (data.frame has data to write to multiple measurements). Overrides
 \code{measurement} argument.}
-
-\item{progress_bar}{\code{TRUE} if progress bar should be shown. Honor the
-"influxdbr.progress_bar" option and defaults to TRUE.}
 }
 \value{
 A list of server responses.
