@@ -25,7 +25,7 @@ You can install the dev version from github with:
 
 ``` r
 # install.packages("remotes")
-remotes::install_github("dleutnant/influxdbr@dev")
+remotes::install_github("dleutnant/influxdbr")
 ```
 
 ## Example
@@ -51,6 +51,9 @@ library(xts)
 #> The following objects are masked from 'package:base':
 #> 
 #>     as.Date, as.Date.numeric
+#> Registered S3 method overwritten by 'xts':
+#>   method     from
+#>   as.zoo.xts zoo
 #> 
 #> Attaching package: 'xts'
 #> The following objects are masked from 'package:dplyr':
@@ -93,9 +96,9 @@ str(xts_data)
 ### InfluxDB connection
 
 To connect to an InfluxDB server, we need a connection object. A
-connection object can be created by providing usual server details (e.g.
-`host`, `port`, …) or with help of a group file, which conveniently
-holds all information for us (s. package documentation):
+connection object can be created by providing usual server details
+(e.g. `host`, `port`, …) or with help of a group file, which
+conveniently holds all information for us (s. package documentation):
 
 ``` r
 # create connection object 
@@ -112,20 +115,13 @@ InfluxDB:
 create_database(con = con, db = "mydb")
 
 # list all databases
-show_databases(con = con)
-#> # A tibble: 10 x 1
-#>    name      
-#>    <chr>     
-#>  1 _internal 
-#>  2 stbmod    
-#>  3 wasig     
-#>  4 wasig-fr  
-#>  5 wasig-h   
-#>  6 oscar_test
-#>  7 longterm  
-#>  8 deznwba   
-#>  9 mydb      
-#> 10 test
+show_databases(con = con) %>% 
+  filter(name == "mydb") # show the db created above only
+#> Warning: `.drop` is deprecated. All list-columns are now preserved.
+#> # A tibble: 1 x 1
+#>   name 
+#>   <chr>
+#> 1 mydb
 ```
 
 ### Write data
@@ -169,19 +165,19 @@ df_data <- dplyr::bind_cols(time = zoo::index(xts_data), # timestamp
 
 df_data
 #> # A tibble: 180 x 9
-#>    time                 Open  High   Low Close info      UnitTesting     n
-#>    <dttm>              <dbl> <dbl> <dbl> <dbl> <chr>     <lgl>       <int>
-#>  1 2007-01-02 00:00:00  50.0  50.1  50.0  50.1 SampleDa… T               1
-#>  2 2007-01-03 00:00:00  50.2  50.4  50.2  50.4 SampleDa… T               2
-#>  3 2007-01-04 00:00:00  50.4  50.4  50.3  50.3 SampleDa… T               3
-#>  4 2007-01-05 00:00:00  50.4  50.4  50.2  50.3 SampleDa… T               4
-#>  5 2007-01-06 00:00:00  50.2  50.2  50.1  50.2 SampleDa… T               5
-#>  6 2007-01-07 00:00:00  50.1  50.2  50.0  50.0 SampleDa… T               6
-#>  7 2007-01-08 00:00:00  50.0  50.1  50.0  50.0 SampleDa… T               7
-#>  8 2007-01-09 00:00:00  50.0  50.0  49.8  49.9 SampleDa… T               8
-#>  9 2007-01-10 00:00:00  49.9  50.1  49.9  50.0 SampleDa… T               9
-#> 10 2007-01-11 00:00:00  49.9  50.2  49.9  50.2 SampleDa… T              10
-#> # ... with 170 more rows, and 1 more variable: source <chr>
+#>    time                 Open  High   Low Close info  UnitTesting     n
+#>    <dttm>              <dbl> <dbl> <dbl> <dbl> <chr> <lgl>       <int>
+#>  1 2007-01-02 00:00:00  50.0  50.1  50.0  50.1 Samp… TRUE            1
+#>  2 2007-01-03 00:00:00  50.2  50.4  50.2  50.4 Samp… TRUE            2
+#>  3 2007-01-04 00:00:00  50.4  50.4  50.3  50.3 Samp… TRUE            3
+#>  4 2007-01-05 00:00:00  50.4  50.4  50.2  50.3 Samp… TRUE            4
+#>  5 2007-01-06 00:00:00  50.2  50.2  50.1  50.2 Samp… TRUE            5
+#>  6 2007-01-07 00:00:00  50.1  50.2  50.0  50.0 Samp… TRUE            6
+#>  7 2007-01-08 00:00:00  50.0  50.1  50.0  50.0 Samp… TRUE            7
+#>  8 2007-01-09 00:00:00  50.0  50.0  49.8  49.9 Samp… TRUE            8
+#>  9 2007-01-10 00:00:00  49.9  50.1  49.9  50.0 Samp… TRUE            9
+#> 10 2007-01-11 00:00:00  49.9  50.2  49.9  50.2 Samp… TRUE           10
+#> # … with 170 more rows, and 1 more variable: source <chr>
 
 # write example data.frame to database
 influx_write(con = con, 
@@ -196,6 +192,7 @@ We can now check if the time series were successfully written:
 ``` r
 # check if measurements were succefully written
 show_measurements(con = con, db = "mydb")
+#> Warning: `.drop` is deprecated. All list-columns are now preserved.
 #> # A tibble: 1 x 1
 #>   name      
 #>   <chr>     
@@ -227,24 +224,27 @@ result <- influx_select(con = con,
                         limit = 10, 
                         order_desc = TRUE, 
                         return_xts = FALSE)
+#> Warning: `.drop` is deprecated. All list-columns are now preserved.
+
+#> Warning: `.drop` is deprecated. All list-columns are now preserved.
 
 result
 #> [[1]]
 #> # A tibble: 180 x 10
-#>    statement_id series_names series_partial UnitTesting info  n     source
-#>           <int> <chr>        <lgl>          <chr>       <chr> <chr> <chr> 
-#>  1            0 sampledata   F              TRUE        Samp… 99    df    
-#>  2            0 sampledata   F              TRUE        Samp… 98    df    
-#>  3            0 sampledata   F              TRUE        Samp… 97    df    
-#>  4            0 sampledata   F              TRUE        Samp… 96    df    
-#>  5            0 sampledata   F              TRUE        Samp… 95    df    
-#>  6            0 sampledata   F              TRUE        Samp… 94    df    
-#>  7            0 sampledata   F              TRUE        Samp… 93    df    
-#>  8            0 sampledata   F              TRUE        Samp… 92    df    
-#>  9            0 sampledata   F              TRUE        Samp… 91    df    
-#> 10            0 sampledata   F              TRUE        Samp… 90    df    
-#> # ... with 170 more rows, and 3 more variables: time <dttm>, Open <dbl>,
-#> #   High <dbl>
+#>    statement_id series_names UnitTesting info  n     source
+#>           <int> <chr>        <chr>       <chr> <chr> <chr> 
+#>  1            0 sampledata   TRUE        Samp… 99    df    
+#>  2            0 sampledata   TRUE        Samp… 98    df    
+#>  3            0 sampledata   TRUE        Samp… 97    df    
+#>  4            0 sampledata   TRUE        Samp… 96    df    
+#>  5            0 sampledata   TRUE        Samp… 95    df    
+#>  6            0 sampledata   TRUE        Samp… 94    df    
+#>  7            0 sampledata   TRUE        Samp… 93    df    
+#>  8            0 sampledata   TRUE        Samp… 92    df    
+#>  9            0 sampledata   TRUE        Samp… 91    df    
+#> 10            0 sampledata   TRUE        Samp… 90    df    
+#> # … with 170 more rows, and 4 more variables: time <dttm>, Open <dbl>,
+#> #   High <dbl>, series_partial <lgl>
 ```
 
 #### Return xts
@@ -267,10 +267,13 @@ result <- influx_select(con = con,
                         limit = 10, 
                         order_desc = TRUE, 
                         return_xts = TRUE)
+#> Warning: `.drop` is deprecated. All list-columns are now preserved.
+
+#> Warning: `.drop` is deprecated. All list-columns are now preserved.
 
 str(result)
 #> List of 1
-#>  $ :List of 2
+#>  $ :List of 3
 #>   ..$ sampledata:An 'xts' object on 2007-06-20 22:00:00/2007-06-29 22:00:00 containing:
 #>   Data: num [1:10, 1] 47.7 47.6 47.2 47.2 47.2 ...
 #>  - attr(*, "dimnames")=List of 2
@@ -278,14 +281,13 @@ str(result)
 #>   ..$ : chr "Open"
 #>   Indexed by objects of class: [POSIXct,POSIXt] TZ: GMT
 #>   xts Attributes:  
-#> List of 7
-#>   .. ..$ statement_id  : int 0
-#>   .. ..$ series_names  : chr "sampledata"
-#>   .. ..$ series_partial: logi FALSE
-#>   .. ..$ UnitTesting   : chr "TRUE"
-#>   .. ..$ info          : chr "SampleDataMatrix"
-#>   .. ..$ n             : chr "180"
-#>   .. ..$ source        : chr "xts"
+#> List of 6
+#>   .. ..$ statement_id: int 0
+#>   .. ..$ series_names: chr "sampledata"
+#>   .. ..$ UnitTesting : chr "TRUE"
+#>   .. ..$ info        : chr "SampleDataMatrix"
+#>   .. ..$ n           : chr "180"
+#>   .. ..$ source      : chr "xts"
 #>   ..$ sampledata:An 'xts' object on 2007-06-20 22:00:00/2007-06-29 22:00:00 containing:
 #>   Data: num [1:10, 1] 47.7 47.6 47.2 47.3 47.4 ...
 #>  - attr(*, "dimnames")=List of 2
@@ -293,14 +295,27 @@ str(result)
 #>   ..$ : chr "High"
 #>   Indexed by objects of class: [POSIXct,POSIXt] TZ: GMT
 #>   xts Attributes:  
-#> List of 7
-#>   .. ..$ statement_id  : int 0
-#>   .. ..$ series_names  : chr "sampledata"
-#>   .. ..$ series_partial: logi FALSE
-#>   .. ..$ UnitTesting   : chr "TRUE"
-#>   .. ..$ info          : chr "SampleDataMatrix"
-#>   .. ..$ n             : chr "180"
-#>   .. ..$ source        : chr "xts"
+#> List of 6
+#>   .. ..$ statement_id: int 0
+#>   .. ..$ series_names: chr "sampledata"
+#>   .. ..$ UnitTesting : chr "TRUE"
+#>   .. ..$ info        : chr "SampleDataMatrix"
+#>   .. ..$ n           : chr "180"
+#>   .. ..$ source      : chr "xts"
+#>   ..$ sampledata:An 'xts' object on 2007-06-20 22:00:00/2007-06-29 22:00:00 containing:
+#>   Data: logi [1:10, 1] FALSE FALSE FALSE FALSE FALSE FALSE ...
+#>  - attr(*, "dimnames")=List of 2
+#>   ..$ : NULL
+#>   ..$ : chr "series_partial"
+#>   Indexed by objects of class: [POSIXct,POSIXt] TZ: GMT
+#>   xts Attributes:  
+#> List of 6
+#>   .. ..$ statement_id: int 0
+#>   .. ..$ series_names: chr "sampledata"
+#>   .. ..$ UnitTesting : chr "TRUE"
+#>   .. ..$ info        : chr "SampleDataMatrix"
+#>   .. ..$ n           : chr "180"
+#>   .. ..$ source      : chr "xts"
 ```
 
 #### Simplify InfluxDB response
@@ -320,36 +335,31 @@ result <- influx_select(con = con,
                         order_desc = TRUE, 
                         return_xts = FALSE, 
                         simplifyList = TRUE)
+#> Warning: `.drop` is deprecated. All list-columns are now preserved.
+
+#> Warning: `.drop` is deprecated. All list-columns are now preserved.
 
 str(result)
 #> Classes 'tbl_df', 'tbl' and 'data.frame':    180 obs. of  9 variables:
 #>  $ statement_id  : int  0 0 0 0 0 0 0 0 0 0 ...
 #>  $ series_names  : chr  "sampledata" "sampledata" "sampledata" "sampledata" ...
-#>  $ series_partial: logi  FALSE FALSE FALSE FALSE FALSE FALSE ...
 #>  $ UnitTesting   : chr  "TRUE" "TRUE" "TRUE" "TRUE" ...
 #>  $ info          : chr  "SampleDataMatrix" "SampleDataMatrix" "SampleDataMatrix" "SampleDataMatrix" ...
 #>  $ n             : chr  "99" "98" "97" "96" ...
 #>  $ source        : chr  "df" "df" "df" "df" ...
 #>  $ time          : POSIXct, format: "2007-04-09 22:00:00" "2007-04-08 22:00:00" ...
 #>  $ Open          : num  49.6 49.4 49.5 49.5 49.3 ...
+#>  $ series_partial: logi  FALSE FALSE FALSE FALSE FALSE FALSE ...
 ```
 
 ## Contributions
 
-This Git repository uses the [Git
-Flow](http://nvie.com/posts/a-successful-git-branching-model/) branching
-model (the [`git flow`](https://github.com/petervanderdoes/gitflow-avh)
-extension is useful for this). The
-[`dev`](https://github.com/dleutnant/influxdbr/tree/dev) branch contains
-the latest contributions and other code that will appear in the next
-release, and the [`master`](https://github.com/dleutnant/influxdbr)
-branch contains the code of the latest release, which is exactly what is
-currently on [CRAN](https://cran.r-project.org/package=influxdbr).
+This Git repository contains the latest contributions to the R package
+`influxdbr` and other code that will appear in the next
+[CRAN](https://cran.r-project.org/package=influxdbr) release.
 
 Contributing to this package is easy. Just send a [pull
-request](https://help.github.com/articles/using-pull-requests/). When
-you send your PR, make sure `dev` is the destination branch on the
-[influxdbr repository](https://github.com/dleutnant/influxdbr). Your PR
+request](https://help.github.com/articles/using-pull-requests/). Your PR
 should pass `R CMD check --as-cran`, which will also be checked by
 <a href="https://travis-ci.org/dleutnant/influxdbr">Travis CI</a> when
 the PR is submitted.

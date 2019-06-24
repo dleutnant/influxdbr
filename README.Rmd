@@ -31,7 +31,7 @@ install.packages("influxdbr")
 You can install the dev version from github with:
 ```{r gh-installation, eval = FALSE}
 # install.packages("remotes")
-remotes::install_github("dleutnant/influxdbr@dev")
+remotes::install_github("dleutnant/influxdbr")
 ```
 
 ## Example
@@ -85,7 +85,8 @@ The `influxdbr` package provides handy wrappers to manage a remote InfluxDB:
 create_database(con = con, db = "mydb")
 
 # list all databases
-show_databases(con = con)
+show_databases(con = con) %>% 
+  filter(name == "mydb") # show the db created above only
 ```
 ### Write data
 
