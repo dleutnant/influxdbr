@@ -2,12 +2,15 @@
 % Please edit documentation in R/influxdb_connection.R
 \name{influx_connection}
 \alias{influx_connection}
+\alias{influx_ping}
 \title{Create an influxdb_connection object}
 \usage{
 influx_connection(scheme = c("http", "https"), host = "localhost",
   port = 8086, user = "user", pass = "pass", path = "/",
   group = NULL, verbose = FALSE, config_file = "~/.influxdb.cnf",
   curl_options = NULL)
+
+influx_ping(con)
 }
 \arguments{
 \item{scheme}{The scheme to use, either http or https. Defaults to http.}
@@ -32,11 +35,20 @@ specified.}
 
 \item{curl_options}{Additional curl arguments created with \code{\link[httr]{config}}
 (e.g. httr::config(verbose = TRUE, timeout = 5, ssl_verifypeer = FALSE)).}
+
+\item{con}{An \code{influx_connection} object
+(s. \code{\link{influx_connection}}).}
+}
+\value{
+Raw \code{httr} GET response.
 }
 \description{
 Create an influxdb_connection object by specifying server
 connection details. Credentials can also be saved and accessed through a
 config file.
+
+This function pings an influxdb server
+(e.g. for connection testing)
 }
 \section{structure of configuration file}{
 
@@ -53,4 +65,9 @@ path=/
 
 \references{
 \url{https://influxdb.com/}
+
+\url{https://docs.influxdata.com/influxdb/}
+}
+\seealso{
+\code{\link[influxdbr]{influx_connection}}
 }

@@ -1,20 +1,27 @@
-testthat::context("testing influx_write")
+context("influx_write")
 
-## testthat currently fails badly on tibbles
+test_that("setup", {
+  skip_on_cran()
+  skip_on_travis()
+  expect_silent(setup_database())
+  
+})
+
 DF <- as.data.frame
 
 ## setup df
-
 time0 <- .POSIXct(0, tz = "UTC")
 set.seed(100)
-df <- tibble::tibble(time = seq(from = time0, by = "-5 min", length.out = 10),
-                     `tag_one,` = sample(LETTERS[1:5], 10, replace = T),
-                     tag_two = sample(LETTERS[1:5], 10, replace = T),
-                     `tag three` = sample(paste(LETTERS[1:5], "tag"), 10, replace = T),
-                     field_chr = sample(paste(" ", LETTERS[1:5], "field"), 10, replace = T),
-                     field_float = stats::runif(10),
-                     field_int = sample(1:100000000,10),
-                     field_bool = stats::runif(10) > 0.5) %>% dplyr::arrange(time)
+df <- data.frame(time = seq(from = time0, by = "-5 min", length.out = 10),
+                 `tag_one,` = sample(LETTERS[1:5], 10, replace = T),
+                 tag_two = sample(LETTERS[1:5], 10, replace = T),
+                 `tag three` = sample(paste(LETTERS[1:5], "tag"), 10, replace = T),
+                 field_chr = sample(paste(" ", LETTERS[1:5], "field"), 10, replace = T),
+                 field_float = stats::runif(10),
+                 field_int = sample(1:100000000,10),
+                 field_bool = stats::runif(10) > 0.5,
+                 stringsAsFactors = F,
+                 check.names = F) %>% dplyr::arrange(time)
 df[1:3, "tag_two"] <- c("B,C", "B C", "B=C")
 df[1:4, "field_chr"] <- c(" B,C", " B C", " B=C", " \"D\" ")
 
@@ -25,102 +32,9 @@ df[1:4, "field_chr"] <- c(" B,C", " B C", " B=C", " \"D\" ")
 # df[c(4,6), c(7)] <- NA
 
 
-# setup influx connection
-testthat::test_that("connection", {
-
-  # only local tests
-  testthat::skip_on_cran()
-  testthat::skip_on_travis()
-
-  con <<- influx_connection(group = "admin")
-  drop_database(con, "test")
-  create_database(con, "test")
-
-  testthat::expect_is(object = con, class = "list")
-
-})
-
-## testthat::test_that("write xts with NA", {
-
-##   # only local tests
-##   testthat::skip_on_cran()
-##   testthat::skip_on_travis()
-
-##   # prepare tmp xts object
-##   tmp <- xts::xts(x = runif(1e1),
-##                   order.by = seq(as.POSIXct("1970-1-1"), by = "hours", length.out = 1e1))
-##   colnames(tmp) <- "one"
-##   # add second column
-##   tmp <- cbind(tmp, tmp)
-##   colnames(tmp) <- c("one", "two")
-
-##   # numeric matrix
-##   tmp[8,1] <- NA
-##   tmp[3,2] <- NA
-##   influx_write(con = con, db = "test", x = tmp, measurement = "test_num")
-##   influx_query(con = con, db = "test", query = "SELECT * from test_num")
-
-##   # integer matrix
-##   tmp[,1] <- 1:10
-##   tmp[,2] <- 20:21
-##   tmp[8,1] <- NA
-##   tmp[3,2] <- NA
-##   influx_write(con = con, db = "test", x = tmp, measurement = "test_int", use_integers = T)
-##   influx_query(con = con, db = "test", query = "SELECT * from test_int")
-
-##   # character matrix
-##   tmp[,1] <- paste0("NAME", 1:10)
-##   tmp[,2] <- paste0("NAME_TWO_", 1:10)
-##   tmp[8,1] <- NA
-##   tmp[3,2] <- NA
-##   influx_write(con = con, db = "test", x = tmp, measurement = "test_str")
-##   influx_query(con = con, db = "test", query = "SELECT * from test_str")
-
-##   # mixed data.frame
-##   tmp_length <- 1e2
-##   tmp1 <- xts::xts(x = 1:tmp_length,
-##                    order.by =  seq(as.POSIXct("1970-1-1"), by = "mins", length.out = tmp_length))
-##   tmp2 <- xts::xts(x = paste0("NAME_TWO_", 1:tmp_length),
-##                    order.by =  zoo::index(tmp1))
-##   tmp1[8] <- NA
-##   tmp2[3] <- NA
-##   colnames(tmp1) <- c("one")
-##   colnames(tmp2) <- c("two")
-##   system.time(influx_write(con = con, db = "test", x = tmp1, measurement = "test_df"))
-##   system.time(influx_write(con = con, db = "test", x = tmp2, measurement = "test_df"))
-##   system.time(tmp <- influx_query(con = con, db = "test", query = "SELECT * from test_df limit 1000"))
-
-##   # delete measurements
-##   purrr::walk(paste("test", c("num", "int", "str", "df"), sep = "_"), ~ drop_measurement(con, "test", .))
-
-## })
-
-## testthat::test_that("write xts with sub-second accuracy", {
-
-##   # only local tests
-##   testthat::skip_on_cran()
-##   testthat::skip_on_travis()
-
-##   # how many digits to print?
-##   options(digits.secs = 3)
-
-##   tmp <- xts::xts(runif(10), order.by = runif(10) + Sys.time())
-##   colnames(tmp) <- c("accuracy")
-##   influx_write(con = con, db = "test", x = tmp, measurement = "subsecond_acc", precision = "ms")
-##   tmp_subsecond <- influx_query(con = con, db = "test", query = "SELECT * from subsecond_acc ORDER BY time DESC LIMIT 10")
-
-##   testthat::expect_is(object = tmp_subsecond, class = "list")
-
-##   # delete measurement
-##   drop_measurement(con, "test", "subsecond_acc")
-
-## })
-
-testthat::test_that("write data.frame with single measurement", {
-
-  # only local tests
-  testthat::skip_on_cran()
-  testthat::skip_on_travis()
+test_that("write data.frame with single measurement", {
+  skip_on_cran()
+  skip_on_travis()
 
   dfline <-
     influxdbr:::convert_to_line_protocol.data.frame(
@@ -131,7 +45,7 @@ testthat::test_that("write data.frame with single measurement", {
       precision = "s",
       use_integers = FALSE) %>% strsplit("\n") %>% unlist()
 
-  testthat::expect_equal(
+  expect_equal(
     dfline,
     c("test,tag_one\\,=A,tag_two=B\\,C,tag\\ three=B\\ tag field_chr=\" B,C\",field_float=0.307085896842182,field_int=21140856,field_bool=TRUE -2700", 
       "test,tag_one\\,=C,tag_two=B\\ C,tag\\ three=C\\ tag field_chr=\" B C\",field_float=0.207713897805661,field_int=59757530,field_bool=FALSE -2400", 
@@ -144,115 +58,86 @@ testthat::test_that("write data.frame with single measurement", {
       "test,tag_one\\,=B,tag_two=E,tag\\ three=D\\ tag field_chr=\"  E field\",field_float=0.865120546659455,field_int=19867908,field_bool=TRUE -300", 
       "test,tag_one\\,=B,tag_two=D,tag\\ three=C\\ tag field_chr=\"  C field\",field_float=0.330660525709391,field_int=33052985,field_bool=FALSE 0"))
 
-  influxdbr::drop_measurement(con, "test", "df2")
+  drop_measurement(CON, DB, "df2")
 
   # write full df
-  influxdbr::influx_write(x = df,
-                          con = con,
-                          db = "test",
-                          measurement = "df2",
-                          time_col = "time",
-                          tag_cols = c("tag_one,", "tag_two", "tag three"),
-                          max_points = 2,
-                          use_integers = TRUE)
+  influx_write(x = df, CON, DB,
+               measurement = "df2",
+               time_col = "time",
+               tag_cols = c("tag_one,", "tag_two", "tag three"),
+               max_points = 2,
+               use_integers = TRUE)
 
   # query the data to check once again
   df2 <-
-    influx_query(
-      con = con,
-      db = "test",
-      query = "select * from df2",
-      return_xts = FALSE)[[1]][, names(df)] %>%
+    influx_query(CON, DB,
+                 query = "select * from df2")[, names(df)] %>%
     dplyr::mutate(field_int = as.integer(field_int))
 
   # cannot use expect_equal due to a range of bugs in testthat
-  testthat::expect_equal(DF(df), DF(df2))
+  expect_equal(DF(df), DF(df2))
 
   # write df without tags
-  influx_write(x = df,
-    con = con,
-    db = "test",
-    measurement = "df3",
-    time_col = "time",
-    use_integers = TRUE)
+  influx_write(x = df, CON, DB,
+               measurement = "df3",
+               time_col = "time",
+               use_integers = TRUE)
 
   df3 <-
-    influx_query(
-      con = con,
-      db = "test",
-      query = "select * from df3",
-      return_xts = FALSE)[[1]][, names(df)]
+    influx_query(CON, DB,
+      query = "select * from df3")[, names(df)]
 
-  testthat::expect_equal(DF(df), DF(df3))
+  expect_equal(DF(df), DF(df3))
 
   # write df without time
   dfa <- df %>%
     dplyr::mutate(time_chr = as.character(time)) %>%
     dplyr::select(-time)
-  influx_write(x = dfa,
-                 con = con,
-                 db = "test",
-                 measurement = "df4",
-                 tag_cols = c("tag_one,", "tag_two", "tag three"),
-                 use_integers = TRUE)
+  influx_write(x = dfa, CON, DB,
+               measurement = "df4",
+               tag_cols = c("tag_one,", "tag_two", "tag three"),
+               use_integers = TRUE)
 
   df4 <-
-    influx_query(
-      con = con,
-      db = "test",
-      query = "select * from df4",
-      return_xts = FALSE,
-      timestamp_format = "ms")[[1]][, names(dfa)] %>% dplyr::arrange(time_chr)
+    influx_query(CON, DB,
+                 query = "select * from df4",
+                 timestamp_format = "ms")[, names(dfa)] %>%
+    dplyr::arrange(time_chr)
 
-    testthat::expect_equal(DF(dfa), DF(df4))
+  expect_equal(DF(dfa), DF(df4))
 
   # write only data
   dfb <- df %>%
     dplyr::mutate(time_chr = as.character(time)) %>%
     dplyr::select(-time)
-  influx_write(x = dfb,
-    con = con,
-    db = "test",
-    # if no time and no tags are supplied, only one point is written
-    # remember: points which don't have timestamps will get the same
-    # timestamp for the batch
-    # therefore set at least a unique dummy tag:
-    tag_cols = "time_chr",
-    measurement = "df5",
-    precision = "ns",
-    points = 1,
-    use_integers = TRUE)
+  influx_write(x = dfb, CON, DB,
+               # if no time and no tags are supplied, only one point is written
+               # remember: points which don't have timestamps will get the same
+               # timestamp for the batch
+               # therefore set at least a unique dummy tag:
+               tag_cols = "time_chr",
+               measurement = "df5",
+               precision = "ns",
+               points = 1,
+               use_integers = TRUE)
 
   df5 <-
-    influx_query(
-      con = con,
-      db = "test",
+    influx_query(CON, DB,
       query = "select * from df5",
-      return_xts = FALSE,
-      timestamp_format = "ms")[[1]][, names(dfb)] %>% dplyr::arrange(time_chr)
+      timestamp_format = "ms")[, names(dfb)] %>% dplyr::arrange(time_chr)
 
-  testthat::expect_equal(DF(dfb), DF(df5))
+  expect_equal(DF(dfb), DF(df5))
 
-
-  ## tmp_xts <-
-  ##   influxdbr::influx_query(
-  ##     con = con,
-  ##     db = "test",
-  ##     query = "select * from new_df2 group by *",
-  ##     return_xts = TRUE
-  ##   )
 
   # delete measurements
-  purrr::walk(paste0("df", 2:5), ~ drop_measurement(con, "test", .))
+  for (nm in paste0("df", 2:5))
+    drop_measurement(CON, DB, nm)
+  
 })
 
-testthat::test_that("write data.frame with multiple measurements", {
-
-  # only local tests
-  testthat::skip_on_cran()
-  testthat::skip_on_travis()
-
-  library(magrittr)
+test_that("write data.frame with multiple measurements", {
+  skip_on_cran()
+  skip_on_travis()
 
   df1 <- dplyr::bind_cols(df, measurement = rep(c("one", "two", "three", "four", "five"), 2))
 
@@ -263,11 +148,11 @@ testthat::test_that("write data.frame with multiple measurements", {
   # df[c(4,6), c(7)] <- NA
 
   dfline <- influxdbr:::convert_to_line_protocol.data.frame(x = df1 %>% dplyr::mutate(tag_two = as.factor(tag_two)),
-                                                            tag_cols = c("tag_one,", "tag_two", "tag three"),
-                                                            time_col = "time",
-                                                            measurement_col = "measurement",
-                                                            precision = "s",
-                                                            use_integers = FALSE)
+                                                 tag_cols = c("tag_one,", "tag_two", "tag three"),
+                                                 time_col = "time",
+                                                 measurement_col = "measurement",
+                                                 precision = "s",
+                                                 use_integers = FALSE)
 
   expect_equal(dfline,
                c("one,tag_one\\,=A,tag_two=B\\,C,tag\\ three=B\\ tag field_chr=\" B,C\",field_float=0.307085896842182,field_int=21140856,field_bool=TRUE,measurement=\"one\" -2700", 
@@ -284,77 +169,61 @@ testthat::test_that("write data.frame with multiple measurements", {
   # write full df
   df1a <- df1 %>% dplyr::mutate(field_int = as.integer(field_int))
 
-  influx_write(x = df1a,
-               con = con,
-               db = "test",
+  influx_write(x = df1a, CON, DB,
                measurement_col = "measurement",
                time_col = "time",
                tag_cols = c("tag_one,", "tag_two", "tag three"),
                use_integers = TRUE)
 
   df2 <-
-    influx_query(
-      con = con,
-      db = "test",
-      query = paste("select * from",
-                    c("one", "two", "three", "four", "five"),
-                    "group by *", collapse = ";"),
-      return_xts = FALSE) %>% dplyr::bind_rows() %>% .[, names(df1a)] %>% dplyr::arrange(time)
+    influx_query(CON, DB,
+                 query = paste("select * from",
+                               c("one", "two", "three", "four", "five"),
+                               "group by *", collapse = ";"),
+                 tags_as_factors = FALSE) %>%
+    dplyr::bind_rows() %>% .[, names(df1a)] %>% dplyr::arrange(time)
 
   expect_equal(DF(dplyr::arrange(df1a, time)), DF(df2))
 
   # delete measurements
-  purrr::walk(c("one", "two", "three", "four", "five"), ~ drop_measurement(con, "test", .))
+  for (nm in c("one", "two", "three", "four", "five"))
+      drop_measurement(CON, DB, nm)
 
 })
 
-testthat::test_that("UTF-8 encodings", {
+test_that("UTF-8 encodings", {
+  skip_on_cran()
+  skip_on_travis()
 
-  # only local tests
-  testthat::skip_on_cran()
-  testthat::skip_on_travis()
-
-  library(magrittr)
-
-  df <- tibble::tibble(time = seq(from = Sys.time(), by = "-5 min", length.out = 2),
-                       value = runif(2),
-                       unit = c("µg", "m³")) %>%
+  df <- data.frame(time = seq(from = Sys.time(), by = "-5 min", length.out = 2),
+                   value = runif(2),
+                   unit = c("µg", "m³"),
+                   stringsAsFactors = T) %>%
     dplyr::arrange(time)
 
   # write full df
-  influxdbr::influx_write(x = df,
-                          con = con,
-                          measurement = "utf",
-                          db = "test",
-                          time_col = "time",
-                          tag_cols = "unit")
+  influx_write(x = df, CON, DB,
+               measurement = "utf", 
+               time_col = "time",
+               tag_cols = "unit")
 
   res <-
-    influxdbr::influx_select(
-      con = con,
-      db = "test",
+    influx_select(CON, DB,
       measurement = "utf",
       field_keys = "value",
-      group_by = "*",
-      return_xts = FALSE
-    )
+      group_by = "*")
 
   # delete measurements
-  drop_measurement(con, "test", "utf")
+  drop_measurement(CON, DB, "utf")
 
-  testthat::expect_equal(res[[1]]$unit, df$unit)
+  expect_equal(res$unit, df$unit)
 
 })
 
-testthat::test_that("write data.table with multiple measurements", {
+test_that("write data.table with multiple measurements", {
+  skip_on_cran()
+  skip_on_travis()
   
-  # only local tests
-  testthat::skip_on_cran()
-  testthat::skip_on_travis()
-  
-  library(magrittr)
-  
-  # create dummy data.table
   dt <- data.table::data.table(time = seq(from = Sys.time(), by = "-5 min", length.out = 10),
                                `tag_one,` = sample(LETTERS[1:5], 10, replace = T),
                                tag_two = sample(LETTERS[1:5], 10, replace = T),
@@ -365,32 +234,24 @@ testthat::test_that("write data.table with multiple measurements", {
                                field_bool = stats::runif(10) > 0.5, 
                                measurement = rep(c("one", "two", "three", "four", "five"), 2)) %>% 
     data.table::setorder("time")
-    
-  # connection object
-  con <- influxdbr::influx_connection(group = "admin")
   
-  # write data.table
-  influxdbr::influx_write(x = dt, 
-                          con = con,
-                          db = "test",
-                          measurement_col = "measurement",
-                          time_col = "time",
-                          tag_cols = c("tag_one,", "tag_two", "tag three"),
-                          use_integers = TRUE)
-  
+  influx_write(x = dt, CON, DB,
+               measurement_col = "measurement",
+               time_col = "time",
+               tag_cols = c("tag_one,", "tag_two", "tag three"),
+               use_integers = TRUE)
+
+  meas <- c("one", "two", "three", "four", "five")
   res <-
-    influxdbr::influx_query(
-      con = con,
-      db = "test",
-      query = paste("select * from", 
-                    c("one", "two", "three", "four", "five"), 
-                    "group by *", collapse = ";"),
-      return_xts = FALSE
-    )
+    influx_query(CON, DB,
+                 query = paste("select * from", meas, "group by *", collapse = ";"))
+
+
+  for (i in seq_along(meas))
+    expect_true(all(res[[i]]$measurement == meas[[i]]))
   
-  res
-    
   # delete measurements
-  purrr::walk(c("one", "two", "three", "four", "five"), ~ drop_measurement(con, "test", .))
+  for(nm in c("one", "two", "three", "four", "five"))
+    drop_measurement(CON, DB, nm)
   
 })

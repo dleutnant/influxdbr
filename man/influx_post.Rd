@@ -7,7 +7,8 @@
 influx_post(con, db = NULL, query = "")
 }
 \arguments{
-\item{con}{An \code{influx_connection} object (s. \code{\link{influx_connection}}).}
+\item{con}{An \code{influx_connection} object
+(s. \code{\link{influx_connection}}).}
 
 \item{db}{Sets the target database for the query.}
 

@@ -53,7 +53,7 @@ convert_to_line_protocol.xts <- function(x,
     paste(tag_keys, tag_values, sep = "=", collapse = ",")
 
   # create time vector
-  time <- format(as.numeric(zoo::index(x)) * get_precision_divisor(precision),
+  time <- format(as.numeric(zoo::index(x)) * precision_divisor(precision),
                  scientific = FALSE)
 
   # default NA string
@@ -200,46 +200,6 @@ convert_to_line_protocol.data.frame <- function(x,
 
 }
 
-# method to convert the line protocol to a data.frame
-# function is not exported
-#' @keywords internal
-line_protocol_to_array <- function(x) {
-
-  # substitute [ ], [,] and [=]
-  x <- gsub("\\ ", replacement = " ", x, fixed = TRUE)
-  x <- gsub("\\,", replacement = ";;;ABC;;;", x, fixed = TRUE) # dummy
-  x <- gsub("\\=", replacement = "=", x, fixed = TRUE)
-
-  # split by ","
-  splitted_string <- unlist(strsplit(x, split = ","))
-
-  # subsitute dummy
-  splitted_string <- gsub(pattern = ";;;ABC;;;", replacement = ",",
-                          splitted_string, fixed = TRUE)
-
-  # extract measurement name
-  measurement_df <- data.frame(measurement = splitted_string[1])
-
-  # extract tags and tag values
-  if (identical(splitted_string[-1], character(0))) {
-    warning(paste("measurement does not have any attributes:", x))
-    return(NULL)
-  }
-
-  df <- strsplit(x = splitted_string[-1], split = "=")
-  df <- do.call(cbind, df)
-
-  # create result df with tag names as colnames
-  result <- data.frame(t(df[2, ]), stringsAsFactors = FALSE)
-  colnames(result) <- df[1, ]
-
-  # combine measurement name and tagkeys and tagvalues
-  result <- cbind(measurement_df, result)
-
-  return(result)
-
-}
-
 replace_spec_char <- function(x, do_equal = TRUE) {
   regexp <- if (do_equal) "([,= ])" else "([, ])"
   if (is.factor(x)) {
@@ -269,6 +229,6 @@ validate_scalar_var <- function(x, name, must_contain = TRUE) {
 }
 
 format_time <- function(time, precision) {
-  time <- as.numeric(time) * get_precision_divisor(precision)
+  time <- as.numeric(time) * precision_divisor(precision)
   format(time, trim = TRUE, scientific = FALSE)
 }

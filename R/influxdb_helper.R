@@ -4,18 +4,18 @@
 #' @param endpoint api endpoint
 #' @return httr::GET response
 #' @keywords internal
-httr_GET <- function(con, query = NULL, endpoint) {
-  
-  response <- tryCatch(httr::GET(url = "",
-                                 scheme = con$scheme,
-                                 hostname = con$host,
-                                 port = con$port,
-                                 path = paste0(con$path, endpoint),
-                                 query = query,
-                                 config = con$config),
-                       error = function(e) {print(e); return(NULL)})
-  
-  return(response)
+httr_GET <- function(con, query = NULL, endpoint, csv = TRUE) {
+  config <- con$config
+  if (csv) {
+    config$headers[["Accept"]] <- "application/csv"
+  }
+  httr::GET(url = "",
+            scheme = con$scheme,
+            hostname = con$host,
+            port = con$port,
+            path = paste0(con$path, endpoint),
+            query = query,
+            config = config)
 }
 
 
@@ -44,7 +44,7 @@ httr_POST <- function(con, query = NULL, body = NULL, endpoint) {
 #' function is not exported
 #' @param x httr::POST response
 #' @keywords  internal
-check_srv_comm <- function(x) {
+check_response_errors <- function(x) {
   
   # query:
   # HTTP status code	Description
@@ -81,8 +81,8 @@ check_srv_comm <- function(x) {
 #' function is not exported
 #' @param x character
 #' @keywords  internal
-get_precision_divisor <- function(x) {
-  div <- switch(
+precision_divisor <- function(x) {
+  switch(
     x,
     "ns" = 1e+9,
     "n" = 1e+9,
@@ -90,8 +90,16 @@ get_precision_divisor <- function(x) {
     "ms" = 1e+3,
     "s" = 1,
     "m" = 1 / 60,
-    "h" = 1 / (60 * 60)
-  )
-  if(is.null(div)) stop("bad precision argument.")
-  return(div)
+    "h" = 1 / (60 * 60),
+    stop(sprintf("bad precision argument (%s)", x)))
+}
+
+#' Paste non-null key-value pairs for queries
+#' @param ... key value pair
+#' @keywords internal
+qpaste <- function(...) {
+  dots <- list(...)
+  dots <- dots[!sapply(dots, is.null)]
+  dots <- paste(toupper(names(dots)), dots)
+  gsub("^ *", "", do.call(paste, list(dots, collapse = " ")))
 }

@@ -34,7 +34,7 @@ write_batched <- function(x, con, query, measurement = NULL, measurement_col = N
         precision = query$precision,
         use_integers = use_integers) %>%
       httr_POST(con = con, query = query, body = ., endpoint = "write") %>%
-      check_srv_comm(.)
+      check_response_errors(.)
 
     response[[length(response) + 1]] <- resp
 

@@ -6,31 +6,36 @@
 \usage{
 influx_query(con, db = NULL, query = "SELECT * FROM measurement",
   timestamp_format = c("n", "u", "ms", "s", "m", "h"),
-  return_xts = TRUE, chunked = FALSE, simplifyList = FALSE)
+  tags_as_factors = TRUE, chunked = FALSE, handler = NULL,
+  verbose = FALSE)
 }
 \arguments{
-\item{con}{An \code{influx_connection} object (s. \code{\link{influx_connection}}).}
+\item{con}{An \code{influx_connection} object
+(s. \code{\link{influx_connection}}).}
 
 \item{db}{Sets the target database for the query.}
 
 \item{query}{The InfluxDB query to be sent.}
 
-\item{timestamp_format}{Sets the timestamp format
-("n", "u", "ms", "s", "m", "h").}
+\item{timestamp_format}{Sets the timestamp format ("n", "u", "ms", "s", "m",
+"h").}
 
-\item{return_xts}{logical. Sets the return type. If set to TRUE, xts objects
-are returned, FALSE gives tibbles.}
+\item{tags_as_factors}{If TRUE, convert tag columns to factors automatically.}
 
 \item{chunked}{Either FALSE or an integer. If FALSE, series are not requested
-in streamed batches. If an integer is provided, responses will be chunked by
-series or by every \code{chunked} points. Chunks are merged internally.}
+in streamed batches. If an integer is provided, responses will be chunked
+by series or by every \code{chunked} points. If \code{handler} is not
+supplied chunks are aggregated into a data.frame.}
 
-\item{simplifyList}{logical. If only one series is returned, the result can
-be flatten to directly get either a tibble or an xts object (instead of a list)
-(default is FALSE).}
+\item{handler}{A function receiving a list of parsed json objects when
+\code{chunked} it not FALSE. \code{influx_query} returns a list of values
+returned by \code{handler}. If handler returns NULL the value is omitted
+from the output. Supply \code{identity} to retrieve raw parsed json.}
+
+\item{verbose}{If TRUE print log messages.}
 }
 \value{
-A list of tibble or xts objects. Empty query results yield to NULL.
+A list a data.frame object. Empty query returns NULL.
 }
 \description{
 This functions queries an InfluxDB server.
@@ -39,5 +44,5 @@ This functions queries an InfluxDB server.
 \url{https://docs.influxdata.com/influxdb/}
 }
 \seealso{
-\code{\link[xts]{xts}}, \code{\link[influxdbr]{influx_connection}}
+\code{\link[influxdbr]{influx_connection}}
 }

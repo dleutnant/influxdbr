@@ -1,40 +1,39 @@
-library(magrittr)
+context("schema exploration")
 
-testthat::context("schema exploration")
-
-testthat::test_that("connection", {
-  
-  # only local tests
-  testthat::skip_on_cran()
-  testthat::skip_on_travis()
-
-  # setup influx connection  
-  con <<- influx_connection(group = "admin")
-  
-  testthat::expect_is(object = con, class = "list")
-  
+test_that("setup", {
+  skip_on_cran()
+  skip_on_travis()
+  expect_silent(setup_database())
 })
 
+test_that("show commands", { 
+  skip_on_cran()
+  skip_on_travis()
+  
+  ## show_users(CON)
+  ## show_grants(CON, "nonuser")
+  ## show_databases(CON)
+  ## show_measurements(CON, db = DB)
+  ## show_series(CON, DB)
+  ## show_tag_keys(CON, DB)
+  ## show_tag_values(CON, DB, key = "b")
+  ## show_field_keys(CON, DB)
+  ## show_retention_policies(CON, DB)
+  ## show_diagnostics(CON)
+  ## influx_query(CON,
+  ##              query = "SHOW DIAGNOSTICS",
+  ##              handler = identity, csv = T)
+  ## show_stats(CON)
+  
+  expect_silent(show_diagnostics(CON))
+  expect_is(show_users(CON), "influxdbr.response")
+  expect_error(show_grants(CON, "not_a_user"))
+  expect_is(show_databases(CON), class = "influxdbr.response")
+  expect_is(show_measurements(CON, DB), "influxdbr.response")
+  expect_is(show_series(CON, DB), "influxdbr.response")
+  expect_is(show_tag_keys(CON, DB), class = "influxdbr.response")
+  expect_is(show_tag_values(CON, DB, key = "b"), class = "influxdbr.response")
+  expect_is(show_field_keys(CON, DB), class = "influxdbr.response")
+  expect_is(show_retention_policies(CON, DB), class = "influxdbr.response")
 
-testthat::test_that("show commands", { 
-  
-  # only local tests
-  testthat::skip_on_cran()
-  testthat::skip_on_travis()
-  
-  testthat::expect_is(show_databases(con), class = "tbl_df")
-  
-  testthat::expect_is(show_measurements(con, db = "stbmod"), class = "tbl_df")
-  
-  testthat::expect_is(show_series(con, db = "oscar_test"), class = "tbl_df")
-  
-  testthat::expect_is(show_tag_keys(con, db = "stbmod"), class = "tbl_df")
-  
-  testthat::expect_is(show_tag_values(con, db = "stbmod", key = "Ort"), class = "tbl_df")
-  
-  testthat::expect_is(show_field_keys(con, db = "stbmod"), class = "tbl_df")
-  
-  testthat::expect_is(show_retention_policies(con, db = "stbmod"), class = "tbl_df")
-  
 })
-

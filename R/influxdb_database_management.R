@@ -19,208 +19,88 @@
 #' @param default logical. If TRUE, the new retention policy is the default retention policy
 #' for the database.
 #'
-#' @return A tibble containing post results in case of an error (or message).
-#' Otherwise NULL (invisibly).
-#' @name create_database
+#' @return Invisibly a list of class "influxdbr.post.response".
+#' @name database_management
 #' @seealso \code{\link[influxdbr]{influx_connection}}
 #' @references \url{https://docs.influxdata.com/influxdb/}
 NULL
 
 
 #' @export
-#' @rdname create_database
+#' @rdname database_management
 create_database <- function(con, db) {
-  result <- influx_post(con = con,
-                        query = paste("CREATE DATABASE", db))
-  
-  if (!is.null(result)) {
-    return(result)
-  }
-  
-  invisible(result)
-  
+  invisible(influx_post(con = con, query = paste("CREATE DATABASE", db)))
 }
 
 #' @export
-#' @rdname create_database
+#' @rdname database_management
 drop_database <- function(con, db) {
-  result <- influx_post(con = con,
-                        query = paste("DROP DATABASE", db))
-  
-  if (!is.null(result)) {
-    return(result)
-  }
-  
-  invisible(result)
+  invisible(influx_post(con = con,
+                        query = paste("DROP DATABASE", db)))
 }
 
 #' @export
-#' @rdname create_database
+#' @rdname database_management
 drop_series <- function(con,
                         db,
                         measurement = NULL,
                         where = NULL) {
-  
-  query <- "DROP SERIES"
-  
-  query <- ifelse(is.null(measurement),
-                  query,
-                  paste(query, "FROM", measurement))
-  
-  query <- ifelse(is.null(where),
-                  query,
-                  paste(query, "WHERE", where))
-  
-  result <- influx_post(
-    con = con,
-    db = db,
-    query = query
-  )
-  
-  if (!is.null(result)) {
-    return(result)
-  }
-  
-  invisible(result)
-  
+  query <- sprintf("DROP SERIES %s %s",
+                   if(is.null(measurement)) "" else paste(query, "FROM", measurement),
+                   if(is.null(where)) "" else paste(query, "WHERE", where))
+  invisible(influx_post(con = con, db = db, query = query))
 }
 
 #' @export
-#' @rdname create_database
+#' @rdname database_management
 delete <- function(con,
                    db,
                    measurement = NULL,
                    where = NULL) {
-  
-  query <- "DELETE"
-  
-  query <- ifelse(is.null(measurement),
-                  query,
-                  paste(query, "FROM", measurement))
-  
-  query <- ifelse(is.null(where),
-                  query,
-                  paste(query, "WHERE", where))
-  
-  result <- influx_post(
-    con = con,
-    db = db,
-    query = query
-  )
-  
-  if (!is.null(result)) {
-    return(result)
-  }
-  
-  invisible(result)
-  
+  query <- sprintf("DELETE %s %s",
+                   if(is.null(measurement)) "" else paste(query, "FROM", measurement),
+                   if(is.null(where)) "" else paste(query, "WHERE", where))
+  invisible(influx_post(con = con, db = db, query = query))
 }
 
 #' @export
-#' @rdname create_database
+#' @rdname database_management
 drop_measurement <- function(con, db, measurement) {
-  result <- influx_post(
-    con = con,
-    db = db,
-    query = paste("DROP MEASUREMENT",
-                  measurement)
-  )
-  
-  if (!is.null(result)) {
-    return(result)
-  }
-  
-  invisible(result)
-  
+  query <- paste("DROP MEASUREMENT", measurement)
+  invisible(influx_post(con = con, db = db, query = query))
 }
 
 #' @export
-#' @rdname create_database
-create_retention_policy <- function(con,
-                                    db,
-                                    rp_name,
-                                    duration,
-                                    replication,
-                                    default = FALSE) {
-  query <- paste(
-    "CREATE RETENTION POLICY",
-    rp_name,
-    "ON",
-    db,
-    "DURATION",
-    duration,
-    "REPLICATION",
-    replication
-  )
-  
-  if (default) {
-    query <- paste(query, "DEFAULT")
-    
-  }
-  
-  result <- influx_post(con = con,
-                        db = db,
-                        query = query)
-  
-  if (!is.null(result)) {
-    return(result)
-  }
-  
-  invisible(result)
-  
+#' @rdname database_management
+create_retention_policy <- function(con, db, rp_name, duration,
+                                    replication, default = FALSE) {
+  query <- paste("CREATE RETENTION POLICY", rp_name,
+                 "ON", db,
+                 "DURATION", duration,
+                 "REPLICATION", replication,
+                 if (default) "DEFAULT")
+  invisible(influx_post(con = con, db = db, query = query))
 }
 
 #' @export
-#' @rdname create_database
+#' @rdname database_management
 alter_retention_policy <- function(con,
                                    db,
                                    rp_name,
                                    duration,
                                    replication,
                                    default = FALSE) {
-  query <- paste(
-    "ALTER RETENTION POLICY",
-    rp_name,
-    "ON",
-    db,
-    "DURATION",
-    duration,
-    "REPLICATION",
-    replication
-  )
-  
-  if (default) {
-    query <- paste(query, "DEFAULT")
-  }
-  
-  result <- influx_post(con = con,
-                        db = db,
-                        query = query)
-  
-  if (!is.null(result)) {
-    return(result)
-  }
-  
-  invisible(result)
-  
+  query <- paste("ALTER RETENTION POLICY", rp_name,
+                 "ON", db,
+                 "DURATION", duration,
+                 "REPLICATION", replication,
+                 if (default) "DEFAULT")
+  invisible(influx_post(con = con, db = db, query = query))
 }
 
 #' @export
-#' @rdname create_database
-drop_retention_policy <- function(con,
-                                  db,
-                                  rp_name) {
-  query <- paste("DROP RETENTION POLICY", rp_name,
-                 "ON", db)
-  
-  result <- influx_post(con = con,
-                        db = db,
-                        query = query)
-  
-  if (!is.null(result)) {
-    return(result)
-  }
-  
-  invisible(result)
-  
+#' @rdname database_management
+drop_retention_policy <- function(con, db, rp_name) {
+  query <- paste("DROP RETENTION POLICY", rp_name, "ON", db)
+  invisible(influx_post(con = con, db = db, query = query))
 }

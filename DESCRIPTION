@@ -10,18 +10,16 @@ ByteCompile: TRUE
 URL: https://github.com/dleutnant/influxdbr
 BugReports: http://github.com/dleutnant/influxdbr/issues
 Imports:
-    dplyr (>= 0.7.0),
     jsonlite,
     httr,
     magrittr,
-    progress,
-    purrr (>= 0.2.3),
-    rlang,
-    tibble,
-    tidyr,
-    xts,
-    zoo
+    progress
 RoxygenNote: 6.1.1
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE, roclets = c("rd", "namespace", "collate"))
-Suggests: testthat
+Suggests:
+  testthat,
+  data.table,
+  dplyr (>= 0.7.0),
+  xts,
+  zoo

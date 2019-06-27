@@ -12,11 +12,9 @@ influx_post <- function(con,
   # create query based on function parameters
   q <- list(db = db,
             u = con$user,
-            p = con$pass)
-  
-  # add query
-  q <- c(q, q = query)
-  
+            p = con$pass,
+            q = query)
+    
   # submit POST
   response <- httr_POST(con = con, query = q, endpoint = "query")
   
@@ -25,18 +23,19 @@ influx_post <- function(con,
     return(NULL)
   }
   
-  # Check for communication errors
-  check_srv_comm(response)
+  check_response_errors(response)
   
-  response <- httr::content(response, "text", encoding = "UTF-8") %>%  # convert to chars
-    purrr::map(response_to_list) %>%
-    purrr::map_df(post_list_to_tibble)
-  
-  # if everything is OK, there won't be columns such as "error" or "messages"..
-  if (any(c("error", "messages") %in% colnames(response))) {
-    # return result tbl visible
-    return(response)
+  out <- parse_response(response$content, FALSE)
+
+  # flatten list to get direct access to list of results
+  while (!("results" %in% names(out))) {
+    out <- unlist(out, FALSE, FALSE)
   }
-  
-  return(NULL)
+  out <- unlist(out, FALSE)
+
+  out[["query"]] <- query
+  out[["status"]] <- httr::http_status(response)
+  class(out) <- "invluxdbr.post.response"
+  ## str(out)
+  out
 }
