@@ -12,10 +12,7 @@
 #' @param slimit logical. Sets limiting procedure (slimit vs. limit).
 #' @param offset Offsets the returned points by the value provided.
 #' @param order_desc logical. Change sort order to descending.
-#' @param return_xts logical. Sets the return type. If set to TRUE, a list of xts objects
-#' is returned, FALSE gives list of tibbles.
-#'
-#' @return A list of xts or tibbles. Empty query results yield to NULL.
+#' @return A \code{data.table} result of the query. Empty query results in NULL.
 #' @export
 #' @references \url{https://docs.influxdata.com/influxdb/}
 influx_select <- function(con,
@@ -28,9 +25,7 @@ influx_select <- function(con,
                           limit = NULL,
                           slimit = FALSE,
                           offset = NULL,
-                          order_desc = FALSE,
-                          return_xts = TRUE, 
-                          simplifyList = FALSE) {
+                          order_desc = FALSE) {
   
   # check Option useFancyQuotes
   quotes <- getOption("useFancyQuotes")
@@ -41,9 +36,9 @@ influx_select <- function(con,
     measurement <- paste(base::dQuote(rp), base::dQuote(measurement), sep = ".")
   }
 
-  ### Select all data from more than one measurement
+  field_keys <- paste(field_keys, collapse = ", ")
   measurement <- paste(measurement, collapse = ", ")
-  
+
   query <- paste("SELECT", field_keys, "FROM", measurement)
   
   query <- ifelse(is.null(where),
@@ -68,17 +63,5 @@ influx_select <- function(con,
                   paste(query, "OFFSET", 
                         format(as.integer(offset), scientific = FALSE)))
   
-  result <- influx_query(
-    con = con,
-    db = db,
-    query = query,
-    return_xts = return_xts, 
-    simplifyList = simplifyList
-  )
-  
-  if (is.null(result))
-    return(NULL)
-  
-  invisible(result)
-  
+  influx_query(con = con, db = db, query = query)  
 }

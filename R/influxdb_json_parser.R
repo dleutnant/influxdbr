@@ -1,279 +1,180 @@
-#' @keywords internal
-query_list_to_tibble <- function(x, timestamp_format) {
-  
-  #x <- debug_data %>% purrr::map(response_to_list)
-  #x <<- x
-  #stop()
-  #timestamp_format <- "n"
-  
-  # development options
-  performance <- FALSE
-  timer <- function(x, txt) {message(paste(Sys.time(), txt));x}
-  
-  # create divisor for different timestamp format
-  div <- get_precision_divisor(timestamp_format)
-  
-  # set default result
-  result_na <- tibble::tibble(statement_id = NA,
-                              series_names = NA,
-                              series_tags = NA,
-                              series_values = NA,
-                              series_partial = NA)
-  
-  # remove hierarchies to get direct access results level
-  while (!("results" %in% names(x))) {
-    x <- purrr::flatten(x)
-  }
-  
-  # flatten once again to get directly to "statement_id" and "series"
-  x <- purrr::flatten(x)
-  
-  # iterate over result array
-  list_of_result <- purrr::map(x, .f = function(series_ele) {
-    
-    # set dummy result
-    result <- result_na
-    
-    if (!is.null(series_ele$statement_id)) {
-      # extract "statement_id"
-      statement_id <- series_ele$statement_id
-    } else {
-      # set NA to statement_id if not found
-      statement_id <- NA_integer_
-    }
-      
-    if (!is.null(series_ele$series)) {
-      # extract "measurement names"
-      series_names <- purrr::map(series_ele$series, "name") %>%
-        unlist() %>%
-        `if`(is.null(.), NA, .)
-        
-      # extract "tags"
-      series_tags <- purrr::map(series_ele$series, "tags") %>%
-        purrr::map(tibble::as_tibble)
-        
-      # extract "columns"
-      series_columns <- purrr::map(series_ele$series, "columns") %>%
-        purrr::map(unlist)
-        
-      # extract values
-      series_values <- purrr::map(series_ele$series, "values") %>%
-        # transpose for faster data munging
-        `if`(performance, timer(., "transpose data"), .) %>% 
-        purrr::map( ~ purrr::transpose(.)) %>% 
-        # convert influxdb NULL to NA
-        `if`(performance, timer(., "convert influxdb NULL to NA"), .) %>% 
-        purrr::map( ~ purrr::map(., ~ purrr::map(., ~ . %||% NA))) %>% 
-        # unlist for faster data munging
-        `if`(performance, timer(., "unlist data"), .) %>% 
-        purrr::map( ~ purrr::map(., base::unlist)) %>%
-        # convert int to dbl (required for unnesting)
-        `if`(performance, timer(., "unify numerics"), .) %>% 
-        purrr::map( ~ purrr::map_if(., is.integer, as.double)) %>%
-        # set names 
-        `if`(performance, timer(., "setting column names"), .) %>% 
-        purrr::map2(., .y  = series_columns, ~ purrr::set_names(., nm = .y)) %>%
-        # influxdb ALWAYS stores data in GMT!!
-        `if`(performance, timer(., "set POSIX-based time index"), .) %>% 
-        purrr::map( ~ purrr::map_at(., .at = "time",
-                                    ~ as.POSIXct(. / div, 
-                                                 origin = "1970-1-1",
-                                                 tz = "GMT")) %>%
-                      tibble::as_tibble(., validate = FALSE))
+### rbind_list machinery
 
-      # is partial?
-      series_partial <-
-        ifelse(is.null(series_ele$partial), FALSE, TRUE)
-        
-      # RETURN AGGREGATED TIBBLE WITH LIST COLUMNS!
-      result <- tibble::tibble(statement_id,
-                               series_names,
-                               series_tags,
-                               series_values,
-                               series_partial)
-        
-      # unnest list-columns if content is present (here: tags)
-      series_tags_rows <- purrr::map_int(result$series_tags, nrow)
-      
-      if (all(series_tags_rows != 0)) {
-        result <- tidyr::unnest(result, series_tags, .drop = FALSE)
-      }
-      
-      # unnest list-columns if content is present (here: values)
-      series_values_rows <- purrr::map_int(result$series_values, nrow)
-
-      if (all(series_values_rows != 0))  {
-        result <- tidyr::unnest(result, series_values, .drop = FALSE)
-      }
-      
-    } else {
-      # in case of an error...
-      if (!is.null(series_ele$error)) {
-        stop(series_ele$error, call. = FALSE)
-      }
-    
-      warning("no series returned")
-      
-    }
-      
-    return(result)
-      
-  })
-  
-  ### in case of CHUNKED responses, concatenate tables with same statement_id
-  list_of_result <- list_of_result %>% # take the list of results
-    `if`(performance, timer(., "concatenate tables with same statement_id"), .) %>%
-    purrr::map("statement_id") %>% # extract "statement_id" of each result
-    purrr::map_int(unique) %>% # create a vector with unique "statement_id"
-    rle %>% # perform run length encoding to get the length of each "statement_id"
-    rle_seq_to_list %>% # own function to make a list of sequences from rle
-    purrr::map( ~ dplyr::bind_rows(list_of_result[.])) # rbind results
-  
-    
-  # return list of tibbles
-  return(list_of_result)
-  
+base_rbind_fallback <- function(lst) {
+  do.call(rbind.data.frame, c(lst, stringsAsFactors = FALSE, make.row.names = FALSE))
 }
 
-#' @keywords internal
-post_list_to_tibble <- function(x) {
-  #x <- debug_data
-  
-  # remove hierarchies:
-  # flatten list to get direct access to list of results
-  while (!("results" %in% names(x))) {
-    x <- x %>% purrr::flatten(.)
+dplyr_rbind_fallback <- function(lst) {
+  # dplyr requires names arguments; add dummies
+  if (is.null(names(lst[[1]]))) {
+    dummy_names <- as.character(seq_along(lst[[1]]))
+    lst <- lapply(lst, function(l) {names(l) <- dummy_names; l})
   }
-  
-  # flatten once again to get directly to "statement_id" and series
-  x <- x %>% purrr::flatten(.)
-  
-  # create tibbles of results
-  result_tbl <- purrr::map_df(x, tibble::as_tibble)
-  
-  # return ONE tibble
-  return(result_tbl)
+  dplyr::bind_rows(lst)
 }
 
+rbind_list <- local({
+  rl <- NULL
+  function(lst) {
+    if (is.null(rl)) {
+      rl <<-
+        switch(getOption("influxdbr.rbind.backend", "auto"),
+               data.table = data.table::rbindlist,
+               dplyr = dplyr_rbind_fallback,
+               base = base_rbind_fallback,
+               if (requireNamespace("data.table", quietly = TRUE)) {
+                 data.table::rbindlist
+               } else if (requireNamespace("dplyr", quietly = TRUE)) {
+                 dplyr_rbind_fallback
+               } else {
+                 base_rbind_fallback
+               })
+    }
+    rl(lst)
+  }
+})
+
+## environment(rbind_list)[["rl"]] <- data.table::rbindlist
+## environment(rbind_list)[["rl"]] <- dplyr_rbind_fallback
+## environment(rbind_list)[["rl"]] <- base_rbind_fallback
+
+series_to_df <- function(x) {
+  if (!is.null(x)) {
+    # Names are not uniquified, so user will be OK even if there is a collision.
+    out <- c(measurement = x$name,
+             if (!is.null(x$columns)) {
+               colnames <- unlist(x$columns, FALSE, FALSE)
+               if (is.null(x$values)) {
+                 ## corner case of null values (e.g. show_users)
+                 return(as.data.frame(matrix(nrow = 0, ncol = length(colnames), dimnames = list(NULL, colnames))))
+               } else {
+                 out <- rbind_list(.Call(`C_fill_nulls`, x$values))
+                 colnames(out) <- colnames
+                 out
+               }
+             },
+             x$tags,
+             list(check.names = FALSE, 
+                  stringsAsFactors = FALSE))
+    do.call(data.frame, out)
+  }
+}
+
+json_to_df1 <- function(x) {
+  if (!is.null(x$error))
+    stop(sprintf("influx error: %s", x$error))
+  out <- rbind_list(lapply(x$series, series_to_df))
+  attr(out, "statement_id") <- x$statement_id
+  attr(out, "tags") <- x$series[[1]]$tags
+  out
+}
+
+json_to_df <- function(x, time_format, tags_as_factors) {
+  out <-
+    unlist(x, recursive = FALSE, use.names = FALSE) %>% 
+    lapply(json_to_df1)
+  sids <- vapply(out, attr, 0L, "statement_id")
+  if (any(sids > 0)) {
+    ## multi-query
+    splits <- split(seq_along(sids), sids)
+    lapply(seq_along(splits),
+           function(i) {
+             bind_homogenuos_dfs(
+               out[splits[[i]]], time_format, tags_as_factors)
+           })
+  } else {
+    bind_homogenuos_dfs(out, time_format, tags_as_factors)
+  }
+}
+
+
+bind_homogenuos_dfs <- function(dfs, time_format, tags_as_factors) {
+  out <- rbind_list(dfs)
+  ## Return NULL on empty output. For queries with columns but no values
+  ## (e.g. show_users) nrow can be 0 with non 0 columns.
+  if (ncol(out) == 0)
+    return(NULL)
+  ## convert known tags to factors
+  if (tags_as_factors) {
+    tags <- attr(dfs[[1]], "tags")
+    if (!is.null(tags)) {
+      for (nm in names(tags))
+        out[[nm]] <- as.factor(out[[nm]])
+    }
+  }
+  ## schema exploration response don't have time column
+  if (!is.null(out$time)) {
+    out$time <-
+      .POSIXct(out$time/precision_divisor(time_format), tz = "UTC")
+    ## make time first for the sake of as.zoo/xts
+    out <- out[c("time", setdiff(names(out), "time"))]
+  }
+  class(out) <- c("influxdbr.response", "data.frame")
+  out
+}
+
+# Return a 3 level value irrespective of `chunked` option:
+# List of 3                  ; <- our paging
+# $ 1 :List of 3             ; <- chunks within a page
+#  ..$ :List of 3            ; <- series within a chunk
+#   .. ..$ statement_id: int 0
+#   .. ..$ series      :List of 1
+#   .. .. ..$ :List of 4
+#   .. .. .. ..$ name   : chr "A"
+#   .. .. .. ..$ tags   :List of 1
+#   .. .. .. .. ..$ b: chr "a"
+#   .. .. .. ..$ columns:List of 3
+#   .. .. .. .. ..$ : chr "time"
+#   .. .. .. .. ..$ : chr "a"
+#   .. .. .. .. ..$ : chr "c"
+#   .. .. .. ..$ values :List of 1
+#   .. .. .. .. ..$ :List of 3
+#   .. .. .. .. .. ..$ : num 1.56e+18
+#   .. .. .. .. .. ..$ : int 1
+#   .. .. .. .. .. ..$ : int 1
+#   .. ..$ partial     : logi TRUE
+#   ..$ :List of 3
+#   .. ..$ statement_id: int 0
+#   .. ..$ series      :List of 1
+#   .. .. ..$ :List of 4
+#   .. .. .. ..$ name   : chr "A"
+#   .. .. .. ..$ tags   :List of 1
+#   .. .. .. .. ..$ b: chr "b"
+#   .. .. .. ..$ columns:List of 3
 #' @keywords internal
-response_to_list <- function(x) {
-  # did we receive chunked results?
-  chunked <- grepl("partial", x, fixed = T)
-  
-  # if we've got chunked data, we need to split them by 'newlines', i.e. "\n"
+parse_response <- function(raw, chunked = TRUE, handler = NULL) {
+  # chunked = TRUE works even when there is one chunk, but it's somewhat slower
+  con <- rawConnection(raw, "rb")
+  on.exit(close(con))
+
   if (chunked) {
-    # split chunked response
-    x <- base::strsplit(x, split = "\n") %>%
-      purrr::flatten(.)
-  }
-  
-  # transform json to R's list data type
-  response_data <- purrr::map(x, 
-                              jsonlite::fromJSON,      
-                              simplifyVector = FALSE,
-                              simplifyDataFrame = FALSE,
-                              simplifyMatrix = FALSE)
-  
-  # return transformed data as R list
-  return(response_data)
-  
-}
 
-#' @keywords internal
-rle_seq_to_list <- function(x) {
-  # prepare function output: list of sequences
-  idx_lst <- vector(mode = "list", length = length(x$lengths))
-  
-  # add starting 0
-  x <- c(0, cumsum(x$lengths))
-  
-  # map instead of for loop ?? (no speed gain expected, only for consistency)
-  for (i in seq_len(length(idx_lst))) {
-    # create the sequences
-    idx_lst[[i]] <- seq(x[i] + 1, x[i + 1])
+    env <- NULL
+    if (is.null(handler)) {
+      env <- new.env()
+      i <- 0
+      handler <- function(out) {
+          i <<- i + 1
+          assign(as.character(i), out, envir = env)
+        }
+    }
+
+    pagesize <- 100
+    repeat {
+      pages <- readLines(con, n = pagesize, encoding = "UTF-8")
+      if (length(pages) > 0) {
+        handler(lapply(pages[nzchar(pages)],
+                       function(el) jsonlite::parse_json(el)[[1]][[1]]))
+      }
+      if(length(pages) < pagesize)
+        break
+    }
+    if (!is.null(env) && length(env) > 0) {
+      as.list(env)
+    }
     
+  } else {
+    jsonlite::parse_json(con)
   }
-  # return index list: e.g.: [[1]] 1 2 3 4 [[2]] 5 6 7 8
-  return(idx_lst)
 }
 
-#' @keywords internal
-tibble_to_xts <- function(x) {
-  # x <- list_of_result[[1]]
-  #
-  # a tibble header looks like:
-  #    statement_id series_names series_partial   [tags]     time [fields]
-  # *         <int>        <chr>          <lgl>      ...   <dttm>
-  
-  # assign group identifier for all columns but time and field
-  list_of_tibble <- x %>%
-    # remove series_tags in case of zero tags
-    `if`("series_tags" %in% colnames(.),
-         dplyr::select(.,-series_tags),
-         .) %>%
-    # select all "tagkey" columns
-    dplyr::select(statement_id:time,-time) %>%
-    # create a group index
-    dplyr::group_indices(!!!rlang::syms(colnames(.))) %>%
-    # add group index to tibble
-    dplyr::mutate(x, grp_idx = .) %>%
-    # create list of tibble by group
-    split(., .[["grp_idx"]]) %>%
-    # remove index
-    purrr::map( ~ dplyr::select(.,-grp_idx))
-  
-  # extract unique tag sets
-  list_of_tags <- list_of_tibble %>%
-    purrr::map( ~ dplyr::select(., statement_id:time, -time) %>%
-                  dplyr::distinct() %>% 
-                  as.list)
-  
-  # create list_of_values from each "field" column
-  # hint: We create an xts object for each column to preserve the column type.
-  # An xts object is based on a matrix and thus can store one type only.
-  list_of_values <- list_of_tibble %>%
-    purrr::map( ~ dplyr::select(.,-(statement_id:time)) %>% 
-                  as.list)
-  
-  # create list_of_times
-  list_of_times <- list_of_tibble %>%
-    purrr::map( ~ dplyr::select(., time) %>% 
-                  as.list)
-  
-  # create list of xts
-  list_of_xts <- list(list_of_values, list_of_times, list_of_tags) %>%
-    purrr::pmap(function(x, y, z) {
-      purrr::map2(.x = x, .y = names(x), function(a, b) {
-        ts <- xts::xts(a, order.by = y[[1]], tzone = "GMT") # influx always returns GMT
-        colnames(ts) <- b # rename column according to field value
-        return(ts) 
-        }) %>%
-        purrr::map(., function(c) {
-          xts::xtsAttributes(c) <- purrr::flatten(z)
-          return(c)
-        })
-    }) %>%
-    purrr::flatten(.)
-  
-  # rename list elements according to series name
-  names(list_of_xts) <-
-    list_of_tags %>% 
-    purrr::map_chr("series_names") %>% 
-    purrr::map2(., .y = purrr::map_int(list_of_values, length), 
-                    ~ rep(.x, each = .y)) %>% 
-    purrr::flatten_chr(.)
-  
-  return(list_of_xts)
-  
-}
-
-#' @keywords internal
-result_is_empty <- function(x) {
-  # (!any(grepl("time", colnames(x)))
-  nrow(x) == 1 && all(is.na(x[1, ]))
-}
-
-#' @keywords internal
-result_is_not_null <- function(x) {
-  !is.null(x)
-}

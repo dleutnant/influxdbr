@@ -25,7 +25,8 @@ show_field_keys(con, db, measurement = NULL)
 show_retention_policies(con, db)
 }
 \arguments{
-\item{con}{An \code{influx_connection} object (s. \code{\link{influx_connection}}).}
+\item{con}{An \code{influx_connection} object
+(s. \code{\link{influx_connection}}).}
 
 \item{db}{Sets the target database for the query.}
 

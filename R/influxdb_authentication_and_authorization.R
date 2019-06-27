@@ -16,110 +16,54 @@
 #' @param db  Sets the target database.
 #' @return A tibble containing post results in case of an error (or message).
 #' Otherwise NULL (invisibly). `show_users()` and `show_grants()` return a tibble.
-#' @name create_user
+#' @name user_management
 #' @seealso \code{\link[influxdbr]{influx_connection}}
 #' @references \url{https://docs.influxdata.com/influxdb/}
 NULL
 
 #' @export
-#' @rdname create_user
+#' @rdname user_management
 create_user <- function(con, username, password) {
   options("useFancyQuotes" = FALSE)
-  
-  result <- influx_post(
-    con = con,
-    query = paste(
-      "CREATE USER",
-      username,
-      "WITH PASSWORD",
-      base::sQuote(password)
-    )
-  )
-  
-  
-  if (!is.null(result)) {
-    return(result)
-  }
-  
-  invisible(result)
-  
+  query <- qpaste("CREATE USER" = username,
+                  "WITH PASSWORD" = base::sQuote(password))
+  invisible(influx_post(con = con, query = query))
 }
 
 #' @export
-#' @rdname create_user
+#' @rdname user_management
 drop_user <- function(con, username) {
-  result <- influx_post(con = con,
-                        query = paste("DROP USER", username))
-  
-  if (!is.null(result)) {
-    return(result)
-  }
-  
-  invisible(result)
-  
+  invisible(influx_post(con = con, query = paste("DROP USER", username)))
 }
 
 #' @export
-#' @rdname create_user
-grant_privileges <- function(con,
-                             privilege = c("READ", "WRITE", "ALL"),
-                             db,
-                             username) {
-  result <- influx_post(con = con,
-                        query = paste("GRANT", match.arg(privilege),
-                                      "ON", db,
-                                      "TO", username))
-  
-  if (!is.null(result)) {
-    return(result)
-  }
-  
-  invisible(result)
-  
+#' @rdname user_management
+grant_privileges <- function(con, db, username,
+                             privilege = c("READ", "WRITE", "ALL")) {
+  query <- qpaste("GRANT" = match.arg(privilege),
+                  "ON" = db,
+                  "TO" = username)
+  invisible(influx_post(con = con, query = query))
 }
 
 #' @export
-#' @rdname create_user
-revoke_privileges <- function(con,
-                              privilege = c("READ", "WRITE", "ALL"),
-                              db,
-                              username) {
-  result <- influx_post(con = con,
-                        query = paste("REVOKE", match.arg(privilege),
-                                      "ON", db,
-                                      "FROM", username))
-  
-  if (!is.null(result)) {
-    return(result)
-  }
-  
-  invisible(result)
-  
+#' @rdname user_management
+revoke_privileges <- function(con, db, username,
+                              privilege = c("READ", "WRITE", "ALL")) {
+  query <- qpaste("REVOKE" = match.arg(privilege),
+                  "ON" = db,
+                  "FROM" = username)
+  invisible(influx_post(con = con, query = query))
 }
 
 #' @export
-#' @rdname create_user
+#' @rdname user_management
 show_users <- function(con) {
-  result <- influx_query(con = con,
-                         query = "SHOW USERS",
-                         return_xts = FALSE) %>%
-    purrr::map_df( ~ dplyr::select(., user, admin))
-  
-  return(result)
-  
+  influx_query(con = con, query = "SHOW USERS")
 }
 
 #' @export
-#' @rdname create_user
+#' @rdname user_management
 show_grants <- function(con, username) {
-  result <- influx_query(
-    con = con,
-    query = paste("SHOW GRANTS FOR",
-                  username),
-    return_xts = FALSE
-  ) %>%
-    purrr::map_df( ~ dplyr::select(., database, privilege))
-  
-  return(result)
-  
+  influx_query(con = con, query = paste("SHOW GRANTS FOR", username))
 }

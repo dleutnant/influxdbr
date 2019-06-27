@@ -87,7 +87,7 @@ influx_connection <-  function(scheme = c("http", "https"),
   }
   
   # create list of server connection details
-  influxdb_srv <-
+  con <-
     list(
       scheme = match.arg(scheme, c("http", "https")),
       host = host,
@@ -101,22 +101,21 @@ influx_connection <-  function(scheme = c("http", "https"),
   # submit test ping
   response <- httr::GET(
     url = "",
-    scheme = influxdb_srv$scheme,
-    hostname = influxdb_srv$host,
-    port = influxdb_srv$port,
-    path = paste0(influxdb_srv$path, "ping"),
-    config = influxdb_srv$config
+    scheme = con$scheme,
+    hostname = con$host,
+    port = con$port,
+    path = paste0(con$path, "ping"),
+    config = con$config
   )
   
   # print url
   if (verbose) print(response$url)
-  
-  # Check for communication errors
-  check_srv_comm(response)
-  
-  # print server response
-  message(httr::http_status(response)$message)
-  invisible(influxdb_srv)
+  check_response_errors(response)
+
+  con[["url"]] <- response$url
+  con[["status"]] <- httr::http_status(response)
+  class(con) <- "influxdbr.connection"
+  invisible(con)
 }
 
 #' @title Ping an influxdb server
@@ -124,27 +123,11 @@ influx_connection <-  function(scheme = c("http", "https"),
 #' (e.g. for connection testing)
 #' @inheritParams influx_query
 #'
-#' @return A tibble with server information.
-#' @rdname influx_ping
+#' @return Raw \code{httr} GET response.
+#' @rdname influx_connection
 #' @export
 #' @seealso \code{\link[influxdbr]{influx_connection}}
 #' @references \url{https://docs.influxdata.com/influxdb/}
 influx_ping <- function(con) {
-  
-  # submit ping
-  response <- httr_GET(con = con, endpoint = "ping")
-  
-  res <- response$all_headers %>%
-    purrr::flatten() %>%
-    purrr::map_at("headers", tibble::as_tibble) %>%
-    as.data.frame() %>%
-    tibble::as_tibble()
-  
-  return(res)
-  
+  invisible(httr_GET(con = con, endpoint = "ping"))
 }
-
-
-
-
-

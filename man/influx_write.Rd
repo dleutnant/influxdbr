@@ -25,7 +25,8 @@ influx_write(x, con, db, measurement, rp = NULL, precision = c("s",
 \item{x}{The object to write to an InfluxDB server (either of class \code{xts} or
 \code{data.frame}).}
 
-\item{con}{An \code{influx_connection} object (s. \code{\link{influx_connection}}).}
+\item{con}{An \code{influx_connection} object
+(s. \code{\link{influx_connection}}).}
 
 \item{db}{Sets the target database for the query.}
 
