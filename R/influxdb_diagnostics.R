@@ -12,7 +12,7 @@ show_stats <- function(con) {
   result <- influx_query(con = con,
                          query = "SHOW STATS",
                          return_xts = FALSE) %>%
-    purrr::map_df( ~ tidyr::unnest(., series_tags, .drop = FALSE)) %>%
+    purrr::map_df( ~ tidyr::unnest(., series_tags)) %>%
     dplyr::select(., series_names, database, Alloc:bind) %>%
     tidyr::gather(info, value, Alloc:bind) %>%
     dplyr::filter(!is.na(value)) %>%

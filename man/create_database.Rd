@@ -21,11 +21,23 @@ delete(con, db, measurement = NULL, where = NULL)
 
 drop_measurement(con, db, measurement)
 
-create_retention_policy(con, db, rp_name, duration, replication,
-  default = FALSE)
+create_retention_policy(
+  con,
+  db,
+  rp_name,
+  duration,
+  replication,
+  default = FALSE
+)
 
-alter_retention_policy(con, db, rp_name, duration, replication,
-  default = FALSE)
+alter_retention_policy(
+  con,
+  db,
+  rp_name,
+  duration,
+  replication,
+  default = FALSE
+)
 
 drop_retention_policy(con, db, rp_name)
 }

@@ -96,14 +96,14 @@ query_list_to_tibble <- function(x, timestamp_format) {
       series_tags_rows <- purrr::map_int(result$series_tags, nrow)
       
       if (all(series_tags_rows != 0)) {
-        result <- tidyr::unnest(result, series_tags, .drop = FALSE)
+        result <- tidyr::unnest(result, series_tags)
       }
       
       # unnest list-columns if content is present (here: values)
       series_values_rows <- purrr::map_int(result$series_values, nrow)
 
       if (all(series_values_rows != 0))  {
-        result <- tidyr::unnest(result, series_values, .drop = FALSE)
+        result <- tidyr::unnest(result, series_values)
       }
       
     } else {

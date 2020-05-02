@@ -6,20 +6,47 @@
 \alias{influx_write.data.frame}
 \title{Write an xts or data.frame object to an InfluxDB server}
 \usage{
-influx_write(x, con, db, measurement, rp = NULL, precision = c("s",
-  "ns", "u", "ms", "m", "h"), consistency = c(NULL, "one", "quroum",
-  "all", "any"), max_points = 5000, use_integers = FALSE, ...)
-
-\method{influx_write}{xts}(x, con, db, measurement, rp = NULL,
-  precision = c("s", "ns", "u", "ms", "m", "h"), consistency = c(NULL,
-  "one", "quroum", "all", "any"), max_points = 5000,
-  use_integers = FALSE, ...)
-
-\method{influx_write}{data.frame}(x, con, db, measurement = NULL,
-  rp = NULL, precision = c("s", "ns", "u", "ms", "m", "h"),
+influx_write(
+  x,
+  con,
+  db,
+  measurement,
+  rp = NULL,
+  precision = c("s", "ns", "u", "ms", "m", "h"),
   consistency = c(NULL, "one", "quroum", "all", "any"),
-  max_points = 5000, use_integers = FALSE, time_col = NULL,
-  tag_cols = NULL, measurement_col = NULL, ...)
+  max_points = 5000,
+  use_integers = FALSE,
+  ...
+)
+
+\method{influx_write}{xts}(
+  x,
+  con,
+  db,
+  measurement,
+  rp = NULL,
+  precision = c("s", "ns", "u", "ms", "m", "h"),
+  consistency = c(NULL, "one", "quroum", "all", "any"),
+  max_points = 5000,
+  use_integers = FALSE,
+  ...
+)
+
+\method{influx_write}{data.frame}(
+  x,
+  con,
+  db,
+  measurement = NULL,
+  rp = NULL,
+  precision = c("s", "ns", "u", "ms", "m", "h"),
+  consistency = c(NULL, "one", "quroum", "all", "any"),
+  max_points = 5000,
+  use_integers = FALSE,
+  time_col = NULL,
+  tag_cols = NULL,
+  measurement_col = NULL,
+  ...
+)
 }
 \arguments{
 \item{x}{The object to write to an InfluxDB server (either of class \code{xts} or
