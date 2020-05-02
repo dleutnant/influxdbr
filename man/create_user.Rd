@@ -13,11 +13,9 @@ create_user(con, username, password)
 
 drop_user(con, username)
 
-grant_privileges(con, privilege = c("READ", "WRITE", "ALL"), db,
-  username)
+grant_privileges(con, privilege = c("READ", "WRITE", "ALL"), db, username)
 
-revoke_privileges(con, privilege = c("READ", "WRITE", "ALL"), db,
-  username)
+revoke_privileges(con, privilege = c("READ", "WRITE", "ALL"), db, username)
 
 show_users(con)
 

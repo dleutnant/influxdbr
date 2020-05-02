@@ -4,9 +4,15 @@
 \alias{influx_query}
 \title{Query an InfluxDB server}
 \usage{
-influx_query(con, db = NULL, query = "SELECT * FROM measurement",
+influx_query(
+  con,
+  db = NULL,
+  query = "SELECT * FROM measurement",
   timestamp_format = c("n", "u", "ms", "s", "m", "h"),
-  return_xts = TRUE, chunked = FALSE, simplifyList = FALSE)
+  return_xts = TRUE,
+  chunked = FALSE,
+  simplifyList = FALSE
+)
 }
 \arguments{
 \item{con}{An \code{influx_connection} object (s. \code{\link{influx_connection}}).}

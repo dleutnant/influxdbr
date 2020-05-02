@@ -3,7 +3,6 @@
 \docType{package}
 \name{influxdbr}
 \alias{influxdbr}
-\alias{influxdbr-package}
 \title{\code{influxdbr} package}
 \description{
 R Interface for InfluxDB

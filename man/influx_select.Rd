@@ -4,10 +4,21 @@
 \alias{influx_select}
 \title{influx select helper}
 \usage{
-influx_select(con, db, field_keys, rp = NULL, measurement,
-  where = NULL, group_by = NULL, limit = NULL, slimit = FALSE,
-  offset = NULL, order_desc = FALSE, return_xts = TRUE,
-  simplifyList = FALSE)
+influx_select(
+  con,
+  db,
+  field_keys,
+  rp = NULL,
+  measurement,
+  where = NULL,
+  group_by = NULL,
+  limit = NULL,
+  slimit = FALSE,
+  offset = NULL,
+  order_desc = FALSE,
+  return_xts = TRUE,
+  simplifyList = FALSE
+)
 }
 \arguments{
 \item{con}{An \code{influx_connection} object (s. \code{\link{influx_connection}}).}

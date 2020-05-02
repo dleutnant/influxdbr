@@ -4,10 +4,18 @@
 \alias{influx_connection}
 \title{Create an influxdb_connection object}
 \usage{
-influx_connection(scheme = c("http", "https"), host = "localhost",
-  port = 8086, user = "user", pass = "pass", path = "/",
-  group = NULL, verbose = FALSE, config_file = "~/.influxdb.cnf",
-  curl_options = NULL)
+influx_connection(
+  scheme = c("http", "https"),
+  host = "localhost",
+  port = 8086,
+  user = "user",
+  pass = "pass",
+  path = "/",
+  group = NULL,
+  verbose = FALSE,
+  config_file = "~/.influxdb.cnf",
+  curl_options = NULL
+)
 }
 \arguments{
 \item{scheme}{The scheme to use, either http or https. Defaults to http.}
