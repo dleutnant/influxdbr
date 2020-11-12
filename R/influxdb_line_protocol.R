@@ -112,13 +112,13 @@ convert_to_line_protocol.xts <- function(x,
 
   # no tags assigned
   if (is.null(tag_values) | identical(character(0), tag_values)) {
-    influxdb_line_protocol <- paste(measurement,
+    influxdb_line_protocol <- paste(shQuote(measurement),
                                     values,
                                     time,
                                     collapse = "\n")
   } else {
     influxdb_line_protocol <- paste(
-      measurement,
+      shQuote(measurement),
       paste(",", tag_key_value, sep = ""),
       " ",
       values,

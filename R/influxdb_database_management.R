@@ -65,7 +65,7 @@ drop_series <- function(con,
   
   query <- ifelse(is.null(measurement),
                   query,
-                  paste(query, "FROM", measurement))
+                  paste(query, "FROM", shQuote(measurement)))
   
   query <- ifelse(is.null(where),
                   query,
@@ -96,7 +96,7 @@ delete <- function(con,
   
   query <- ifelse(is.null(measurement),
                   query,
-                  paste(query, "FROM", measurement))
+                  paste(query, "FROM", shQuote(measurement)))
   
   query <- ifelse(is.null(where),
                   query,
@@ -123,7 +123,7 @@ drop_measurement <- function(con, db, measurement) {
     con = con,
     db = db,
     query = paste("DROP MEASUREMENT",
-                  measurement)
+                  shQuote(measurement))
   )
   
   if (!is.null(result)) {
