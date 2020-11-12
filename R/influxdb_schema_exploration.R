@@ -58,7 +58,7 @@ show_series <- function(con,
                         where = NULL) {
   query <- ifelse(is.null(measurement),
                   "SHOW SERIES",
-                  paste("SHOW SERIES FROM", measurement))
+                  paste("SHOW SERIES FROM", shQuote(measurement)))
   
   query <- ifelse(is.null(where),
                   query,
@@ -83,7 +83,7 @@ show_series <- function(con,
 show_tag_keys <- function(con, db, measurement = NULL) {
   query <- ifelse(is.null(measurement),
                   "SHOW TAG KEYS",
-                  paste("SHOW TAG KEYS FROM", measurement))
+                  paste("SHOW TAG KEYS FROM", shQuote(measurement)))
   
   result <- influx_query(
     con = con,
@@ -107,7 +107,7 @@ show_tag_values <- function(con, db, measurement = NULL, key) {
   
   query <- ifelse(is.null(measurement),
                   "SHOW TAG VALUES",
-                  paste("SHOW TAG VALUES FROM", measurement)) %>%
+                  paste("SHOW TAG VALUES FROM", shQuote(measurement))) %>%
     paste(., " WITH KEY=", base::dQuote(key), sep = "")
   
   result <- influx_query(
@@ -127,7 +127,7 @@ show_tag_values <- function(con, db, measurement = NULL, key) {
 show_field_keys <- function(con, db, measurement = NULL) {
   query <- ifelse(is.null(measurement),
                   "SHOW FIELD KEYS",
-                  paste("SHOW FIELD KEYS FROM", measurement))
+                  paste("SHOW FIELD KEYS FROM", shQuote(measurement)))
   
   result <- influx_query(
     con = con,
