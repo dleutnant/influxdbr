@@ -105,7 +105,11 @@ influx_connection <-  function(scheme = c("http", "https"),
     hostname = influxdb_srv$host,
     port = influxdb_srv$port,
     path = paste0(influxdb_srv$path, "ping"),
-    config = influxdb_srv$config
+    config = influxdb_srv$config,
+    httr::authenticate(
+      influxdb_srv$user, 
+      influxdb_srv$pass
+    )
   )
   
   # print url
